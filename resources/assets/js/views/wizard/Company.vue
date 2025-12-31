@@ -16,33 +16,16 @@
 
                         <div class="flex flex-col justify-between -mt-5 sm:mt-0">
                             <div class="grid sm:grid-cols-6 gap-x-8 gap-y-6 my-3.5 menu-scroll gap-10">
-                                <div class="sm:col-span-6">
-                                    <base-input
-                                        not-required
-                                        :label="translations.company.api_key"
-                                        name="api_key"
-                                        data-name="api_key"
-                                        :placeholder="translations.company.api_key"
-                                        v-model="company.api_key"
-                                        :error="onFailErrorGet('api_key')"
-                                    />
-
-                                    <div class="mt-2">
-                                        <small>
-                                            <a href="https://akaunting.com/dashboard" class="text-green" target="_blank">Click here</a>
-                                                to get your API key.
-                                        </small>
-                                    </div>
-                                </div>
+                                <!-- Campo API Key eliminado -->
 
                                 <div class="sm:col-span-3">
                                     <base-input
                                         not-required
                                         type="text"
-                                        :label="translations.company.tax_number"
+                                        label="RUC / DNI"
                                         name="tax_number"
                                         data-name="tax_number"
-                                        :placeholder="translations.company.tax_number"
+                                        placeholder="RUC / DNI"
                                         v-model="company.tax_number"
                                         :error="onFailErrorGet('tax_number')"
                                     />
@@ -51,15 +34,16 @@
                                 <div class="sm:col-span-3">
                                     <akaunting-date
                                         not-required 
-                                        :title="translations.company.financial_start"
+                                        title="Comienzo del Año Fiscal"
                                         data-name="financial_start"
-                                        :placeholder="translations.company.financial_start"
+                                        placeholder="01-01"
                                         icon="calendar_today"
                                         :date-config="{
                                             dateFormat: 'd-m',
                                             allowInput: false,
                                             altInput: true,
-                                            altFormat: 'j F'
+                                            altFormat: 'j F',
+                                            locale: 'es'
                                         }"
                                         v-model="company.financial_start"
                                         :form-error="onFailErrorGet('financial_start')"
@@ -68,25 +52,28 @@
 
                                 <div class="sm:col-span-3 grid gap-y-4">
                                     <div class="sm:col-span-3">
-                                        <base-input not-required :label="translations.company.address" :error="onFailErrorGet('address')">
-                                            <textarea class="w-full text-sm px-3 py-2.5 mt-1 rounded-lg border border-light-gray text-black placeholder-light-gray bg-white disabled:bg-gray-200 focus:outline-none focus:ring-transparent focus:border-purple" name="address" data-name="address" rows="3" :placeholder="translations.company.address" v-model="company.address"></textarea>
+                                        <base-input not-required label="Dirección" :error="onFailErrorGet('address')">
+                                            <textarea class="w-full text-sm px-3 py-2.5 mt-1 rounded-lg border border-light-gray text-black placeholder-light-gray bg-white disabled:bg-gray-200 focus:outline-none focus:ring-transparent focus:border-purple" name="address" data-name="address" rows="2" placeholder="Dirección" v-model="company.address"></textarea>
                                         </base-input>
                                     </div>
 
-                                    <div class="sm:col-span-3">
-                                        <base-input not-required :label="translations.company.country" :error="onFailErrorGet('country')">
-                                            <el-select v-model="company.country" filterable>
-                                                <el-option
-                                                    v-for="(country, index) in sortedCountries"
-                                                    :key="index"
-                                                    :label="country.value"
-                                                    :value="country.key"
-                                                >
-                                                </el-option>
-                                            </el-select>
-                                        </base-input>
+                                    <div class="sm:col-span-3 grid grid-cols-2 gap-4">
+                                        <base-input not-required label="Distrito" name="district" data-name="district" placeholder="Distrito" v-model="company.district" />
+                                        <base-input not-required label="Provincia" name="province" data-name="province" placeholder="Provincia" v-model="company.province" />
+                                    </div>
 
-                                        <input name="country" type="hidden" class="d-none" v-model="company.country">
+                                    <div class="sm:col-span-3 grid grid-cols-2 gap-4">
+                                        <base-input not-required label="Departamento" name="region" data-name="region" placeholder="Departamento" v-model="company.region" />
+                                        <base-input not-required label="Ubigeo" name="ubigeo" data-name="ubigeo" placeholder="Código de 6 dígitos" v-model="company.ubigeo" />
+                                    </div>
+
+                                    <div class="sm:col-span-3">
+                                        <base-input not-required label="País">
+                                            <select name="country" class="w-full text-sm px-3 py-2.5 mt-1 rounded-lg border border-light-gray text-black bg-gray-100 cursor-not-allowed" disabled v-model="company.country">
+                                                <option value="PE">Peru</option>
+                                            </select>
+                                            <input type="hidden" name="country" value="PE">
+                                        </base-input>
                                     </div>
                                 </div>
 
@@ -95,7 +82,7 @@
                                         {{  translations.company.logo }}
                                     </label>
 
-                                    <akaunting-dropzone-file-upload ref="dropzoneWizard" class="form-file dropzone-column" style="width: 10.8rem; height: 10.8rem;" preview-classes="single" :attachments="logo" :v-model="logo">
+                                    <akaunting-dropzone-file-upload ref="dropzoneWizard" class="form-file dropzone-column" style="width: 10.8rem; height: 10.8rem;" preview-classes="single" :attachments="logo" :v-model="logo" text-drop-file="Arrastra tu logo aquí" text-choose-file="Elegir archivo">
                                     </akaunting-dropzone-file-upload>
 
                                     <div v-if="onFailErrorGet('logo')" class="text-red text-sm mt-1 block" v-html="onFailErrorGet('logo')"></div>
@@ -227,6 +214,9 @@
 
         mounted() {
             let company_data = this.company;
+
+            this.company.country = 'PE';
+            this.company.financial_start = '01-01';
 
             this.onDataWatch(company_data);
         },

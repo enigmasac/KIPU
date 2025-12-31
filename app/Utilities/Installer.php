@@ -240,8 +240,9 @@ class Installer
             'name' => $name,
             'domain' => '',
             'email' => $email,
-            'currency' => 'USD',
+            'currency' => 'PEN',
             'locale' => $locale,
+            'country' => 'PE',
             'enabled' => '1',
         ]));
     }

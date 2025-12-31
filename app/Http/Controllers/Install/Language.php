@@ -16,10 +16,17 @@ class Language extends Controller
     {
         $locale = config('app.locale');
 
-        $lang_allowed = language()->allowed();
+        $all_langs = language()->allowed();
+        $lang_allowed = [];
+
+        foreach (['es-ES', 'en-US'] as $code) {
+            if (isset($all_langs[$code])) {
+                $lang_allowed[$code] = $all_langs[$code];
+            }
+        }
 
         if (! $locale || ! array_key_exists($locale, $lang_allowed)) {
-            $locale = 'en-GB';
+            $locale = 'es-ES';
         }
 
         return view('install.language.create', compact('locale', 'lang_allowed'));
@@ -50,10 +57,17 @@ class Language extends Controller
      */
     public function getLanguages()
     {
-        $response = [
-            'languages' => language()->allowed(),
-        ];
+        $all_langs = language()->allowed();
+        $languages = [];
 
-        return response()->json($response);
+        foreach (['es-ES', 'en-US'] as $code) {
+            if (isset($all_langs[$code])) {
+                $languages[$code] = $all_langs[$code];
+            }
+        }
+
+        return response()->json([
+            'languages' => $languages,
+        ]);
     }
 }
