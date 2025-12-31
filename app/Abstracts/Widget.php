@@ -91,10 +91,6 @@ abstract class Widget
 
     public function view($name, $data = [])
     {
-        if (request_is_api()) {
-            return $data;
-        }
-
         return view($name, array_merge(['class' => $this], (array) $data));
     }
 

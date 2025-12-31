@@ -96,10 +96,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if (request_is_api($request)) {
-            return $this->handleApiExceptions($request, $exception);
-        }
-
         if (config('app.debug') === false) {
             return $this->handleWebExceptions($request, $exception);
         }
@@ -223,23 +219,6 @@ class Handler extends ExceptionHandler
         }
 
         return parent::render($request, $exception);
-    }
-
-    protected function handleApiExceptions($request, $exception): Response
-    {
-        $replacements = $this->prepareApiReplacements($exception);
-
-        $response = config('api.error_format');
-
-        array_walk_recursive($response, function (&$value, $key) use ($replacements) {
-            if (Str::startsWith($value, ':') && isset($replacements[$value])) {
-                $value = $replacements[$value];
-            }
-        });
-
-        $response = $this->recursivelyRemoveEmptyApiReplacements($response);
-
-        return new Response($response, $this->getStatusCode($exception), $this->getHeaders($exception));
     }
 
     protected function handleMailerExceptions(MailerHttpTransportException $exception): string

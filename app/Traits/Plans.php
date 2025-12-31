@@ -58,45 +58,27 @@ trait Plans
 
     public function getPlanLimitByType($type): object
     {
-        if (! config('app.installed') || running_in_test()) {
-            $limit = new \stdClass();
+        $limit = new \stdClass();
 
-            $limit->action_status = true;
-            $limit->view_status = true;
-            $limit->message = "Success";
-
-            return $limit;
-        }
-
-        if (! $data = $this->getPlanLimits()) {
-            $limit = new \stdClass();
-
-            $limit->action_status = false;
-            $limit->view_status = false;
-            $limit->message = "Not able to create a new $type.";
-
-            return $limit;
-        }
-
-        $limit = $data->$type;
-
-        $limit->message = str_replace('{company_id}', company_id(), $limit->message);
+        $limit->action_status = true;
+        $limit->view_status = true;
+        $limit->message = "Success";
 
         return $limit;
     }
 
     public function getPlanLimits(): bool|object
     {
-        $key = 'plans.limits';
+        $data = new \stdClass();
+        $types = ['user', 'company', 'invoice', 'customer'];
 
-        return Cache::remember($key, Date::now()->addHour(), function () {
-            $url = 'plans/limits';
+        foreach ($types as $type) {
+            $data->$type = new \stdClass();
+            $data->$type->action_status = true;
+            $data->$type->view_status = true;
+            $data->$type->message = "Success";
+        }
 
-            if (! $data = static::getResponseData('GET', $url, ['timeout' => 10])) {
-                return false;
-            }
-
-            return $data;
-        });
+        return $data;
     }
 }

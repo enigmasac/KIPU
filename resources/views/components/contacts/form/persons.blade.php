@@ -1,8 +1,8 @@
 <x-form.section column-number="overflow-x-scroll large-overflow-unset">
     <x-slot name="head">
         <x-form.section.head
-            title="{{ trans_choice($textSectionPersonsTitle, 2) }}"
-            description="{{ trans($textSectionPersonsDescription) }}"
+            title="Personas de contacto"
+            description="Para incluir destinatarios adicionales en un correo electrónico como CC, agréguelos como personas de contacto."
         />
     </x-slot>
 
@@ -10,16 +10,20 @@
         <x-table class="flex flex-col divide-y divide-gray-200">
             <x-table.thead>
                 <x-table.tr>
-                    <x-table.th class="w-4/12">
+                    <x-table.th class="w-3/12">
                         {{ trans('general.name') }}
                     </x-table.th>
 
-                    <x-table.th class="w-4/12">
+                    <x-table.th class="w-3/12">
                         {{ trans('general.email') }}
                     </x-table.th>
 
-                    <x-table.th class="w-4/12">
+                    <x-table.th class="w-3/12">
                         {{ trans('general.phone') }}
+                    </x-table.th>
+
+                    <x-table.th class="w-3/12">
+                        Cargo / Área
                     </x-table.th>
 
                     <x-table.th class="w-6 none-truncate text-right align-top group" override="class"></x-table.th>
@@ -28,7 +32,7 @@
 
             <x-table.tbody>
                 <x-table.tr class="relative flex items-start px-1 group/actions border-b" v-for="(row, index) in form.contact_persons" ::index="index">
-                    <x-table.td class="w-4/12">
+                    <x-table.td class="w-3/12">
                         <x-form.group.text 
                             name="contact_persons[][name]" 
                             data-item="name" 
@@ -40,7 +44,7 @@
                         />
                     </x-table.td>
 
-                    <x-table.td class="w-4/12">
+                    <x-table.td class="w-3/12">
                         <x-form.group.text 
                             name="contact_persons[][email]" 
                             data-item="email" 
@@ -52,7 +56,7 @@
                         />
                     </x-table.td>
 
-                    <x-table.td class="w-4/12">
+                    <x-table.td class="w-3/12">
                         <x-form.group.text 
                             name="contact_persons[][phone]" 
                             data-item="phone" 
@@ -61,6 +65,18 @@
                             placeholder="{{ trans('general.phone') }}"
                             v-error="form.errors.has('contact_persons.' + index + '.phone')" 
                             v-error-message="form.errors.get('contact_persons.' + index + '.phone')"
+                        />
+                    </x-table.td>
+
+                    <x-table.td class="w-3/12">
+                        <x-form.group.text 
+                            name="contact_persons[][position]" 
+                            data-item="position" 
+                            v-model="row.position" 
+                            @change="forceUpdate()" 
+                            placeholder="Cargo / Área"
+                            v-error="form.errors.has('contact_persons.' + index + '.position')" 
+                            v-error-message="form.errors.get('contact_persons.' + index + '.position')"
                         />
                     </x-table.td>
 
@@ -77,7 +93,7 @@
                             <x-button type="button" @click="onAddPerson" override="class" class="w-full h-10 flex items-center justify-center text-purple font-medium disabled:bg-gray-200 hover:bg-gray-100">
                                 <span class="material-icons-outlined text-base font-bold ltr:mr-1 rtl:ml-1">add</span>
 
-                                {{ trans('general.form.add', ['field' => trans_choice('general.contact_persons', 1)]) }}
+                                Agregar una persona de contacto
                             </x-button>
                         </div>
                     </x-table.td>

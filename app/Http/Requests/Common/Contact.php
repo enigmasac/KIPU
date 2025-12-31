@@ -54,6 +54,9 @@ class Contact extends FormRequest
 
         $rules = [
             'type'          => 'required|string',
+            'document_type' => 'nullable|string',
+            'default_sunat_document_type' => 'nullable|string',
+            'default_sunat_operation_type' => 'nullable|string',
             'name'          => 'required|string',
             'email'         => $email,
             'user_id'       => 'integer|nullable',

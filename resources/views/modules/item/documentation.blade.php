@@ -4,12 +4,8 @@
     </x-slot>
 
     <x-slot name="buttons">
-        <x-link href="{{ route('apps.api-key.create') }}">
-            {{ trans('modules.api_key') }}
-        </x-link>
-
-        <x-link href="{{ route('apps.my.index') }}">
-            {{ trans('modules.my_apps') }}
+        <x-link href="{{ route('apps.home.index') }}" class="btn-white">
+            {{ trans('general.back') }}
         </x-link>
     </x-slot>
 

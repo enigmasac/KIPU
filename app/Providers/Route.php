@@ -101,16 +101,6 @@ class Route extends Provider
                 'as'            => 'signed.' . $alias . '.',
             ], $attributes));
         });
-
-        Facade::macro('api', function ($alias, $routes, $attributes = []) {
-            return Facade::module($alias, $routes, array_merge([
-                'namespace'     => 'Modules\\' . module($alias)->getStudlyName() . '\Http\Controllers\Api',
-                'domain'        => config('api.domain'),
-                'middleware'    => config('api.middleware'),
-                'prefix'        => config('api.prefix') ? config('api.prefix') . '/' . $alias : $alias,
-                'as'            => 'api.' . $alias . '.',
-            ], $attributes));
-        });
     }
 
     /**
@@ -123,8 +113,6 @@ class Route extends Provider
         $this->configureRateLimiting();
 
         $this->mapInstallRoutes();
-
-        $this->mapApiRoutes();
 
         $this->mapCommonRoutes();
 
@@ -156,22 +144,6 @@ class Route extends Provider
             ->middleware('install')
             ->namespace($this->namespace)
             ->group(base_path('routes/install.php'));
-    }
-
-    /**
-     * Define the "api" routes for the application.
-     *
-     * These routes are typically stateless.
-     *
-     * @return void
-     */
-    protected function mapApiRoutes()
-    {
-        Facade::prefix(config('api.prefix'))
-            ->domain(config('api.domain'))
-            ->middleware(config('api.middleware'))
-            ->namespace($this->namespace . '\Api')
-            ->group(base_path('routes/api.php'));
     }
 
     /**
@@ -298,10 +270,6 @@ class Route extends Provider
      */
     protected function configureRateLimiting()
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(config('app.throttles.api'));
-        });
-
         RateLimiter::for('import', function (Request $request) {
             return Limit::perMinute(config('app.throttles.import'));
         });

@@ -47,18 +47,6 @@ class Kernel extends HttpKernel
             'install.can',
         ],
 
-        'api' => [
-            'auth.basic.once',
-            'auth.disabled',
-            'throttle:api',
-            'permission:read-api',
-            'company.identify',
-            'bindings',
-            'read.only',
-            'language',
-            'firewall.all',
-        ],
-
         'common' => [
             'web',
             'company.identify',
@@ -83,8 +71,6 @@ class Kernel extends HttpKernel
             'wizard.redirect',
             'menu.admin',
             'permission:read-admin-panel',
-            'plan.limits',
-            'module.subscription',
         ],
 
         'wizard' => [
@@ -168,15 +154,11 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         // Akaunting
-        'api.key' => \App\Http\Middleware\RedirectIfNoApiKey::class,
-        'auth.basic.once' => \App\Http\Middleware\AuthenticateOnceWithBasicAuth::class,
         'auth.disabled' => \App\Http\Middleware\LogoutIfUserDisabled::class,
         'auth.redirect' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'company.identify' => \App\Http\Middleware\IdentifyCompany::class,
         'dropzone' => \App\Http\Middleware\Dropzone::class,
         'header.x' => \App\Http\Middleware\AddXHeader::class,
-        'plan.limits' => \App\Http\Middleware\RedirectIfHitPlanLimits::class,
-        'module.subscription' => \App\Http\Middleware\RedirectIfHitModuleSubscription::class,
         'menu.admin' => \App\Http\Middleware\AdminMenu::class,
         'menu.portal' => \App\Http\Middleware\PortalMenu::class,
         'date.format' => \App\Http\Middleware\DateFormat::class,

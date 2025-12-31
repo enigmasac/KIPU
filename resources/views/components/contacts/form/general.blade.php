@@ -7,10 +7,6 @@
     </x-slot>
 
     <x-slot name="body">
-        @if (! $hideName)
-            <x-form.group.text name="name" label="{{ trans($textName) }}" form-group-class="{{ $classNameFromGroupClass }}" />
-        @endif
-
         <div class="sm:col-span-3">
             <div class="relative sm:col-span-6 grid gap-x-8 gap-y-6">
                 @if (! $hideEmail)

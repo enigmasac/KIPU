@@ -19,22 +19,6 @@ class RedirectIfHitModuleSubscription
      */
     public function handle($request, Closure $next)
     {
-        if (! $request->isMethod(strtolower('GET'))) {
-            return $next($request);
-        }
-
-        if ($request->ajax()) {
-            return $next($request);
-        }
-
-        if ($request->is(company_id() . '/apps/*')) {
-            return $next($request);
-        }
-
-        if (! $this->getModulesLimitOfSubscription()->action_status) {
-            return redirect()->route('dashboard');
-        }
-
         return $next($request);
     }
 }

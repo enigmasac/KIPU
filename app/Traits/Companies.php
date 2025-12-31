@@ -18,10 +18,6 @@ trait Companies
 
         $request = $this->request ?: request();
 
-        if (request_is_api($request)) {
-            return $this->getCompanyIdFromApi($request);
-        }
-
         return $this->getCompanyIdFromWeb($request);
     }
 

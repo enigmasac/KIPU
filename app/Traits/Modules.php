@@ -434,36 +434,6 @@ trait Modules
         $limit->view_status = true;
         $limit->message = "Success";
 
-        if (! config('app.installed') || running_in_test()) {
-            return $limit;
-        }
-
-        if (is_cloud()) {
-            return $limit;
-        }
-
-        $modules = module()->all();
-
-        $versions = Versions::all($modules);
-
-        foreach ($versions as $alias => $version) {
-            if ($alias == 'core') {
-                continue;
-            }
-
-            $module_limit = $this->getModuleLimitOfSubscription($alias, $version);
-
-            if ($module_limit->action_status === false) {
-                $limit->action_status = false;
-                $limit->view_status = false;
-                $limit->message = $module_limit->message;
-
-                // Clear cache to reflect changes
-                Cache::forget('updates');
-                Cache::forget('versions');
-            }
-        }
-
         return $limit;
     }
 

@@ -389,9 +389,7 @@ if (! function_exists('request_is_install')) {
 if (! function_exists('request_is_api')) {
     function request_is_api(Request|null $request = null): bool
     {
-        $r = $request ?: request();
-
-        return $r->is(config('api.prefix') . '/*');
+        return false;
     }
 }
 

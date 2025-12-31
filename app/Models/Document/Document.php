@@ -35,6 +35,8 @@ class Document extends Model
     protected $fillable = [
         'company_id',
         'type',
+        'sunat_document_type',
+        'sunat_operation_type',
         'document_number',
         'order_number',
         'status',

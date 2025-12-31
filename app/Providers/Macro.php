@@ -28,7 +28,7 @@ class Macro extends ServiceProvider
     public function boot()
     {
         Request::macro('isApi', function () {
-            return $this->is(config('api.prefix') . '/*');
+            return false;
         });
 
         Request::macro('isNotApi', function () {

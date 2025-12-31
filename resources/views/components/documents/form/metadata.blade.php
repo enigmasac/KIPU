@@ -86,5 +86,9 @@
                 not-required
             />
         @endif
+
+        <x-form.group.select name="sunat_document_type" label="Tipo de Comprobante" :options="['01' => 'Factura', '03' => 'Boleta']" :selected="! empty($document) ? $document->sunat_document_type : '01'" form-group-class="sm:col-span-2" />
+
+        <x-form.group.select name="sunat_operation_type" label="Tipo de Operación" :options="['01' => 'Venta Normal', '02' => 'Venta Gratuita']" :selected="! empty($document) ? $document->sunat_operation_type : '01'" form-group-class="sm:col-span-2" />
     </div>
 </div>

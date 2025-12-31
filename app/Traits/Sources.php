@@ -33,7 +33,7 @@ trait Sources
             if ($request instanceof QueueCollection || running_in_queue()) {
                 $source = $prefix . 'queue';
             } else {
-                $source = $request->isApi() ? $prefix . 'api' : null;
+                $source = null;
             }
         }
 

@@ -64,6 +64,7 @@ trait Jobs
                 'message' => '',
             ];
         } catch (Exception | Throwable $e) {
+            file_put_contents('/tmp/akaunting_error.log', date('Y-m-d H:i:s') . ' - AjaxDispatch Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", FILE_APPEND);
             $response = [
                 'success' => false,
                 'error' => true,

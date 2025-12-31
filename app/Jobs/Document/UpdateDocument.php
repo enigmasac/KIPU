@@ -22,6 +22,10 @@ class UpdateDocument extends Job implements ShouldUpdate
             $this->request['amount'] = 0;
         }
 
+        if (empty($this->request['category_id'])) {
+            $this->request['category_id'] = setting('default.' . config('type.document.' . $this->model->type . '.category_type') . '_category');
+        }
+
         // Disable this lines for global discount issue fixed ( https://github.com/akaunting/akaunting/issues/2797 )
         $this->request['discount_rate'] = $this->request['discount'] ?? null;
 

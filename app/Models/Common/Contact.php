@@ -48,6 +48,9 @@ class Contact extends Model
     protected $fillable = [
         'company_id',
         'type',
+        'document_type',
+        'default_sunat_document_type',
+        'default_sunat_operation_type',
         'name',
         'email',
         'user_id',

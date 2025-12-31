@@ -47,6 +47,8 @@ class Document extends FormRequest
 
         $rules = [
             'type'                  => 'required|string',
+            'sunat_document_type'   => 'nullable|string',
+            'sunat_operation_type'  => 'nullable|string',
             'document_number'       => 'required|string|unique:documents,NULL,' . ($id ?? 'null') . ',id,type,' . $type . ',company_id,' . $company_id . ',deleted_at,NULL',
             //'status'                => 'required|string|in:draft,paid,partial,sent,received,viewed,cancelled',
             'status'                => 'required|string',
@@ -59,7 +61,7 @@ class Document extends FormRequest
             'currency_rate'         => 'required|gt:0',
             'contact_id'            => 'required|integer',
             'contact_name'          => 'required|string',
-            'category_id'           => 'required|integer',
+            'category_id'           => 'nullable|integer',
             'company_logo'          => $company_logo,
             'attachment.*'          => $attachment,
             'recurring_count'       => 'gte:0',

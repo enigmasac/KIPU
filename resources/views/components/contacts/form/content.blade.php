@@ -5,12 +5,12 @@
         method="{{ $formMethod }}"
         :model="$contact"
     >
-        @if (! $hideSectionGeneral)
-            <x-contacts.form.general type="{{ $type }}" />
-        @endif
-
         @if (! $hideSectionBilling)
             <x-contacts.form.billing type="{{ $type }}" />
+        @endif
+
+        @if (! $hideSectionGeneral)
+            <x-contacts.form.general type="{{ $type }}" />
         @endif
 
         @if (! $hideSectionAddress)

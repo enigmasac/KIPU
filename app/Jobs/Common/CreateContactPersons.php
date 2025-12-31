@@ -48,6 +48,7 @@ class CreateContactPersons extends Job implements HasOwner, HasSource, ShouldCre
                     'name' => $person['name'] ?? null,
                     'email' => $person['email'] ?? null,
                     'phone' => $person['phone'] ?? null,
+                    'position' => $person['position'] ?? null,
                     'created_from' => $this->request['created_from'],
                     'created_by' => $this->request['created_by'],
                 ]);
