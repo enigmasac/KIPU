@@ -83,6 +83,10 @@ class Script extends Component
             return $taxes;
         }
 
-        return Tax::enabled()->orderBy('name')->get()->makeHidden(['company_id', 'created_at', 'updated_at', 'deleted_at']);
+        return Tax::enabled()
+            ->orderBy('priority')
+            ->orderBy('name')
+            ->get()
+            ->makeHidden(['company_id', 'created_at', 'updated_at', 'deleted_at']);
     }
 }

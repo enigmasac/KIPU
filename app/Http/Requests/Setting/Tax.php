@@ -34,6 +34,7 @@ class Tax extends FormRequest
             'name' => 'required|string',
             'rate' => 'required|numeric|min:0|max:100',
             'type' => $type,
+            'priority' => 'nullable|integer|min:0',
             'enabled' => $enabled,
         ];
     }

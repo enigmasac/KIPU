@@ -393,140 +393,80 @@ const app = new Vue({
         },
 
         calculateItemTax(item, totals_taxes, total_discount_amount) {
-            let taxes = this.dynamic_taxes;
+            const taxes = this.dynamic_taxes;
 
-            if (item.tax_ids) {
-                let inclusive_tax_total = 0;
-                let price_for_tax = 0;
-                let total_tax_amount = 0;
-                let inclusives = [];
-                let compounds = [];
-                let fixed = [];
-                let withholding = [];
-                let normal = [];
-
-                item.tax_ids.forEach(function(item_tax, item_tax_index) {
-                    for (var index_taxes = 0; index_taxes < taxes.length; index_taxes++) {
-                        let tax = taxes[index_taxes];
-
-                        if (item_tax.id != tax.id) {
-                            continue;
-                        }
-
-                        switch (tax.type) {
-                            case 'inclusive':
-                                inclusives.push({
-                                    tax_index: item_tax_index,
-                                    tax_id: tax.id,
-                                    tax_name: tax.title,
-                                    tax_rate: tax.rate
-                                });
-                                break;
-                            case 'compound':
-                                compounds.push({
-                                    tax_index: item_tax_index,
-                                    tax_id: tax.id,
-                                    tax_name: tax.title,
-                                    tax_rate: tax.rate
-                                });
-                                break;
-                            case 'fixed':
-                                fixed.push({
-                                    tax_index: item_tax_index,
-                                    tax_id: tax.id,
-                                    tax_name: tax.title,
-                                    tax_rate: tax.rate
-                                });
-                                break;
-                            case 'withholding':
-                                withholding.push({
-                                    tax_index: item_tax_index,
-                                    tax_id: tax.id,
-                                    tax_name: tax.title,
-                                    tax_rate: tax.rate
-                                });
-                                break;
-                            default:
-                                normal.push({
-                                    tax_index: item_tax_index,
-                                    tax_id: tax.id,
-                                    tax_name: tax.title,
-                                    tax_rate: tax.rate
-                                });
-                                break;
-                        }
-                    }
-                }, this);
-
-                if (inclusives.length) {
-                    inclusives.forEach(function(inclusive) {
-                        item.tax_ids[inclusive.tax_index].name = inclusive.tax_name;
-                        item.tax_ids[inclusive.tax_index].price = this.numberFormat(item.grand_total - (item.grand_total / (1 + inclusive.tax_rate / 100)), this.currency.precision);
-
-                        inclusive_tax_total += item.tax_ids[inclusive.tax_index].price;
-
-                        totals_taxes = this.calculateTotalsTax(totals_taxes, inclusive.tax_id, inclusive.tax_name, item.tax_ids[inclusive.tax_index].price);
-                    }, this);
-
-                    item.total = parseFloat(item.grand_total - inclusive_tax_total);
-                }
-
-                if (fixed.length) {
-                    fixed.forEach(function(fixed) {
-                        item.tax_ids[fixed.tax_index].name = fixed.tax_name;
-                        item.tax_ids[fixed.tax_index].price = this.numberFormat(fixed.tax_rate * calculationToQuantity(item.quantity), this.currency.precision);
-
-                        total_tax_amount += item.tax_ids[fixed.tax_index].price;
-
-                        totals_taxes = this.calculateTotalsTax(totals_taxes, fixed.tax_id, fixed.tax_name, item.tax_ids[fixed.tax_index].price);
-                    }, this);
-                }
-
-                if (inclusives.length) {
-                    price_for_tax = item.total;
-                } else {
-                    price_for_tax = item.grand_total;
-                }
-
-                if (normal.length) {
-                    normal.forEach(function(normal) {
-                        item.tax_ids[normal.tax_index].name = normal.tax_name;
-                        item.tax_ids[normal.tax_index].price = this.numberFormat((price_for_tax * (normal.tax_rate / 100)), this.currency.precision);
-
-                        total_tax_amount += item.tax_ids[normal.tax_index].price;
-
-                        totals_taxes = this.calculateTotalsTax(totals_taxes, normal.tax_id, normal.tax_name, item.tax_ids[normal.tax_index].price);
-                    }, this);
-                }
-
-                if (withholding.length) {
-                    withholding.forEach(function(withholding) {
-                        item.tax_ids[withholding.tax_index].name = withholding.tax_name;
-                        item.tax_ids[withholding.tax_index].price = -this.numberFormat((price_for_tax * (withholding.tax_rate / 100)), this.currency.precision);
-
-                        total_tax_amount += item.tax_ids[withholding.tax_index].price;
-
-                        totals_taxes = this.calculateTotalsTax(totals_taxes, withholding.tax_id, withholding.tax_name, item.tax_ids[withholding.tax_index].price);
-                    }, this);
-                }
-
-                item.grand_total += total_tax_amount;
-
-                if (compounds.length) {
-                    compounds.forEach(function(compound) {
-                        item.tax_ids[compound.tax_index].name = compound.tax_name;
-                        item.tax_ids[compound.tax_index].price = this.numberFormat((item.grand_total / 100) * compound.tax_rate, this.currency.precision);
-
-                        totals_taxes = this.calculateTotalsTax(totals_taxes, compound.tax_id, compound.tax_name, item.tax_ids[compound.tax_index].price);
-
-                        item.grand_total += item.tax_ids[compound.tax_index].price;
-                    }, this);
-                }
-
-                if (inclusives.length) {
-                    item.total += total_discount_amount;
-                }
+            if (!item.tax_ids || !item.tax_ids.length) {
+                return;
             }
+
+            const selected_tax_objects = [];
+            item.tax_ids.forEach(function(item_tax) {
+                const tax_id = (typeof item_tax === 'object') ? item_tax.id : item_tax;
+                const tax_obj = taxes.find(t => t.id == tax_id);
+                if (tax_obj) selected_tax_objects.push(tax_obj);
+            });
+
+            let groups = {};
+            selected_tax_objects.forEach(tax => {
+                const p = parseInt(tax.priority) || 0;
+                if (!groups[p]) groups[p] = [];
+                groups[p].push(tax);
+            });
+            const sorted_priorities = Object.keys(groups).sort((a, b) => a - b);
+
+            const quantity = parseFloat(String(item.quantity).replace(/[^\d.-]/g, '')) || 0;
+            const price = parseFloat(String(item.price).replace(/[^\d.-]/g, '')) || 0;
+
+            let current_base = price * calculationToQuantity(item.quantity);
+            const total_disc = parseFloat(String(total_discount_amount).replace(/[^\d.-]/g, '')) || 0;
+            current_base -= total_disc;
+
+            const initial_net = current_base;
+            let total_accumulated_tax = 0;
+
+            sorted_priorities.forEach(priority => {
+                const priority_taxes = groups[priority];
+                let priority_sum = 0;
+                const base_for_priority = current_base;
+
+                priority_taxes.forEach(tax => {
+                    let amount = 0;
+                    const rate = parseFloat(tax.rate) || 0;
+
+                    switch (tax.type) {
+                        case 'inclusive':
+                            amount = base_for_priority - (base_for_priority / (1 + rate / 100));
+                            break;
+                        case 'fixed':
+                            amount = rate * calculationToQuantity(item.quantity);
+                            break;
+                        case 'withholding':
+                            amount = -(base_for_priority * (rate / 100));
+                            break;
+                        case 'compound':
+                            amount = base_for_priority * (rate / 100);
+                            break;
+                        default:
+                            amount = base_for_priority * (rate / 100);
+                            break;
+                    }
+
+                    const entry = item.tax_ids.find(x => (x.id == tax.id || x == tax.id));
+                    if (entry && typeof entry === 'object') {
+                        entry.name = tax.title;
+                        entry.price = this.numberFormat(amount, this.currency.precision);
+                    }
+
+                    priority_sum += amount;
+                    totals_taxes = this.calculateTotalsTax(totals_taxes, tax.id, tax.title, amount);
+                });
+
+                current_base += priority_sum;
+                total_accumulated_tax += priority_sum;
+            });
+
+            item.total = initial_net;
+            item.grand_total = initial_net + total_accumulated_tax;
         },
 
         calculateTotalBeforeDiscountAndTax() {

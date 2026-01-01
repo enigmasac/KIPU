@@ -24,7 +24,7 @@ class Tax extends Model
      *
      * @var array
      */
-    protected $fillable = ['company_id', 'name', 'rate', 'type', 'enabled', 'created_from', 'created_by'];
+    protected $fillable = ['company_id', 'name', 'rate', 'type', 'priority', 'enabled', 'created_from', 'created_by'];
 
     /**
      * The attributes that should be cast.
@@ -33,6 +33,7 @@ class Tax extends Model
      */
     protected $casts = [
         'rate'          => 'double',
+        'priority'      => 'integer',
         'enabled'       => 'boolean',
         'deleted_at'    => 'datetime',
     ];
@@ -42,7 +43,7 @@ class Tax extends Model
      *
      * @var array
      */
-    public $sortable = ['name', 'type', 'rate'];
+    public $sortable = ['name', 'type', 'rate', 'priority'];
 
     public function items()
     {

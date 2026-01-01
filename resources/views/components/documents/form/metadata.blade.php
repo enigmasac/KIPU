@@ -25,28 +25,30 @@
         @stack('issue_start')
 
         @if (! $hideIssuedAt)
-            <x-form.group.date
-                name="issued_at"
-                label="{{ trans($textIssuedAt) }}"
-                icon="calendar_today"
-                value="{{ $issuedAt }}"
-                show-date-format="{{ company_date_format() }}"
-                date-format="Y-m-d"
-                autocomplete="off"
-                change="setDueMinDate"
-                form-group-class="sm:col-span-2"
-            />
+            <div class="sm:col-span-2">
+                <x-form.label for="issued_at" required>
+                    {{ trans($textIssuedAt) }}
+                </x-form.label>
+                <div class="flex items-center text-sm text-gray-700 bg-gray-100 p-2 rounded border border-gray-300">
+                    <span class="material-icons-outlined text-base mr-2">calendar_today</span>
+                    {{ company_date(now()) }}
+                </div>
+                <input type="hidden" name="issued_at" value="{{ now()->format('Y-m-d H:i:s') }}">
+            </div>
         @endif
 
         @stack('document_number_start')
 
         @if (! $hideDocumentNumber)
-            <x-form.group.text
-                name="document_number"
-                label="{{ trans($textDocumentNumber) }}"
-                value="{{ $documentNumber }}"
-                form-group-class="sm:col-span-2"
-            />
+            <div class="sm:col-span-2">
+                <x-form.label for="document_number" required>
+                    {{ trans($textDocumentNumber) }}
+                </x-form.label>
+                <div class="flex items-center text-sm text-gray-700 bg-gray-100 p-2 rounded border border-gray-300">
+                    {{ $documentNumber }}
+                </div>
+                <input type="hidden" name="document_number" value="{{ $documentNumber }}">
+            </div>
         @endif
 
         @stack('due_start')

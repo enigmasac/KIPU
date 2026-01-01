@@ -61,6 +61,10 @@
                             <x-table.th class="w-3/12">
                                 <x-sortablelink column="rate" title="{{ trans('taxes.rate_percent') }}" />
                             </x-table.th>
+
+                            <x-table.th class="w-2/12">
+                                <x-sortablelink column="priority" title="Prioridad" />
+                            </x-table.th>
                         </x-table.tr>
                     </x-table.thead>
 
@@ -83,12 +87,16 @@
                                     </x-slot>
                                 </x-table.td>
 
-                                <x-table.td class="w-4/12">
+                                <x-table.td class="w-3/12">
                                     {{ $types[$item->type] }}
                                 </x-table.td>
 
-                                <x-table.td class="w-3/12">
+                                <x-table.td class="w-2/12">
                                     {{ $item->rate }}
+                                </x-table.td>
+
+                                <x-table.td class="w-2/12">
+                                    {{ $item->priority }}
                                 </x-table.td>
 
                                 <x-table.td kind="action">

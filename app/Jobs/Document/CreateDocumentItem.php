@@ -67,52 +67,48 @@ class CreateDocumentItem extends Job implements HasOwner, HasSource, ShouldCreat
         ];
 
         if (!empty($this->request['tax_ids'])) {
-            // New variables by tax type & tax sorting
+            $taxes_to_apply = [];
             foreach ((array) $this->request['tax_ids'] as $tax_id) {
                 $tax = Tax::find($tax_id);
-
-                // If tax not found, skip
-                if (! $tax) {
-                    continue;
-                }
-
-                ${$tax->type . 's'}[] = $tax;
-            }
-
-            if (isset($inclusives)) {
-                foreach ($inclusives as $inclusive) {
-                    $tax_amount = $item_discounted_amount - ($item_discounted_amount / (1 + $inclusive->rate / 100));
-
-                    $item_taxes[] = $doc_params + [
-                        'tax_id' => $inclusive->id,
-                        'name' => $inclusive->name,
-                        'amount' => $tax_amount,
-                    ];
-
-                    $item_tax_total += $tax_amount;
-                }
-
-                $actual_price_item = $item_discounted_amount - $item_tax_total;
-            }
-
-            if (isset($fixeds)) {
-                foreach ($fixeds as $tax) {
-                    $tax_amount = $tax->rate * (double) $this->request['quantity'];
-
-                    $item_taxes[] = $doc_params + [
-                        'tax_id' => $tax->id,
-                        'name' => $tax->name,
-                        'amount' => $tax_amount,
-                    ];
-
-                    $item_tax_total += $tax_amount;
-                    $item_amount += $tax_amount;
+                if ($tax) {
+                    $taxes_to_apply[] = $tax;
                 }
             }
 
-            if (isset($normals)) {
-                foreach ($normals as $tax) {
-                    $tax_amount = $actual_price_item * ($tax->rate / 100);
+            // Group taxes by priority
+            $grouped_taxes = collect($taxes_to_apply)->groupBy('priority')->sortKeys();
+
+            $current_base = $actual_price_item; // Starting with discounted net price
+            $total_tax_amount = 0;
+
+            foreach ($grouped_taxes as $priority => $priority_taxes) {
+                $priority_tax_sum = 0;
+                $base_for_this_priority = $current_base;
+
+                foreach ($priority_taxes as $tax) {
+                    $tax_amount = 0;
+
+                    switch ($tax->type) {
+                        case 'inclusive':
+                            // Inclusive is special, usually applied on the initial net.
+                            // But following the "priority" logic, we'll treat it as part of the base calculation.
+                            $tax_amount = $base_for_this_priority - ($base_for_this_priority / (1 + $tax->rate / 100));
+                            break;
+                        case 'fixed':
+                            $tax_amount = $tax->rate * (double) $this->request['quantity'];
+                            break;
+                        case 'withholding':
+                            $tax_amount = -($base_for_this_priority * ($tax->rate / 100));
+                            break;
+                        case 'compound':
+                            // Compound in Akaunting is usually calculated on (Net + previous taxes)
+                            // Which matches our priority logic if compound taxes have higher priority.
+                            $tax_amount = ($base_for_this_priority * ($tax->rate / 100));
+                            break;
+                        default: // normal
+                            $tax_amount = $base_for_this_priority * ($tax->rate / 100);
+                            break;
+                    }
 
                     $item_taxes[] = $doc_params + [
                         'tax_id' => $tax->id,
@@ -120,39 +116,16 @@ class CreateDocumentItem extends Job implements HasOwner, HasSource, ShouldCreat
                         'amount' => $tax_amount,
                     ];
 
-                    $item_tax_total += $tax_amount;
-                    $item_amount += $tax_amount;
+                    $priority_tax_sum += $tax_amount;
                 }
+
+                // Update base for the next priority level
+                $current_base += $priority_tax_sum;
+                $total_tax_amount += $priority_tax_sum;
             }
 
-            if (isset($withholdings)) {
-                foreach ($withholdings as $tax) {
-                    $tax_amount = -($actual_price_item * ($tax->rate / 100));
-
-                    $item_taxes[] = $doc_params + [
-                        'tax_id' => $tax->id,
-                        'name' => $tax->name,
-                        'amount' => $tax_amount,
-                    ];
-
-                    $item_tax_total += $tax_amount;
-                    $item_amount += $tax_amount;
-                }
-            }
-
-            if (isset($compounds)) {
-                foreach ($compounds as $compound) {
-                    $tax_amount = ($item_amount / 100) * $compound->rate;
-
-                    $item_taxes[] = $doc_params + [
-                        'tax_id' => $compound->id,
-                        'name' => $compound->name,
-                        'amount' => $tax_amount,
-                    ];
-
-                    $item_tax_total += $tax_amount;
-                }
-            }
+            $actual_price_item = $item_discounted_amount + $total_tax_amount;
+            $item_tax_total = $total_tax_amount;
         }
 
         if (! empty($global_discount)) {

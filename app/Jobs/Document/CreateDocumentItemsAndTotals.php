@@ -9,6 +9,7 @@ use App\Interfaces\Job\ShouldCreate;
 use App\Jobs\Common\CreateItem;
 use App\Models\Document\Document;
 use App\Models\Document\DocumentTotal;
+use App\Models\Setting\Tax;
 use App\Traits\Currencies;
 use App\Traits\DateTime;
 use Illuminate\Support\Str;
@@ -93,7 +94,27 @@ class CreateDocumentItemsAndTotals extends Job implements HasOwner, HasSource, S
 
         // Add taxes
         if (! empty($taxes)) {
-            foreach ($taxes as $tax) {
+            $sorted_taxes = collect($taxes)
+                ->map(function ($tax, $tax_id) {
+                    $priority = optional(Tax::find($tax_id))->priority ?? 0;
+
+                    return [
+                        'tax_id'   => $tax_id,
+                        'name'     => $tax['name'],
+                        'amount'   => $tax['amount'],
+                        'priority' => $priority,
+                    ];
+                })
+                ->values()
+                ->sort(function ($a, $b) {
+                    if ($a['priority'] === $b['priority']) {
+                        return strcmp($a['name'], $b['name']);
+                    }
+
+                    return $a['priority'] <=> $b['priority'];
+                });
+
+            foreach ($sorted_taxes as $tax) {
                 DocumentTotal::create([
                     'company_id' => $this->document->company_id,
                     'type' => $this->document->type,

@@ -41,14 +41,78 @@
 
                     <x-slot name="body">
                         <x-form.group.checkbox name="sale_information" id="item-sale-information" :options="['sale' => trans('items.sale_information')]" @input="onInformation($event, 'sale')" form-group-class="sm:col-span-3" checkbox-class="sm:col-span-6" />
-
                         <x-form.group.checkbox name="purchase_information" id="item-purchase-information" :options="['sale' => trans('items.purchase_information')]" @input="onInformation($event, 'purchase')" form-group-class="sm:col-span-3" checkbox-class="sm:col-span-6" />
 
-                        <x-form.group.text name="sale_price" label="{{ trans('items.sale_price') }}" v-bind:disabled="sale_information" />
+                        <!-- 1. IMPUESTOS -->
+                        <div class="sm:col-span-6 mb-4">
+                            <x-form.group.tax name="tax_ids" id="tax_ids" multiple not-required />
+                        </div>
 
-                        <x-form.group.text name="purchase_price" label="{{ trans('items.purchase_price') }}" v-bind:disabled="purchase_information" />
+                        <!-- SECCIÓN VENTA -->
+                        <div class="sm:col-span-3 grid gap-y-4" v-show="!sale_information">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <x-form.label for="sale_price" required>Precio de Venta (Neto)</x-form.label>
+                                    <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                                        <input type="radio" v-model="form.sunat_sale_mode" value="net"> <span class="ml-1">Editar</span>
+                                    </label>
+                                </div>
+                                <x-form.input.text 
+                                    name="sale_price" 
+                                    id="sale_price" 
+                                    v-model="form.sale_price" 
+                                    v-bind:disabled="form.sunat_sale_mode !== 'net'"
+                                />
+                            </div>
 
-                        <x-form.group.tax name="tax_ids" multiple not-required />
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <x-form.label for="sale_price_total" required>Precio Venta (Incl. Impuestos)</x-form.label>
+                                    <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                                        <input type="radio" v-model="form.sunat_sale_mode" value="total"> <span class="ml-1">Editar</span>
+                                    </label>
+                                </div>
+                                <x-form.input.text 
+                                    name="sale_price_total" 
+                                    id="sale_price_total" 
+                                    v-model="form.sale_price_total" 
+                                    v-bind:disabled="form.sunat_sale_mode !== 'total'"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN COMPRA -->
+                        <div class="sm:col-span-3 grid gap-y-4" v-show="!purchase_information">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <x-form.label for="purchase_price" required>Precio de Compra (Neto)</x-form.label>
+                                    <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                                        <input type="radio" v-model="form.sunat_purchase_mode" value="net"> <span class="ml-1">Editar</span>
+                                    </label>
+                                </div>
+                                <x-form.input.text 
+                                    name="purchase_price" 
+                                    id="purchase_price" 
+                                    v-model="form.purchase_price" 
+                                    v-bind:disabled="form.sunat_purchase_mode !== 'net'"
+                                />
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <x-form.label for="purchase_price_total" required>Precio Compra (Incl. Impuestos)</x-form.label>
+                                    <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                                        <input type="radio" v-model="form.sunat_purchase_mode" value="total"> <span class="ml-1">Editar</span>
+                                    </label>
+                                </div>
+                                <x-form.input.text 
+                                    name="purchase_price_total" 
+                                    id="purchase_price_total" 
+                                    v-model="form.purchase_price_total" 
+                                    v-bind:disabled="form.sunat_purchase_mode !== 'total'"
+                                />
+                            </div>
+                        </div>
                     </x-slot>
                 </x-form.section>
 
@@ -62,4 +126,66 @@
     </x-slot>
 
     <x-script folder="common" file="items" />
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const taxMap = {!! $taxes->keyBy('id')->toJson() !!};
+
+            let checkApp = setInterval(() => {
+                const el = document.getElementById('item');
+                if (el && el.__vue__) {
+                    const vm = el.__vue__;
+                    clearInterval(checkApp);
+
+                    // Inicialización de estados
+                    vm.$set(vm.form, 'sunat_sale_mode', 'net');
+                    vm.$set(vm.form, 'sunat_purchase_mode', 'net');
+                    vm.$set(vm.form, 'sale_price_total', vm.form.sale_price || '0.00');
+                    vm.$set(vm.form, 'purchase_price_total', vm.form.purchase_price || '0.00');
+
+                    const getMultiplier = () => {
+                        let totalRate = 0;
+                        const ids = vm.form.tax_ids || [];
+                        ids.forEach(id => {
+                            const t = taxMap[id];
+                            if (t) {
+                                if (t.type === 'normal' || t.type === 'inclusive') totalRate += parseFloat(t.rate);
+                                else if (t.type === 'withholding') totalRate -= parseFloat(t.rate);
+                            }
+                        });
+                        return 1 + (totalRate / 100);
+                    };
+
+                    const syncPrices = (type) => {
+                        const mult = getMultiplier();
+                        if (type === 'sale') {
+                            if (vm.form.sunat_sale_mode === 'net') {
+                                vm.form.sale_price_total = (parseFloat(vm.form.sale_price || 0) * mult).toFixed(2);
+                            } else {
+                                vm.form.sale_price = (parseFloat(vm.form.sale_price_total || 0) / mult).toFixed(2);
+                            }
+                        } else {
+                            if (vm.form.sunat_purchase_mode === 'net') {
+                                vm.form.purchase_price_total = (parseFloat(vm.form.purchase_price || 0) * mult).toFixed(2);
+                            } else {
+                                vm.form.purchase_price = (parseFloat(vm.form.purchase_price_total || 0) / mult).toFixed(2);
+                            }
+                        }
+                    };
+
+                    // Watchers profundos de Vue
+                    vm.$watch('form.sale_price', () => { if (vm.form.sunat_sale_mode === 'net') syncPrices('sale'); });
+                    vm.$watch('form.sale_price_total', () => { if (vm.form.sunat_sale_mode === 'total') syncPrices('sale'); });
+                    vm.$watch('form.purchase_price', () => { if (vm.form.sunat_purchase_mode === 'net') syncPrices('purchase'); });
+                    vm.$watch('form.purchase_price_total', () => { if (vm.form.sunat_purchase_mode === 'total') syncPrices('purchase'); });
+                    vm.$watch('form.tax_ids', () => { syncPrices('sale'); syncPrices('purchase'); }, { deep: true });
+                    vm.$watch('form.sunat_sale_mode', () => syncPrices('sale'));
+                    vm.$watch('form.sunat_purchase_mode', () => syncPrices('purchase'));
+
+                    syncPrices('sale');
+                    syncPrices('purchase');
+                }
+            }, 100);
+        });
+    </script>
 </x-layouts.admin>
