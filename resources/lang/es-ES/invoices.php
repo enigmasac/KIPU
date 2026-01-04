@@ -2,10 +2,12 @@
 
 return [
 
-    'invoice_number'        => 'Número de Factura',
-    'invoice_date'          => 'Fecha de Factura',
+    'invoice_number'        => 'Número de factura',
+    'invoice_date'          => 'Fecha de factura',
     'invoice_amount'        => 'Importe de la factura',
-    'total_price'           => 'Precio Total',
+    'sku'                   => 'Código',
+    'unit'                  => 'Unidad',
+    'total_price'           => 'Precio total',
     'due_date'              => 'Fecha de vencimiento',
     'order_number'          => 'Nº Pedido',
     'bill_to'               => 'Facturar a',

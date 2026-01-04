@@ -159,6 +159,36 @@ return [
             ],
         ],
 
+        'boleta' => [
+            'alias'                     => '',
+            'group'                     => 'sales',
+            'route' => [
+                'prefix'                => 'invoices',
+                'parameter'             => 'invoice',
+                'document'              => 'invoices.index',
+            ],
+            'permission' => [
+                'prefix'                => 'invoices',
+            ],
+            'translation' => [
+                'prefix'                => 'invoices',
+                'add_contact'           => 'general.customers',
+                'issued_at'             => 'invoices.invoice_date',
+                'due_at'                => 'invoices.due_date',
+            ],
+            'setting' => [
+                'prefix'                => 'boleta',
+            ],
+            'category_type'             => 'income',
+            'transaction_type'          => 'income',
+            'contact_type'              => 'customer',
+            'inventory_stock_action'    => 'decrease',
+            'script' => [
+                'folder'                => 'common',
+                'file'                  => 'documents',
+            ],
+        ],
+
         Document::INVOICE_RECURRING_TYPE => [
             'alias'                     => '', // core empty but module write own alias
             'group'                     => 'sales', // controller folder name for permission and route
@@ -307,6 +337,84 @@ return [
                 'draft'                 => 'schedule',
                 'active'                => 'schedule',
                 'end'                   => 'schedule',
+            ],
+        ],
+
+        'credit-note' => [
+            'alias'                     => '',
+            'group'                     => 'sales',
+            'route' => [
+                'prefix'                => 'sales.credit-notes',
+                'parameter'             => 'credit_note',
+                'document'              => 'sales.credit-notes.index',
+            ],
+            'permission' => [
+                'prefix'                => 'credit-notes',
+            ],
+            'translation' => [
+                'prefix'                => 'credit-notes',
+                'add_contact'           => 'general.customers',
+                'issued_at'             => 'credit-notes.invoice_date',
+                'due_at'                => 'credit-notes.due_date',
+            ],
+            'setting' => [
+                'prefix'                => 'credit-note',
+            ],
+            'category_type'             => 'income',
+            'transaction_type'          => 'credit_note_refund',
+            'contact_type'              => 'customer',
+            'inventory_stock_action'    => 'increase',
+            'hide'                      => [],
+            'class'                     => [],
+            'notification' => [
+                'class'                 => 'App\Notifications\Sale\CreditNote',
+                'notify_contact'        => true,
+                'notify_user'           => true,
+            ],
+            'script' => [
+                'folder'                => 'common',
+                'file'                  => 'documents',
+            ],
+            'status_workflow' => [
+                'draft'                 => 'send',
+                'sent'                  => 'make-refund',
+                'cancelled'             => 'restore',
+            ],
+        ],
+
+        'debit-note' => [
+            'alias'                     => '',
+            'group'                     => 'sales',
+            'route' => [
+                'prefix'                => 'sales.debit-notes',
+                'parameter'             => 'debit_note',
+                'document'              => 'sales.debit-notes.index',
+            ],
+            'permission' => [
+                'prefix'                => 'debit-notes',
+            ],
+            'translation' => [
+                'prefix'                => 'debit-notes',
+                'issued_at'             => 'debit-notes.invoice_date',
+                'due_at'                => 'debit-notes.due_date',
+            ],
+            'setting' => [
+                'prefix'                => 'debit-note',
+            ],
+            'category_type'             => 'income',
+            'transaction_type'          => 'debit_note',
+            'contact_type'              => 'customer',
+            'inventory_stock_action'    => 'increase',
+            'hide'                      => [],
+            'class'                     => [],
+            'notification' => [
+                'class'                 => 'App\Notifications\Sale\DebitNote',
+                'notify_contact'        => true,
+                'notify_user'           => true,
+            ],
+            'script' => [
+                'folder'                => 'common',
+                'file'                  => 'documents',
             ],
         ],
     ],
@@ -588,6 +696,54 @@ return [
                 'draft'             => 'schedule',
                 'active'            => 'schedule',
                 'end'               => 'schedule',
+            ],
+        ],
+
+        'credit_note_refund' => [
+            'group'                 => 'banking',
+            'route' => [
+                'prefix'            => 'transactions',
+                'parameter'         => 'transaction',
+            ],
+            'permission' => [
+                'prefix'            => 'transactions',
+            ],
+            'translation' => [
+                'prefix'                    => 'transactions',
+                'related_document_amount'   => 'credit-notes.credit_note_amount',
+                'transactions'              => 'general.expenses',
+            ],
+            'contact_type'          => 'customer',
+            'document_type'         => 'credit-note',
+            'split_type'            => Transaction::EXPENSE_SPLIT_TYPE,
+            'email_template'        => 'payment_made_vendor',
+            'script' => [
+                'folder'            => 'banking',
+                'file'              => 'transactions',
+            ],
+        ],
+
+        'debit_note_refund' => [
+            'group'                 => 'banking',
+            'route' => [
+                'prefix'            => 'transactions',
+                'parameter'         => 'transaction',
+            ],
+            'permission' => [
+                'prefix'            => 'transactions',
+            ],
+            'translation' => [
+                'prefix'                    => 'transactions',
+                'related_document_amount'   => 'debit-notes.debit_note_amount',
+                'transactions'              => 'general.incomes',
+            ],
+            'contact_type'          => 'vendor',
+            'document_type'         => 'debit-note',
+            'split_type'            => Transaction::INCOME_SPLIT_TYPE,
+            'email_template'        => 'payment_received_customer',
+            'script' => [
+                'folder'            => 'banking',
+                'file'              => 'transactions',
             ],
         ],
     ],

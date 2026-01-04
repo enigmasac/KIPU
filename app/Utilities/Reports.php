@@ -117,6 +117,66 @@ class Reports
         return (new $class())->getDefaultName();
     }
 
+    public static function getSystemSlug($class): string
+    {
+        $base = Str::kebab(class_basename($class));
+        $alias = static::getModuleAlias($class);
+
+        if (! empty($alias)) {
+            return Str::kebab($alias) . '-' . $base;
+        }
+
+        return $base;
+    }
+
+    public static function getSystemReports($check_permission = true): array
+    {
+        $reports = [];
+
+        foreach (static::getClasses($check_permission) as $class => $name) {
+            $reports[static::getSystemSlug($class)] = [
+                'class' => $class,
+                'name' => $name,
+            ];
+        }
+
+        return $reports;
+    }
+
+    public static function getSystemClassBySlug(string $slug, bool $check_permission = true): ?string
+    {
+        $reports = static::getSystemReports($check_permission);
+
+        return $reports[$slug]['class'] ?? null;
+    }
+
+    public static function makeSystemReportModel(string $class): Report
+    {
+        $report = new Report();
+
+        $report->class = $class;
+        $report->name = static::getDefaultName($class);
+        $report->description = '';
+        $report->settings = static::getSystemSettings($class);
+
+        $report->setAttribute('system_slug', static::getSystemSlug($class));
+
+        return $report;
+    }
+
+    protected static function getSystemSettings(string $class): object
+    {
+        $instance = new $class();
+        $group = $instance->group ?: 'category';
+
+        return (object) [
+            'group' => $group ?: 'category',
+            'period' => 'quarterly',
+            'basis' => 'accrual',
+            'withholding' => 'no',
+        ];
+    }
+
     public static function isModuleEnabled($class)
     {
         if (! $alias = static::getModuleAlias($class)) {

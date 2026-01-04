@@ -41,6 +41,11 @@ Route::group(['prefix' => 'common'], function () {
 
     Route::post('bulk-actions/{group}/{type}', 'Common\BulkActions@action')->name('bulk-actions.action');
 
+    Route::get('reports/system/{report}/print', 'Common\SystemReports@print')->name('reports.system.print');
+    Route::get('reports/system/{report}/pdf', 'Common\SystemReports@pdf')->name('reports.system.pdf');
+    Route::get('reports/system/{report}/export', 'Common\SystemReports@export')->name('reports.system.export');
+    Route::get('reports/system/{report}', 'Common\SystemReports@show')->name('reports.system.show');
+
     Route::get('reports/{report}/print', 'Common\Reports@print')->name('reports.print');
     Route::get('reports/{report}/pdf', 'Common\Reports@pdf')->name('reports.pdf');
     Route::get('reports/{report}/export', 'Common\Reports@export')->name('reports.export');
@@ -52,6 +57,8 @@ Route::group(['prefix' => 'common'], function () {
     Route::get('contacts/index', 'Common\Contacts@index')->name('contacts.index');
 
     Route::get('plans/check', 'Common\Plans@check')->name('plans.check');
+
+    Route::get('documents/next-number', 'Common\Documents@getNextNumber')->name('documents.next-number');
 });
 
 Route::group(['prefix' => 'auth'], function () {
@@ -82,6 +89,32 @@ Route::group(['prefix' => 'sales'], function () {
     Route::get('invoices/export', 'Sales\Invoices@export')->name('invoices.export');
     Route::resource('invoices', 'Sales\Invoices', ['middleware' => ['date.format', 'money', 'dropzone']]);
 
+    Route::get('credit-notes/{credit_note}/sent', 'Sales\CreditNotes@markSent')->name('sales.credit-notes.sent');
+    Route::get('credit-notes/{credit_note}/cancelled', 'Sales\CreditNotes@markCancelled')->name('sales.credit-notes.cancelled');
+    Route::get('credit-notes/{credit_note}/email', 'Sales\CreditNotes@emailCreditNote')->name('sales.credit-notes.email');
+    Route::get('credit-notes/{credit_note}/print', 'Sales\CreditNotes@printCreditNote')->name('sales.credit-notes.print');
+    Route::get('credit-notes/{credit_note}/pdf', 'Sales\CreditNotes@pdfCreditNote')->name('sales.credit-notes.pdf');
+    Route::get('credit-notes/{credit_note}/duplicate', 'Sales\CreditNotes@duplicate')->name('sales.credit-notes.duplicate');
+    Route::get('credit-notes/customers/{contact}/invoices', 'Sales\CreditNotes@contactInvoices')->name('sales.credit-notes.contact.invoices');
+    Route::get('credit-notes/invoices/{invoice}', 'Sales\CreditNotes@invoice')->name('sales.credit-notes.invoice');
+    Route::resource('credit-notes', 'Sales\CreditNotes', ['as' => 'sales', 'middleware' => ['date.format', 'money', 'dropzone']]);
+
+    Route::get('debit-notes/{debit_note}/sent', 'Sales\DebitNotes@markSent')->name('sales.debit-notes.sent');
+    Route::get('debit-notes/{debit_note}/cancelled', 'Sales\DebitNotes@markCancelled')->name('sales.debit-notes.cancelled');
+    Route::get('debit-notes/{debit_note}/print', 'Sales\DebitNotes@printDebitNote')->name('sales.debit-notes.print');
+    Route::get('debit-notes/{debit_note}/pdf', 'Sales\DebitNotes@pdfDebitNote')->name('sales.debit-notes.pdf');
+    Route::get('debit-notes/{debit_note}/duplicate', 'Sales\DebitNotes@duplicate')->name('sales.debit-notes.duplicate');
+    Route::get('debit-notes/customers/{contact}/invoices', 'Sales\DebitNotes@contactInvoices')->name('sales.debit-notes.contact.invoices');
+    Route::get('debit-notes/invoices/{invoice}', 'Sales\DebitNotes@invoice')->name('sales.debit-notes.invoice');
+    Route::resource('debit-notes', 'Sales\DebitNotes', ['as' => 'sales', 'middleware' => ['date.format', 'money', 'dropzone']]);
+
+    Route::delete('credits-transactions/{credits_transaction}', 'Sales\CreditsTransactions@destroy')->name('credits-transactions.destroy');
+
+    Route::group(['prefix' => 'modals/sales/invoices/{invoice}', 'as' => 'modals.sales.invoices.invoice.'], function () {
+        Route::get('credits-transactions/create', 'Modals\Sales\InvoiceCreditsTransactions@create')->name('credits-transactions.create');
+        Route::post('credits-transactions', 'Modals\Sales\InvoiceCreditsTransactions@store')->name('credits-transactions.store');
+    });
+
     Route::get('recurring-invoices/{recurring_invoice}/duplicate', 'Sales\RecurringInvoices@duplicate')->name('recurring-invoices.duplicate');
     Route::get('recurring-invoices/{recurring_invoice}/end', 'Sales\RecurringInvoices@end')->name('recurring-invoices.end');
     Route::post('recurring-invoices/import', 'Sales\RecurringInvoices@import')->middleware('import')->name('recurring-invoices.import');
@@ -108,6 +141,15 @@ Route::group(['prefix' => 'purchases'], function () {
     Route::post('bills/import', 'Purchases\Bills@import')->middleware('import')->name('bills.import');
     Route::get('bills/export', 'Purchases\Bills@export')->name('bills.export');
     Route::resource('bills', 'Purchases\Bills', ['middleware' => ['date.format', 'money', 'dropzone']]);
+
+    Route::get('debit-notes/{debit_note}/received', 'Purchases\DebitNotes@markReceived')->name('debit-notes.received');
+    Route::get('debit-notes/{debit_note}/cancelled', 'Purchases\DebitNotes@markCancelled')->name('debit-notes.cancelled');
+    Route::get('debit-notes/{debit_note}/print', 'Purchases\DebitNotes@printDebitNote')->name('debit-notes.print');
+    Route::get('debit-notes/{debit_note}/pdf', 'Purchases\DebitNotes@pdfDebitNote')->name('debit-notes.pdf');
+    Route::get('debit-notes/{debit_note}/duplicate', 'Purchases\DebitNotes@duplicate')->name('debit-notes.duplicate');
+    Route::get('debit-notes/vendors/{contact}/bills', 'Purchases\DebitNotes@contactBills')->name('purchases.debit-notes.contact.bills');
+    Route::get('debit-notes/bills/{bill}', 'Purchases\DebitNotes@bill')->name('purchases.debit-notes.bill');
+    Route::resource('debit-notes', 'Purchases\DebitNotes', ['as' => 'purchases', 'middleware' => ['date.format', 'money', 'dropzone']]);
 
     Route::get('recurring-bills/{recurring_bill}/duplicate', 'Purchases\RecurringBills@duplicate')->name('recurring-bills.duplicate');
     Route::get('recurring-bills/{recurring_bill}/end', 'Purchases\RecurringBills@end')->name('recurring-bills.end');
@@ -207,34 +249,6 @@ Route::group(['prefix' => 'settings'], function () {
 Route::group(['as' => 'settings.'], function () {
     Route::get('{alias}/settings', 'Settings\Modules@edit')->name('module.edit');
     Route::patch('{alias}/settings', 'Settings\Modules@update')->middleware('dropzone')->name('module.update');
-});
-
-Route::group(['as' => 'apps.', 'prefix' => 'apps'], function () {
-    Route::resource('home', 'Modules\Home');
-
-        Route::resource('my', 'Modules\My');
-
-        Route::get('categories/{alias}', 'Modules\Tiles@categoryModules')->name('categories.show');
-        Route::get('vendors/{alias}', 'Modules\Tiles@vendorModules')->name('vendors.show');
-        Route::get('docs/{alias}', 'Modules\Item@documentation')->name('docs.show');
-
-        Route::get('paid', 'Modules\Tiles@paidModules')->name('paid');
-        Route::get('new', 'Modules\Tiles@newModules')->name('new');
-        Route::get('free', 'Modules\Tiles@freeModules')->name('free');
-        Route::get('search', 'Modules\Tiles@searchModules')->name('search');
-        Route::post('{type}/load-more', 'Modules\Tiles@loadMore')->name('load-more');
-        Route::post('steps', 'Modules\Item@steps')->name('steps');
-        Route::post('download', 'Modules\Item@download')->name('download');
-        Route::post('unzip', 'Modules\Item@unzip')->name('unzip');
-        Route::post('copy', 'Modules\Item@copy')->name('copy');
-        Route::post('install', 'Modules\Item@install')->name('install');
-
-        Route::post('{alias}/releases', 'Modules\Item@releases')->name('app.releases');
-        Route::post('{alias}/reviews', 'Modules\Item@reviews')->name('app.reviews');
-        Route::get('{alias}/uninstall', 'Modules\Item@uninstall')->name('app.uninstall');
-        Route::get('{alias}/enable', 'Modules\Item@enable')->name('app.enable');
-        Route::get('{alias}/disable', 'Modules\Item@disable')->name('app.disable');
-        Route::get('{alias}', 'Modules\Item@show')->name('app.show');
 });
 
 Route::group(['prefix' => 'install'], function () {

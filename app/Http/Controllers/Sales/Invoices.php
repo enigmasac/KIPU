@@ -31,7 +31,24 @@ class Invoices extends Controller
     {
         $this->setActiveTabForDocuments();
 
-        $invoices = Document::invoice()->with('contact', 'items', 'items.taxes', 'item_taxes', 'last_history', 'transactions', 'totals', 'histories', 'media')->collect(['document_number'=> 'desc']);
+        $invoices = Document::invoice()->with([
+            'contact',
+            'items',
+            'items.taxes',
+            'item_taxes',
+            'last_history',
+            'transactions',
+            'credits_transactions',
+            'totals',
+            'histories',
+            'media',
+            'credit_notes' => function ($query) {
+                $query->select('id', 'invoice_id', 'document_number', 'amount', 'currency_code', 'status', 'issued_at');
+            },
+            'debit_notes' => function ($query) {
+                $query->select('id', 'invoice_id', 'document_number', 'amount', 'currency_code', 'status', 'issued_at');
+            },
+        ])->collect(['document_number'=> 'desc']);
 
         $total_invoices = Document::invoice()->count();
 
@@ -260,11 +277,7 @@ class Invoices extends Controller
      */
     public function markCancelled(Document $invoice)
     {
-        event(new \App\Events\Document\DocumentCancelled($invoice));
-
-        $message = trans('documents.messages.marked_cancelled', ['type' => trans_choice('general.invoices', 1)]);
-
-        flash($message)->success();
+        flash('No se puede anular una factura emitida. Use una nota de credito.')->error()->important();
 
         return redirect()->back();
     }
@@ -278,11 +291,7 @@ class Invoices extends Controller
      */
     public function restoreInvoice(Document $invoice)
     {
-        event(new \App\Events\Document\DocumentRestored($invoice));
-
-        $message = trans('documents.messages.restored', ['type' => trans_choice('general.invoices', 1)]);
-
-        flash($message)->success();
+        flash('No se puede restaurar una factura anulada. Use una nota de credito o debito segun corresponda.')->error()->important();
 
         return redirect()->back();
     }

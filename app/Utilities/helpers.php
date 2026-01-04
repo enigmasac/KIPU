@@ -185,6 +185,74 @@ if (! function_exists('array_values_recursive')) {
     }
 }
 
+if (! function_exists('prepare_pdf_html')) {
+    /**
+     * Convert asset URLs to local file paths for DomPDF.
+     */
+    function prepare_pdf_html(string $html): string
+    {
+        $print_css_path = public_path('css/print.css');
+        if (is_readable($print_css_path)) {
+            $print_css = file_get_contents($print_css_path);
+            if ($print_css !== false) {
+                $print_css = preg_replace('/^@charset[^;]+;\\s*/i', '', $print_css);
+                $style_tag = "<style>\n" . $print_css . "\n</style>";
+                $html = preg_replace('#<link[^>]+href=[\"\\\'][^\"\\\']*css/print\\.css[^\"\\\']*[\"\\\'][^>]*>#i', $style_tag, $html);
+            }
+        }
+
+        $public_path = str_replace(DIRECTORY_SEPARATOR, '/', public_path());
+        $public_path = rtrim($public_path, '/') . '/';
+        $file_base = 'file://' . $public_path;
+
+        $roots = [];
+        $app_url = trim((string) config('app.url'));
+        $asset_url = trim((string) config('app.asset_url'));
+
+        if ($app_url !== '') {
+            $roots[] = rtrim($app_url, '/');
+        }
+
+        if ($asset_url !== '') {
+            $roots[] = rtrim($asset_url, '/');
+        }
+
+        try {
+            $request_root = request()->getSchemeAndHttpHost();
+            if ($request_root) {
+                $roots[] = rtrim($request_root, '/');
+            }
+        } catch (\Throwable $e) {
+            // Ignore missing request context (queue/CLI).
+        }
+
+        $roots = array_unique(array_filter($roots));
+
+        $html = preg_replace('#<base\\s+href=\"[^\"]*\">#i', '<base href="' . $file_base . '">', $html);
+
+        foreach ($roots as $root) {
+            $html = str_replace($root . '/', $file_base, $html);
+            $html = str_replace($root, rtrim($file_base, '/'), $html);
+        }
+
+        $html = preg_replace_callback(
+            '#(href|src)=\"/(?!/)([^\"]*)\"#',
+            fn($match) => $match[1] . '="' . $file_base . $match[2] . '"',
+            $html
+        );
+
+        $html = preg_replace_callback(
+            '#url\\((\"|\')?/(?!/)([^\\)\"\']+)(\"|\')?\\)#',
+            fn($match) => 'url(' . ($match[1] ?? '') . $file_base . $match[2] . ($match[3] ?? '') . ')',
+            $html
+        );
+
+        $html = str_replace($file_base . 'public/', $file_base, $html);
+
+        return $html;
+    }
+}
+
 if (! function_exists('running_in_install')) {
     /**
      * Detect if application is running in queue.
@@ -403,7 +471,7 @@ if (! function_exists('request_is_auth')) {
 }
 
 if (! function_exists('request_is_signed')) {
-    function request_is_signed(Request|null $request = null, int $company_id = null): bool
+    function request_is_signed(Request|null $request = null, int|null $company_id = null): bool
     {
         if (is_null($company_id)) {
             return false;
@@ -416,7 +484,7 @@ if (! function_exists('request_is_signed')) {
 }
 
 if (! function_exists('request_is_portal')) {
-    function request_is_portal(Request|null $request = null, int $company_id = null): bool
+    function request_is_portal(Request|null $request = null, int|null $company_id = null): bool
     {
         if (is_null($company_id)) {
             return false;

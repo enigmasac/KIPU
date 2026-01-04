@@ -31,14 +31,17 @@ class DocumentItem extends Model
         'item_id',
         'name',
         'description',
+        'sku',
         'quantity',
         'price',
-        'total',
         'tax',
-        'discount_rate',
         'discount_type',
+        'discount_rate',
+        'total',
         'created_from',
         'created_by',
+        'sunat_unit_code',
+        'sunat_tax_type',
     ];
 
     /**

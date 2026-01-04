@@ -1,4 +1,10 @@
-<x-form id="report-show" action="{{ route('reports.show', $class->model->id) }}">
+@php
+    $report_action = ! empty($class->model->system_slug)
+        ? route('reports.system.show', $class->model->system_slug)
+        : route('reports.show', $class->model->id);
+@endphp
+
+<x-form id="report-show" action="{{ $report_action }}">
     @php
         $filters = [];
         $filtered = [];

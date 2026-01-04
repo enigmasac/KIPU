@@ -35,4 +35,20 @@ class Invoice extends SettingController
             'quantity_names'
         ));
     }
+
+    public function update(\App\Http\Requests\Setting\Setting $request)
+    {
+        $prefix = $request->get('_prefix', 'invoice');
+        
+        $response = parent::update($request);
+        
+        // Enhance the redirect URL to keep the active tab
+        $data = $response->getData();
+        if (isset($data->success) && $data->success) {
+            $data->redirect = route('settings.invoice.edit', ['tab' => $prefix]);
+            $response->setData($data);
+        }
+
+        return $response;
+    }
 }

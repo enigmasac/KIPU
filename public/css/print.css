@@ -839,6 +839,7 @@ html[dir='rtl'] .print-heading {
     }
 }
 
+
 @media (max-width: 1200px) {
     .transaction-head-text {
         max-width: 100px !important;

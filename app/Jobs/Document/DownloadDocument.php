@@ -31,6 +31,10 @@ class DownloadDocument extends Job
 
     public function handle()
     {
+        // Aumentar límites para evitar caídas en DomPDF
+        ini_set('memory_limit', '256M');
+        ini_set('max_execution_time', 120);
+
         event(new DocumentPrinting($this->document));
 
         $data = [
@@ -41,8 +45,14 @@ class DownloadDocument extends Job
         $view = view($this->document->template_path, $data)->render();
             
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'sans-serif'
+        ]);
         $pdf->loadHTML($html);
 
         $file_name = $this->getDocumentFileName($this->document);

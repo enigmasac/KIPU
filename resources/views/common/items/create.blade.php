@@ -1,4 +1,12 @@
 <x-layouts.admin>
+    @php
+        $sunat_units = config('peru-core.sunat.units', [['id' => 'NIU', 'name' => 'NIU (UNIDAD)']]);
+        $sunat_units_options = collect($sunat_units)->pluck('name', 'id');
+
+        $sunat_tax_types = config('peru-core.sunat.tax_types', [['id' => '10', 'name' => 'Gravado - Operación Onerosa']]);
+        $sunat_tax_types_options = collect($sunat_tax_types)->pluck('name', 'id');
+    @endphp
+
     <x-slot name="title">{{ trans('general.title.new', ['type' => trans_choice('general.items', 1)]) }}</x-slot>
 
     <x-slot name="favorite"
@@ -28,9 +36,33 @@
 
                         <x-form.group.text name="name" label="{{ trans('general.name') }}" />
 
+                        <x-form.group.text name="sku" label="{{ trans('invoices.sku') }}" required />
+
+                        <x-form.group.select name="sunat_unit_code" label="{{ trans('invoices.unit') }}" :options="$sunat_units_options" selected="NIU" required />
+
                         <x-form.group.category type="item" not-required />
 
                         <x-form.group.textarea name="description" label="{{ trans('general.description') }}" not-required />
+
+                        <!-- SECCIÓN DETRACCIÓN (SUNAT) -->
+                        <div class="sm:col-span-6 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-4">
+                            <div class="flex items-center space-x-4">
+                                <x-form.group.toggle name="is_detraction" label="Afecto a Detracción" v-model="form.is_detraction" />
+                                
+                                <div v-if="form.is_detraction" class="flex-1 max-w-xs">
+                                    <x-form.group.text 
+                                        name="detraction_percentage" 
+                                        label="Porcentaje de Detracción (%)" 
+                                        v-model="form.detraction_percentage"
+                                        placeholder="Ej. 10.00"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                Si está marcado, se aplicará automáticamente la detracción en facturas >= S/ 700.00 con IGV.
+                            </p>
+                        </div>
                     </x-slot>
                 </x-form.section>
 

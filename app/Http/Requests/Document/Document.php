@@ -11,6 +11,13 @@ class Document extends FormRequest
 {
     protected $items_quantity_size = [];
 
+    protected function prepareForValidation()
+    {
+        if (! $this->has('sale_type')) {
+            $this->merge(['sale_type' => 'cash']);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -109,11 +116,32 @@ class Document extends FormRequest
             $this->request->set('items', $items);
         }
 
+        if ($this->request->get('sale_type') === 'credit' && ($this->request->get('type') === Model::INVOICE_TYPE || $this->request->get('type') === 'invoice')) {
+            $rules['installments'] = 'required|array|min:1';
+            $rules['installments.*.amount'] = 'required|numeric|gt:0';
+            $rules['installments.*.due_at'] = 'required|date';
+        }
+
         return $rules;
     }
 
     public function withValidator($validator)
     {
+        $validator->after(function ($validator) {
+            if ($this->request->get('sale_type') === 'credit' && ($this->request->get('type') === Model::INVOICE_TYPE || $this->request->get('type') === 'invoice')) {
+                $installments = $this->request->get('installments', []);
+                $total_installments = 0;
+                foreach ($installments as $installment) {
+                    $total_installments += (float) ($installment['amount'] ?? 0);
+                }
+
+                $amount = (float) $this->request->get('amount');
+                if (abs($total_installments - $amount) > 0.01) {
+                    $validator->errors()->add('installments', "La suma de las cuotas ({$total_installments}) debe ser igual al total del documento ({$amount}).");
+                }
+            }
+        });
+
         if ($validator->errors()->count()) {
             // Set date
             $issued_at = Date::parse($this->request->get('issued_at'))->format('Y-m-d');

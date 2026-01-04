@@ -44,10 +44,10 @@
                 <x-form.label for="document_number" required>
                     {{ trans($textDocumentNumber) }}
                 </x-form.label>
-                <div class="flex items-center text-sm text-gray-700 bg-gray-100 p-2 rounded border border-gray-300">
+                <div id="document_number_display" class="flex items-center text-sm text-gray-700 bg-gray-100 p-2 rounded border border-gray-300">
                     {{ $documentNumber }}
                 </div>
-                <input type="hidden" name="document_number" value="{{ $documentNumber }}">
+                <input type="hidden" id="document_number" name="document_number" value="{{ $documentNumber }}" v-model="form.document_number">
             </div>
         @endif
 
@@ -89,8 +89,12 @@
             />
         @endif
 
-        <x-form.group.select name="sunat_document_type" label="Tipo de Comprobante" :options="['01' => 'Factura', '03' => 'Boleta']" :selected="! empty($document) ? $document->sunat_document_type : '01'" form-group-class="sm:col-span-2" />
+        @if ($type == 'invoice')
+            <x-form.group.select name="sunat_document_type" label="Tipo de Comprobante" :options="['01' => 'Factura', '03' => 'Boleta']" :selected="data_get($document, 'sunat_document_type', '01')" v-model="form.sunat_document_type" form-group-class="sm:col-span-2" />
 
-        <x-form.group.select name="sunat_operation_type" label="Tipo de Operación" :options="['01' => 'Venta Normal', '02' => 'Venta Gratuita']" :selected="! empty($document) ? $document->sunat_operation_type : '01'" form-group-class="sm:col-span-2" />
+            <x-form.group.select name="sunat_operation_type" label="Tipo de Operación" :options="['01' => 'Venta Normal', '02' => 'Venta Gratuita']" :selected="data_get($document, 'sunat_operation_type', '01')" form-group-class="sm:col-span-2" />
+
+            <x-form.group.select name="sale_type" label="Tipo de Venta" :options="['cash' => 'Venta al Contado', 'credit' => 'Venta al Crédito']" v-model="form.sale_type" :selected="data_get($document, 'sale_type', 'cash')" form-group-class="sm:col-span-2" />
+        @endif
     </div>
 </div>

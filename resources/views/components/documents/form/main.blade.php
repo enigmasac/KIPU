@@ -6,6 +6,10 @@
     <x-slot name="body">
         <x-documents.form.metadata type="{{ $type }}" />
 
+        @if ($type == 'invoice')
+            <x-documents.form.installments />
+        @endif
+
         <x-documents.form.items type="{{ $type }}" />
 
         <x-documents.form.totals type="{{ $type }}" />

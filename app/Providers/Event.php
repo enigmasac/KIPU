@@ -76,9 +76,11 @@ class Event extends Provider
         ],
         'App\Events\Document\DocumentMarkedSent' => [
             'App\Listeners\Document\MarkDocumentSent',
+            'App\Listeners\Document\CreditCustomerAccount',
         ],
         'App\Events\Document\DocumentSent' => [
             'App\Listeners\Document\MarkDocumentSent',
+            'App\Listeners\Document\CreditCustomerAccount',
         ],
         'App\Events\Document\DocumentUpdated' => [
             'App\Listeners\Document\SettingFieldUpdated',

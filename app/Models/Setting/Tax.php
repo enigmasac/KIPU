@@ -24,7 +24,7 @@ class Tax extends Model
      *
      * @var array
      */
-    protected $fillable = ['company_id', 'name', 'rate', 'type', 'priority', 'enabled', 'created_from', 'created_by'];
+    protected $fillable = ['company_id', 'name', 'rate', 'sunat_code', 'type', 'priority', 'is_system', 'enabled', 'created_from', 'created_by'];
 
     /**
      * The attributes that should be cast.
@@ -34,6 +34,7 @@ class Tax extends Model
     protected $casts = [
         'rate'          => 'double',
         'priority'      => 'integer',
+        'is_system'     => 'boolean',
         'enabled'       => 'boolean',
         'deleted_at'    => 'datetime',
     ];
@@ -145,6 +146,10 @@ class Tax extends Model
      */
     public function getLineActionsAttribute()
     {
+        if ($this->is_system) {
+            return [];
+        }
+
         $actions = [];
 
         $actions[] = [

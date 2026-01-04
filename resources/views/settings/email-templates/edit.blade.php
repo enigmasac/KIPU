@@ -29,9 +29,10 @@
                 <div class="w-full lg:w-2/3 flex-col xl:m-0 lg:pl-12 justify-evenly xl:w-2/3">
                     @php
                         $first = Arr::first($templates);
-                        $template = Arr::first($first);
+                        $template = !empty($first) ? Arr::first($first) : null;
                     @endphp
 
+                    @if ($template)
                     <x-form id="setting" method="PATCH" route="settings.email-templates.update" :model="$template">
                         <div class="mb-14">
                             <div class="border-b-2 border-gray-200 pb-2">
@@ -83,6 +84,11 @@
 
                         <x-form.input.hidden name="_prefix" value="email" />
                     </x-form>
+                    @else
+                        <div class="flex items-center justify-center h-full">
+                            <p class="text-gray-500">No hay plantillas de correo disponibles.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

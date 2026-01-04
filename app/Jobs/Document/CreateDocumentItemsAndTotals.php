@@ -176,6 +176,100 @@ class CreateDocumentItemsAndTotals extends Job implements HasOwner, HasSource, S
             'created_from' => $this->request['created_from'],
             'created_by' => $this->request['created_by'],
         ]);
+
+        $is_invoice = $this->document->type === 'invoice';
+        $is_credit_note = $this->document->type === Document::CREDIT_NOTE_TYPE;
+        $is_debit_note = $this->document->type === Document::DEBIT_NOTE_TYPE;
+
+        // VERIFICACIÓN PARA NOTAS DE CRÉDITO (SUNAT)
+        if ($is_credit_note && !empty($this->document->invoice_id)) {
+            $invoice = Document::find($this->document->invoice_id);
+            if ($invoice) {
+                $already_credited = Document::where('invoice_id', $invoice->id)
+                    ->where('type', 'credit-note')
+                    ->where('id', '!=', $this->document->id)
+                    ->sum('amount');
+               
+                $total_credit = round($already_credited + $this->request['amount'], $precision);
+                $invoice_amount = round($invoice->amount, $precision);
+
+                if ($total_credit > $invoice_amount) {
+                    throw new \Exception("El monto acumulado de notas de crédito (" . $total_credit . ") excede el monto de la factura original (" . $invoice_amount . ").");
+                }
+            }
+        }
+
+        // LOGICA DE DETRACCIÓN (SUNAT)
+        if (($is_invoice && $this->request['amount'] >= 700) || ($is_credit_note && !empty($this->document->invoice_id)) || ($is_debit_note && !empty($this->document->invoice_id))) {
+            $detraction_amount = 0;
+            $max_percentage = 0;
+            $has_detraction = false;
+
+            if ($is_invoice) {
+                // Obtenemos los items directamente de la BD para asegurar que tenemos los campos de detracción
+                $document_items = \App\Models\Document\DocumentItem::where('document_id', $this->document->id)->get();
+
+                foreach ($document_items as $document_item) {
+                    $product = \App\Models\Common\Item::find($document_item->item_id);
+                    
+                    if ($product && $product->is_detraction) {
+                        $has_detraction = true;
+                        // Según SUNAT, si hay varios, se aplica el mayor porcentaje sobre el total de la operación
+                        if ($product->detraction_percentage > $max_percentage) {
+                            $max_percentage = (float) $product->detraction_percentage;
+                        }
+                    }
+                }
+            } else {
+                // Es nota de crédito, heredamos si la factura original tenía
+                $invoice_detraction = DocumentTotal::where('document_id', $this->document->invoice_id)
+                    ->where('code', 'detraction')
+                    ->first();
+                
+                if ($invoice_detraction) {
+                    $has_detraction = true;
+                    if (preg_match('/(\d+(\.\d+)?)%/', $invoice_detraction->name, $matches)) {
+                        $max_percentage = (float) $matches[1];
+                    }
+                }
+            }
+
+            if ($has_detraction && $max_percentage > 0) {
+                $detraction_amount = (float) $this->request['amount'] * ($max_percentage / 100);
+                
+                $sort_order++;
+
+                DocumentTotal::create([
+                    'company_id' => $this->document->company_id,
+                    'type' => $this->document->type,
+                    'document_id' => $this->document->id,
+                    'code' => 'detraction',
+                    'name' => 'Detracción (' . $max_percentage . '%)',
+                    'amount' => round($detraction_amount, $precision),
+                    'sort_order' => $sort_order,
+                    'created_from' => $this->request['created_from'],
+                    'created_by' => $this->request['created_by'],
+                ]);
+
+                // Guardar info SPOT en notas del documento
+                $bn_account = setting('company.sunat_bn_account', 'No configurada');
+                
+                $spot_note = "\n\nOPERACIÓN SUJETA AL SISTEMA DE PAGO DE OBLIGACIONES TRIBUTARIAS (SPOT)\n";
+                $spot_note .= "Cuenta Banco de la Nación: " . $bn_account . "\n";
+                $spot_note .= "Monto Detracción: " . number_format($detraction_amount, $precision) . " " . $this->document->currency_code . "\n";
+                
+                if ($is_credit_note) {
+                    $spot_note = "\n\nAJUSTE DE DETRACCIÓN POR NOTA DE CRÉDITO\n" . $spot_note;
+                } elseif ($is_debit_note) {
+                    $spot_note = "\n\nAJUSTE DE DETRACCIÓN POR NOTA DE DÉBITO\n" . $spot_note;
+                }
+
+                // Actualizar notas sin causar bucle
+                \DB::table('documents')->where('id', $this->document->id)->update([
+                    'notes' => $this->document->notes . $spot_note
+                ]);
+            }
+        }
     }
 
     protected function createItems(): array
@@ -213,6 +307,9 @@ class CreateDocumentItemsAndTotals extends Job implements HasOwner, HasSource, S
                 $new_item_request = [
                     'company_id' => $this->request['company_id'],
                     'name' => $item['name'],
+                    'sku' => $item['sku'] ?? '',
+                    'sunat_unit_code' => $item['sunat_unit_code'] ?? 'NIU',
+                    'sunat_tax_type' => $item['sunat_tax_type'] ?? '10',
                     'description' => $item['description'],
                     'sale_price' => $item['price'],
                     'purchase_price' => $item['price'],

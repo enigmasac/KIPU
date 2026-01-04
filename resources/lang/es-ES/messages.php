@@ -32,6 +32,8 @@ return [
         'import_sheet'      => 'Error: El nombre de la hoja no es válido. Por favor, verifique el archivo de ejemplo.',
         'same_amount'       => 'Error: La cantidad total de división debe ser exactamente la misma que el :transaction total: :amount',
         'over_match'        => 'Error: :type no conectado! La cantidad introducida no puede exceder el total del pago: :amount',
+        'sunat_issued_document_deletion_restricted' => 'Error: No se puede eliminar un documento emitido por cumplimiento de SUNAT. Por favor, anúlelo (Nota de Crédito) en su lugar.',
+        'system_tax_locked' => 'Error: El impuesto :name es del sistema y no se puede modificar.',
     ],
 
     'warning' => [

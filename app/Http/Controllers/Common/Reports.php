@@ -32,11 +32,20 @@ class Reports extends Controller
      */
     public function index()
     {
-        $totals = $icons = $categories = [];
+        $categories = [];
+        $reports_by_class = [];
+
+        foreach (Utility::getSystemReports() as $system_report) {
+            $reports_by_class[$system_report['class']] = Utility::makeSystemReportModel($system_report['class']);
+        }
 
         $reports = Report::orderBy('name')->get();
 
         foreach ($reports as $report) {
+            $reports_by_class[$report->class] = $report;
+        }
+
+        foreach ($reports_by_class as $report) {
             if (Utility::cannotShow($report->class)) {
                 continue;
             }
@@ -47,7 +56,8 @@ class Reports extends Controller
                 continue;
             }
 
-            $icons[$report->id] = $class->getIcon();
+            $report->icon = $class->getIcon();
+            $report->description = $report->description ?? '';
 
             if (empty($categories[$class->getCategory()])) {
                 $categories[$class->getCategory()] = [
@@ -60,7 +70,7 @@ class Reports extends Controller
             }
         }
 
-        return $this->response('common.reports.index', compact('categories', 'icons'));
+        return $this->response('common.reports.index', compact('categories'));
     }
 
     /**

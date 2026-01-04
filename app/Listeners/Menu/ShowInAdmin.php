@@ -5,7 +5,6 @@ namespace App\Listeners\Menu;
 use App\Traits\Permissions;
 use App\Events\Menu\AdminCreated as Event;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 
 class ShowInAdmin
 {
@@ -30,19 +29,23 @@ class ShowInAdmin
             $menu->route('dashboard', $title, [], 10, ['icon' => 'speed', 'inactive' => $inactive]);
         }
 
-        // Items
-        $title = trim(trans_choice('general.items', 2));
-        if ($this->canAccessMenuItem($title, 'read-common-items')) {
-            $menu->route('items.index', $title, [], 20, ['icon' => 'inventory_2']);
-        }
-
         // Sales
         $title = trim(trans_choice('general.sales', 2));
-        if ($this->canAccessMenuItem($title, ['read-sales-invoices', 'read-sales-customers'])) {
+        if ($this->canAccessMenuItem($title, ['read-sales-invoices', 'read-sales-customers', 'read-sales-credit-notes'])) {
             $menu->dropdown($title, function ($sub) use ($attr) {
                 $title = trim(trans_choice('general.invoices', 2));
                 if ($this->canAccessMenuItem($title, 'read-sales-invoices')) {
                     $sub->route('invoices.index', $title, [], 10, $attr);
+                }
+
+                $title = trim(trans_choice('general.credit_notes', 2));
+                if ($this->canAccessMenuItem($title, 'read-sales-credit-notes')) {
+                    $sub->route('sales.credit-notes.index', $title, [], 15, $attr);
+                }
+
+                $title = trim(trans_choice('general.debit_notes', 2));
+                if ($this->canAccessMenuItem($title, ['read-sales-debit-notes', 'read-sales-invoices'])) {
+                    $sub->route('sales.debit-notes.index', $title, [], 16, $attr);
                 }
 
                 $title = trim(trans_choice('general.customers', 2));
@@ -72,6 +75,12 @@ class ShowInAdmin
                 'title' => $title,
                 'icon' => 'shopping_cart',
             ]);
+        }
+
+        // Items
+        $title = trim(trans_choice('general.items', 2));
+        if ($this->canAccessMenuItem($title, 'read-common-items')) {
+            $menu->route('items.index', $title, [], 45, ['icon' => 'inventory_2']);
         }
 
         // Banking
@@ -109,11 +118,5 @@ class ShowInAdmin
             $menu->route('reports.index', $title, [], 60, ['icon' => 'donut_small']);
         }
 
-        // Apps
-        $title = trim(trans_choice('general.modules', 2));
-        if ($this->canAccessMenuItem($title, 'read-modules-home')) {
-            $active = (Str::contains(Route::currentRouteName(), 'apps')) ? true : false;
-            $menu->route('apps.home.index', $title, [], 80, ['icon' => 'rocket_launch', 'active' => $active]);
-        }
     }
 }

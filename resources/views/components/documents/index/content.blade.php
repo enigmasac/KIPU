@@ -151,6 +151,8 @@
         page="{{ $page }}"
         alias="{{ $alias }}"
         :buttons="$emptyPageButtons"
+        :hide-button-create="$hideCreate"
+        :hide-button-import="$hideImport"
         image-empty-page="{{ $imageEmptyPage }}"
         text-empty-page="{{ $textEmptyPage }}"
         url-docs-path="{{ $urlDocsPath }}"

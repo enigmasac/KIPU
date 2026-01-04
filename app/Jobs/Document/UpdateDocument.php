@@ -47,9 +47,22 @@ class UpdateDocument extends Job implements ShouldUpdate
                 $this->deleteMediaModel($this->model, 'attachment', $this->request);
             }
 
-            $this->deleteRelationships($this->model, ['items', 'item_taxes', 'totals'], true);
+            $this->deleteRelationships($this->model, ['items', 'item_taxes', 'totals', 'installments'], true);
 
             $this->dispatch(new CreateDocumentItemsAndTotals($this->model, $this->request));
+
+            // Manejo de cuotas (SUNAT)
+            if ($this->model->type === 'invoice' && ($this->request->get('sale_type') === 'credit') && $this->request->has('installments')) {
+                foreach ($this->request->get('installments') as $installment) {
+                    if (empty($installment['amount'])) continue;
+
+                    $this->model->installments()->create([
+                        'company_id' => $this->model->company_id,
+                        'amount' => $installment['amount'],
+                        'due_at' => $installment['due_at'],
+                    ]);
+                }
+            }
 
             $this->model->paid_amount = $this->model->paid;
 

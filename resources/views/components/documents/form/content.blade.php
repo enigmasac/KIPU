@@ -24,6 +24,18 @@
         <x-form.input.hidden name="type" :value="old('type', $type)" v-model="form.type" />
         <x-form.input.hidden name="status" :value="old('status', $status)" v-model="form.status" />
         <x-form.input.hidden name="amount" :value="old('amount', '0')" v-model="form.amount" />
+        @if ($type === 'credit-note')
+            <x-form.input.hidden
+                name="invoice_id"
+                :value="old('invoice_id', $invoice_id ?? data_get($document ?? null, 'invoice_id') ?? request('invoice_id'))"
+                v-model="form.invoice_id"
+            />
+            <x-form.input.hidden
+                name="parent_id"
+                :value="old('parent_id', $invoice_id ?? data_get($document ?? null, 'invoice_id') ?? request('invoice_id'))"
+                v-model="form.parent_id"
+            />
+        @endif
 
         @if (! $hideButtons)
             <x-documents.form.buttons :type="$type" />

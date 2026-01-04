@@ -29,7 +29,7 @@ class ShowInSettings
             $menu->route('settings.localisation.edit', $title, [], 20, ['icon' => 'flag', 'search_keywords' => trans('settings.localisation.search_keywords')]);
         }
 
-        $title = trim(trans_choice('general.invoices', 1));
+        $title = trim(trans_choice('general.documents', 2));
         if ($this->canAccessMenuItem($title, 'read-settings-invoice')) {
             $menu->route('settings.invoice.edit', $title, [], 30, ['icon' => 'description', 'search_keywords' => trans('settings.invoice.search_keywords')]);
         }

@@ -778,7 +778,7 @@ abstract class Index extends Component
             return $class;
         }
 
-        return 'w-3/12 table-title hidden sm:table-cell';
+        return 'w-2/12 table-title hidden sm:table-cell text-center';
     }
 
     protected function getTextCategory($type, $textCategory)

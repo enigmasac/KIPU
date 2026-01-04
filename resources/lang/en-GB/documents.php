@@ -41,6 +41,7 @@ return [
         'overdue'               => 'Overdue',
         'unpaid'                => 'Unpaid',
         'cancelled'             => 'Cancelled',
+        'observed'              => 'Observed',
         'voided'                => 'Voided',
         'completed'             => 'Completed',
         'shipped'               => 'Shipped',

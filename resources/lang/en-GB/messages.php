@@ -36,6 +36,7 @@ return [
         'import_sheet'      => 'Error: Sheet name is not valid. Please, check the sample file.',
         'same_amount'       => 'Error: The total amount of split must be exactly the same as the :transaction total: :amount',
         'over_match'        => 'Error: :type not connected! The amount you entered can not exceed the payment total: :amount',
+        'sunat_issued_document_deletion_restricted' => 'Error: Cannot delete issued documents due to SUNAT compliance. Please cancel (void) it instead.',
     ],
 
     'warning' => [

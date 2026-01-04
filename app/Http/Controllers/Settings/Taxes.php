@@ -129,6 +129,12 @@ class Taxes extends Controller
      */
     public function edit(Tax $tax)
     {
+        if ($tax->is_system) {
+            flash(trans('messages.error.system_tax_locked', ['name' => $tax->name]))->error()->important();
+
+            return redirect()->route('taxes.index');
+        }
+
         $types = [
             'fixed' => trans('taxes.fixed'),
             'normal' => trans('taxes.normal'),

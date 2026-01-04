@@ -44,7 +44,7 @@
                         </x-table.th>
 
                         <x-table.th class="w-2/12">
-                            <x-sortablelink column="rate" title="{{ trans('currencies.rate') }}" />
+                            <x-sortablelink column="rate" title="Tipo de Cambio (S/)" />
                         </x-table.th>
                     </x-table.tr>
                 </x-table.thead>
@@ -81,7 +81,7 @@
                             </x-table.td>
 
                             <x-table.td class="w-2/12">
-                                {{ $item->rate }}
+                                {{ $item->sunat_rate ?? $item->rate }}
                             </x-table.td>
 
                             <x-table.td kind="action">

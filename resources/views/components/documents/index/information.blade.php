@@ -17,11 +17,11 @@
                 </div>
 
                 @if (! $hideShow)
-                    <x-link href="{{ route($showRoute, $document->contact_id) }}" class="font-medium border-b border-black" override="class">
+                    <x-link href="{{ route($showRoute, $document->contact_id) }}" class="font-medium border-b border-black information-contact-name" override="class">
                         {{ $document->contact_name }}
                     </x-link>
                 @else
-                    <div class="font-medium border-b border-black">
+                    <div class="font-medium border-b border-black information-contact-name">
                         {{ $document->contact_name }}
                     </div>
                 @endif
@@ -111,7 +111,10 @@
                     </span>
 
                     <span>
-                        <x-money :amount="$document->amount" :currency="$document->currency_code" />
+                        @php
+                            $due_amount = $document->type === 'invoice' ? $document->amount_due : $document->amount;
+                        @endphp
+                        <x-money :amount="$due_amount" :currency="$document->currency_code" />
                     </span>
                 </div>
             </div>

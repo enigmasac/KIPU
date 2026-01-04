@@ -119,7 +119,15 @@ class UpdateBankingDocumentTransaction extends Job implements ShouldUpdate
 
     protected function createHistory(): void
     {
-        $history_desc = money((double) $this->transaction->amount, (string) $this->transaction->currency_code)->format() . ' ' . trans_choice('general.payments', 1);
+        $type = trans_choice('general.payments', 1);
+
+        if ($this->model->type === Document::CREDIT_NOTE_TYPE) {
+            $type = trans('credit_notes.refund');
+        } elseif ($this->model->type === Document::DEBIT_NOTE_TYPE) {
+            $type = trans('debit_notes.refund');
+        }
+
+        $history_desc = money((double) $this->transaction->amount, (string) $this->transaction->currency_code)->format() . ' ' . $type;
 
         $this->dispatch(new CreateDocumentHistory($this->model, 0, $history_desc));
     }

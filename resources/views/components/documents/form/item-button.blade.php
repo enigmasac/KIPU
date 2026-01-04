@@ -1,3 +1,6 @@
+@php
+    $search_list_key = array_values(array_unique(array_merge((array) $searchListKey, ['value', 'sku', 'sunat_unit_code'])));
+@endphp
 <akaunting-item-button
     placeholder="{{ trans('general.placeholder.item_search') }}"
     no-data-text="{{ trans('general.no_data') }}"
@@ -8,13 +11,7 @@
     :items="{{ json_encode($items) }}"
     search-url="{{ $searchUrl }}"
     :search-char-limit="{{ $searchCharLimit }}"
-    @if (is_array($searchListKey))
-    :search-list-key="{{ json_encode($searchListKey) }}"
-    @elseif (is_object($searchListKey))
-    :search-list-key="{{ $searchListKey }}"
-    @else
-    search-list-key="{{ $searchListKey }}"
-    @endif
+    :search-list-key="{{ json_encode($search_list_key) }}"
     @item="onSelectedItem($event)"
     add-item-text="{{ trans('general.form.add_an', ['field' => trans_choice('general.items', 1)]) }}"
     create-new-item-text="{{ trans('general.title.new', ['type' =>  trans_choice('general.items', 1)]) }}"

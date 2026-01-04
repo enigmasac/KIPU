@@ -14,12 +14,7 @@ trait Cloud
             return route('roles.roles.index');
         }
 
-        return route('apps.app.show', [
-            'alias'         => 'roles',
-            'utm_source'    => $location,
-            'utm_medium'    => 'app',
-            'utm_campaign'  => 'roles',
-        ]);
+        return '';
     }
 
     public function getCloudBankFeedsUrl($location = 'widget')
@@ -28,12 +23,7 @@ trait Cloud
             return route('bank-feeds.bank-connections.index');
         }
 
-        return route('apps.app.show', [
-            'alias'         => 'bank-feeds',
-            'utm_source'    => $location,
-            'utm_medium'    => 'app',
-            'utm_campaign'  => 'bank_feeds',
-        ]);
+        return '';
     }
 
     public function isCloud()

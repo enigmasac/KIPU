@@ -27,6 +27,8 @@ class Transaction extends Model
     public const EXPENSE_TRANSFER_TYPE = 'expense-transfer';
     public const EXPENSE_SPLIT_TYPE = 'expense-split';
     public const EXPENSE_RECURRING_TYPE = 'expense-recurring';
+    public const CREDIT_NOTE_REFUND_TYPE = 'credit_note_refund';
+    public const DEBIT_NOTE_REFUND_TYPE = 'debit_note_refund';
 
     protected $table = 'transactions';
 

@@ -185,7 +185,7 @@ class SearchString extends Component
 
         if (!empty($options['route'])) {
             if (is_array($options['route'])) {
-                $url = route($options['route'][0], $options['route'][1]);
+                $url = route($options['route'][0], $options['route'][1] ?? []);
             } else {
                 $url = route($options['route']);
             }

@@ -301,6 +301,7 @@ abstract class Report
         $view = view($this->views['print'], ['print' => true])->with('class', $this)->render();
 
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);
@@ -583,7 +584,15 @@ abstract class Report
 
     public function getUrl($action = 'print')
     {
-        $url = company_id() . '/common/reports/' . $this->model->id . '/' . $action;
+        if (! empty($this->model->system_slug)) {
+            $url = company_id() . '/common/reports/system/' . $this->model->system_slug;
+
+            if (! empty($action) && $action !== 'show') {
+                $url .= '/' . $action;
+            }
+        } else {
+            $url = company_id() . '/common/reports/' . $this->model->id . '/' . $action;
+        }
 
         $request = request()->all();
         $parameters = '';

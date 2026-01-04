@@ -492,6 +492,10 @@ trait Permissions
             // Modules\Blog\Http\Controllers\Portal\Posts   -->> blog-portal-posts
         }
 
+        if ($controller === 'sales-debit-notes') {
+            $controller = 'sales-credit-notes';
+        }
+
         // Add CRUD permission check
         $this->middleware('permission:create-' . $controller)->only('create', 'store', 'duplicate', 'import');
         $this->middleware('permission:read-' . $controller)->only('index', 'show', 'edit', 'export');

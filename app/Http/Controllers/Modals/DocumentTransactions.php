@@ -71,22 +71,18 @@ class DocumentTransactions extends Controller
 
         $document->paid_at = Date::now()->toDateString();
 
+        $type = config('type.document.' . $document->id . '.transaction_type', 'income');
+
+        if ($document->type === Document::CREDIT_NOTE_TYPE) {
+            $type = 'credit_note_refund';
+        } elseif ($document->type === Document::DEBIT_NOTE_TYPE) {
+            $type = 'debit_note_refund';
+        }
+
         $buttons = [
             'cancel' => [
                 'text' => trans('general.cancel'),
                 'class' => 'btn-outline-secondary'
-            ],
-            'payment' => [
-                'text' => trans('invoices.accept_payments'),
-                'class' => 'long-texts',
-                'before_text' => trans('general.get_paid_faster'),
-                'class' => 'px-6 py-1.5 text-xs bg-gray-200 hover:bg-purple-200 font-medium rounded-lg leading-6 long-texts',
-                'url' => route('apps.categories.show', [
-                    'alias' => 'payment-method',
-                    'utm_source' => $document->type . '_payment',
-                    'utm_medium' => 'app',
-                    'utm_campaign' => 'payment_method',
-                ])
             ],
             'send' => [
                 'text' => trans('general.save_and_send'),
@@ -127,6 +123,12 @@ class DocumentTransactions extends Controller
      */
     public function store(Document $document, Request $request)
     {
+        if ($document->type === Document::CREDIT_NOTE_TYPE) {
+            $request['type'] = 'credit_note_refund';
+        } elseif ($document->type === Document::DEBIT_NOTE_TYPE) {
+            $request['type'] = 'debit_note_refund';
+        }
+
         $response = $this->ajaxDispatch(new CreateBankingDocumentTransaction($document, $request));
 
         if ($response['success']) {
@@ -186,17 +188,6 @@ class DocumentTransactions extends Controller
                 'text' => trans('general.cancel'),
                 'class' => 'btn-outline-secondary'
             ],
-            'payment' => [
-                'text' => trans('invoices.accept_payments'),
-                'before_text' => trans('general.get_paid_faster'),
-                'class' => 'px-6 py-1.5 text-xs bg-gray-200 hover:bg-purple-200 font-medium rounded-lg leading-6 long-texts',
-                'url' => route('apps.categories.show', [
-                    'alias' => 'payment-method',
-                    'utm_source' => $document->type . '_payment',
-                    'utm_medium' => 'app',
-                    'utm_campaign' => 'payment_method',
-                ])
-            ],
             'confirm' => [
                 'text' => trans('general.save'),
                 'class' => 'disabled:bg-green-100'
@@ -230,6 +221,12 @@ class DocumentTransactions extends Controller
      */
     public function update(Document $document, Transaction $transaction, Request $request)
     {
+        if ($document->type === Document::CREDIT_NOTE_TYPE) {
+            $request['type'] = 'credit_note_refund';
+        } elseif ($document->type === Document::DEBIT_NOTE_TYPE) {
+            $request['type'] = 'debit_note_refund';
+        }
+
         $response = $this->ajaxDispatch(new UpdateBankingDocumentTransaction($document, $transaction, $request));
 
         if ($response['success']) {

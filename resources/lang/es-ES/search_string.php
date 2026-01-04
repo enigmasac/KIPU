@@ -16,6 +16,8 @@ return [
         'expense_account'   => 'De Cuenta',
         'income_account'    => 'A Cuenta',
         'recurring'         => 'Recurrente',
+        'note_type'         => 'Notas',
+        'sunat_status'      => 'SUNAT',
     ],
 
 ];

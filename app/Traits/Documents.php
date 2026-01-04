@@ -182,6 +182,7 @@ trait Documents
 
         $view = view($document->template_path, ['invoice' => $document, 'document' => $document])->render();
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);

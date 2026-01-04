@@ -28,7 +28,7 @@ class Invoices extends Controller
      */
     public function index()
     {
-        $invoices = Document::invoice()->with('contact', 'histories', 'items', 'payments')
+        $invoices = Document::invoice()->with('contact', 'histories', 'items', 'payments', 'credits_transactions')
             ->accrued()->where('contact_id', user()->contact->id)
             ->collect(['document_number'=> 'desc']);
 
@@ -110,6 +110,7 @@ class Invoices extends Controller
 
         $view = view($invoice->template_path, compact('invoice', 'currency_style'))->render();
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);

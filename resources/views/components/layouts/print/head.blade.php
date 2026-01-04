@@ -25,7 +25,7 @@
         @font-face {
             font-family: 'Firefly Sung';
             font-weight: 'normal';
-            src: url('{{ asset("/public/css/fonts/firefly_sung_normal.ttf") }}') format("truetype");
+            src: url('{{ asset("css/fonts/firefly_sung_normal.ttf") }}') format("truetype");
         }
 
         * {

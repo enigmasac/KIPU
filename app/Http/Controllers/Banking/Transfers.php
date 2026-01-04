@@ -239,6 +239,7 @@ class Transfers extends Controller
 
         $view = view($transfer->template_path, compact('transfer', 'currency_style'))->render();
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);

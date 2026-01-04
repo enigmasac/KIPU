@@ -14,7 +14,7 @@
 
             @if (! $hideAddPayment)
                 @if ($document->totals->count())
-                    @if ($document->status != 'paid' && (empty($document->transactions->count()) || (! empty($document->transactions->count()) && $document->paid != $document->amount)) )
+                    @if ($document->status != 'paid' && ($document->amount_due > 0) && (empty($document->transactions->count()) || (! empty($document->transactions->count()) && $document->paid != $document->amount)) )
                         @if ($document->status != 'cancelled')
                             <x-button
                                 @click="onAddPayment('{{ route('modals.documents.document.transactions.create', $document->id) }}')"

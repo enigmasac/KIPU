@@ -3,10 +3,17 @@
         {{ $class->model->name }}
     </x-slot>
 
+    @php
+        $is_system = ! empty($class->model->system_slug);
+        $favorite_route = $is_system
+            ? ['reports.system.show', $class->model->system_slug]
+            : ['reports.show', $class->model->id];
+    @endphp
+
     <x-slot name="favorite"
         title="{{ $class->model->name }}"
         icon="{{ $class->icon }}"
-        :route="['reports.show', $class->model->id]"
+        :route="$favorite_route"
     ></x-slot>
 
     <x-slot name="buttons">
@@ -46,9 +53,11 @@
             @stack('button_edit_start')
 
             @can('update-common-reports')
-                <x-dropdown.link href="{{ url($class->getUrl('edit')) }}" id="index-more-actions-edit-report">
-                    {{ trans('general.edit') }}
-                </x-dropdown.link>
+                @unless ($is_system)
+                    <x-dropdown.link href="{{ url($class->getUrl('edit')) }}" id="index-more-actions-edit-report">
+                        {{ trans('general.edit') }}
+                    </x-dropdown.link>
+                @endunless
             @endcan
 
             @stack('button_edit_end')
@@ -56,7 +65,9 @@
             @stack('button_delete_start')
 
             @can('delete-common-reports')
-                <x-delete-link :model="$class->model" route="reports.destroy" />
+                @unless ($is_system)
+                    <x-delete-link :model="$class->model" route="reports.destroy" />
+                @endunless
             @endcan
 
             @stack('button_delete_end')

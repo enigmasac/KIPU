@@ -25,8 +25,19 @@ class CreateDocument extends Job implements HasOwner, HasSource, ShouldCreate
             $this->request['amount'] = 0;
         }
 
+        // Ensure company_id is set
+        if (empty($this->request['company_id']) && function_exists('company_id')) {
+            $this->request['company_id'] = company_id();
+        }
+
         if (empty($this->request['category_id'])) {
-            $this->request['category_id'] = setting('default.' . config('type.document.' . $this->request['type'] . '.category_type') . '_category');
+            $category_type = config('type.document.' . $this->request['type'] . '.category_type', 'income');
+            $this->request['category_id'] = setting('default.' . $category_type . '_category');
+
+            // Si sigue vacío, buscamos la primera categoría disponible de ese tipo para evitar el error de BD
+            if (empty($this->request['category_id'])) {
+                $this->request['category_id'] = \App\Models\Setting\Category::type($category_type)->first()->id ?? null;
+            }
         }
 
         // Disable this lines for global discount issue fixed ( https://github.com/akaunting/akaunting/issues/2797 )
@@ -49,6 +60,19 @@ class CreateDocument extends Job implements HasOwner, HasSource, ShouldCreate
             }
 
             $this->dispatch(new CreateDocumentItemsAndTotals($this->model, $this->request));
+
+            // Manejo de cuotas (SUNAT)
+            if ($this->model->type === 'invoice' && ($this->request->get('sale_type') === 'credit') && $this->request->has('installments')) {
+                foreach ($this->request->get('installments') as $installment) {
+                    if (empty($installment['amount'])) continue;
+                    
+                    $this->model->installments()->create([
+                        'company_id' => $this->model->company_id,
+                        'amount' => $installment['amount'],
+                        'due_at' => $installment['due_at'],
+                    ]);
+                }
+            }
 
             $this->model->update($this->request->all());
 

@@ -16,6 +16,8 @@
 
                         <x-form.group.text name="rate" label="{{ trans('taxes.rate_percent') }}" @input="onChangeTaxRate" />
 
+                        <x-form.group.text name="sunat_code" label="Código SUNAT" :value="$tax->sunat_code" placeholder="Ej. 1000 para IGV" />
+
                         <x-form.group.select name="type" label="{{ trans_choice('general.types', 1) }}" :options="$types" :disabledOptions="$disable_options" />
 
                         <x-form.group.text name="priority" label="Prioridad" :value="$tax->priority" />

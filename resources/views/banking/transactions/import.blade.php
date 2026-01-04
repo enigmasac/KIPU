@@ -14,11 +14,15 @@
             <div class="relative -m-2 flex items-center space-x-4 rounded-xl p-4 focus-within:ring-2 focus-within:ring-gray-500 hover:bg-gray-100">
                 <div>
                     <h2 class="text-base font-semibold text-gray-900">
-                        <a href="{{ module_is_enabled('bank-feeds') ? route('bank-feeds.bank-connections.create') : route('apps.app.show', 'bank-feeds') }}" class="focus:outline-none">
-                            <span class="absolute inset-0" aria-hidden="true"></span>
+                        @if (module_is_enabled('bank-feeds'))
+                            <a href="{{ route('bank-feeds.bank-connections.create') }}" class="focus:outline-none">
+                                <span class="absolute inset-0" aria-hidden="true"></span>
+                                <span>{{ trans_choice('general.bank_feeds', 2) }}</span>
+                                <span aria-hidden="true"> &rarr;</span>
+                            </a>
+                        @else
                             <span>{{ trans_choice('general.bank_feeds', 2) }}</span>
-                            <span aria-hidden="true"> &rarr;</span>
-                        </a>
+                        @endif
                     </h2>
 
                     <p class="mt-1 text-sm text-gray-500">
@@ -32,11 +36,15 @@
                     <div class="relative -m-2 flex items-center space-x-4 rounded-xl p-4 focus-within:ring-2 focus-within:ring-gray-500 hover:bg-gray-100">
                         <div>
                             <h3 class="text-sm font-medium text-gray-900">
-                                <a href="{{ module_is_enabled('receipt') ? route('receipt.receipts.create') : route('apps.app.show', 'receipt') }}" class="focus:outline-none">
-                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                @if (module_is_enabled('receipt'))
+                                    <a href="{{ route('receipt.receipts.create') }}" class="focus:outline-none">
+                                        <span class="absolute inset-0" aria-hidden="true"></span>
+                                        <span>{{ trans_choice('general.receipts', 2) }}</span>
+                                        <span aria-hidden="true"> &rarr;</span>
+                                    </a>
+                                @else
                                     <span>{{ trans_choice('general.receipts', 2) }}</span>
-                                    <span aria-hidden="true"> &rarr;</span>
-                                </a>
+                                @endif
                             </h3>
 
                             <p class="mt-1 text-sm text-gray-500">
@@ -50,11 +58,15 @@
                     <div class="relative -m-2 flex items-center space-x-4 rounded-xl p-4 focus-within:ring-2 focus-within:ring-gray-500 hover:bg-gray-100">
                         <div>
                             <h3 class="text-sm font-medium text-gray-900">
-                                <a href="{{ module_is_enabled('ofx') ? route('ofx.ofx.create') : route('apps.app.show', 'ofx') }}" class="focus:outline-none">
-                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                @if (module_is_enabled('ofx'))
+                                    <a href="{{ route('ofx.ofx.create') }}" class="focus:outline-none">
+                                        <span class="absolute inset-0" aria-hidden="true"></span>
+                                        <span>{{ trans_choice('general.ofx', 2) }}</span>
+                                        <span aria-hidden="true"> &rarr;</span>
+                                    </a>
+                                @else
                                     <span>{{ trans_choice('general.ofx', 2) }}</span>
-                                    <span aria-hidden="true"> &rarr;</span>
-                                </a>
+                                @endif
                             </h3>
 
                             <p class="mt-1 text-sm text-gray-500">
@@ -68,11 +80,15 @@
                     <div class="relative -m-2 flex items-center space-x-4 rounded-xl p-4 focus-within:ring-2 focus-within:ring-gray-500 hover:bg-gray-100">
                         <div>
                             <h3 class="text-sm font-medium text-gray-900">
-                                <a href="{{ module_is_enabled('mt940') ? route('mt940.create') : route('apps.app.show', 'mt940') }}" class="focus:outline-none">
-                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                @if (module_is_enabled('mt940'))
+                                    <a href="{{ route('mt940.create') }}" class="focus:outline-none">
+                                        <span class="absolute inset-0" aria-hidden="true"></span>
+                                        <span>{{ trans_choice('general.mt940', 2) }}</span>
+                                        <span aria-hidden="true"> &rarr;</span>
+                                    </a>
+                                @else
                                     <span>{{ trans_choice('general.mt940', 2) }}</span>
-                                    <span aria-hidden="true"> &rarr;</span>
-                                </a>
+                                @endif
                             </h3>
 
                             <p class="mt-1 text-sm text-gray-500">
@@ -151,4 +167,3 @@
 
     <x-script folder="common" file="imports" />
 </x-layouts.admin>
-

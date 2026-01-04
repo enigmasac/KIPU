@@ -27,6 +27,8 @@ class Document extends Model
     public const INVOICE_RECURRING_TYPE = 'invoice-recurring';
     public const BILL_TYPE = 'bill';
     public const BILL_RECURRING_TYPE = 'bill-recurring';
+    public const CREDIT_NOTE_TYPE = 'credit-note';
+    public const DEBIT_NOTE_TYPE = 'debit-note';
 
     protected $table = 'documents';
 
@@ -65,8 +67,15 @@ class Document extends Model
         'template',
         'color',
         'parent_id',
+        'sale_type',
         'created_from',
         'created_by',
+        'invoice_id',
+        'bill_id',
+        'credit_note_reason_code',
+        'debit_note_reason_code',
+        'credit_customer_account',
+        'sunat_status',
     ];
 
     /**
@@ -110,6 +119,75 @@ class Document extends Model
     protected static function booted()
     {
         static::addGlobalScope(new Scope);
+
+        static::deleting(function($document) {
+            // SUNAT Compliance: Prevent deletion of issued documents.
+            if ($document->status === 'draft') {
+                return;
+            }
+
+            $strictTypes = [
+                self::INVOICE_TYPE,
+                self::CREDIT_NOTE_TYPE,
+                self::DEBIT_NOTE_TYPE
+            ];
+
+            if (in_array($document->type, $strictTypes)) {
+                // If the user tries to delete an issued document, we stop them.
+                // They should Cancel (Void) it instead using a Credit Note or changing status.
+                throw new \Exception(trans('messages.error.sunat_issued_document_deletion_restricted'));
+            }
+        });
+
+        static::creating(function($document) {
+            // SUNAT Compliance: Temporary Number for Drafts
+            if ($document->status === 'draft') {
+                // Generate a temporary ID (e.g., BR-1715629399)
+                // We use microtime to avoid collision in high concurrency, though rare in drafts.
+                $document->document_number = 'BR-' . time();
+            }
+        });
+
+        static::updating(function($document) {
+            // SUNAT Compliance: Prevent editing of issued documents
+            // We allow updates if the document was created less than 60 seconds ago (system creation process)
+            // or if it's currently in 'draft' status.
+            if ($document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && $document->created_at->diffInSeconds(now()) > 60) {
+                throw new \Exception('No se puede editar un documento que ya ha sido emitido. Por favor, use una Nota de Crédito para anularlo.');
+            }
+
+            // SUNAT Compliance: Protect Draft Numbering
+            // If we are still a draft, prevent the controller from overwriting the BR- number with the UI-supplied real number.
+            if ($document->status === 'draft' && $document->isDirty('document_number')) {
+                // If the new number is NOT a draft number, revert to the original (BR-) number.
+                if (!str_starts_with($document->document_number, 'BR-')) {
+                    $document->document_number = $document->getOriginal('document_number');
+                }
+            }
+
+            // SUNAT Compliance: Auto-update Issue Date and Assign Real Number when moving from Draft -> Issued
+            if ($document->isDirty('status') && $document->getOriginal('status') === 'draft' && $document->status !== 'cancelled') {
+                $document->issued_at = now();
+
+                // Assign Real SUNAT Number
+                $type = $document->type;
+                // Determine real type if recurring (e.g. invoice-recurring -> invoice)
+                if (app()->has(\App\Console\Commands\RecurringCheck::class)) {
+                     // We use the trait method logic manually here or just rely on the base type if standard
+                     // Usually document->type is 'invoice' even if recurring metadata is attached, but let's be safe
+                     if (str_contains($type, 'recurring')) {
+                         $type = str_replace('-recurring', '', $type);
+                     }
+                }
+                
+                // Get the next real number
+                $realNumber = app(DocumentNumber::class)->getNextNumber($type, $document->contact);
+                $document->document_number = $realNumber;
+
+                // Increment the counter officially
+                app(DocumentNumber::class)->increaseNextNumber($type, $document->contact);
+            }
+        });
     }
 
     public function category()
@@ -120,6 +198,18 @@ class Document extends Model
     public function children()
     {
         return $this->hasMany('App\Models\Document\Document', 'parent_id');
+    }
+
+    public function credit_notes()
+    {
+        return $this->hasMany(self::class, 'invoice_id')
+            ->where('type', self::CREDIT_NOTE_TYPE);
+    }
+
+    public function debit_notes()
+    {
+        return $this->hasMany(self::class, 'invoice_id')
+            ->where('type', self::DEBIT_NOTE_TYPE);
     }
 
     public function contact()
@@ -145,6 +235,11 @@ class Document extends Model
     public function histories()
     {
         return $this->hasMany('App\Models\Document\DocumentHistory', 'document_id');
+    }
+
+    public function installments()
+    {
+        return $this->hasMany('App\Models\Document\DocumentInstallment', 'document_id');
     }
 
     public function last_history()
@@ -177,7 +272,18 @@ class Document extends Model
 
     public function transactions()
     {
-        return $this->hasMany('App\Models\Banking\Transaction', 'document_id');
+        return $this->hasMany('App\Models\Banking\Transaction', 'document_id')
+            ->whereIn('transactions.type', [
+                'income',
+                'expense',
+                'credit_note_refund',
+                'debit_note_refund',
+            ]);
+    }
+
+    public function credits_transactions()
+    {
+        return $this->hasMany('App\Models\Document\CreditsTransaction', 'document_id');
     }
 
     public function totals_sorted()
@@ -203,6 +309,56 @@ class Document extends Model
     public function scopeStatus(Builder $query, string $status): Builder
     {
         return $query->where($this->qualifyColumn('status'), '=', $status);
+    }
+
+    public function scopeSunatStatus(Builder $query, $value)
+    {
+        if (empty($value)) {
+            return $query;
+        }
+
+        $values = is_array($value)
+            ? $value
+            : array_filter(array_map('trim', explode(',', $value)));
+
+        if (empty($values)) {
+            return $query;
+        }
+
+        return $query->whereIn($this->qualifyColumn('sunat_status'), $values);
+    }
+
+    public function scopeNoteType(Builder $query, $value)
+    {
+        if (empty($value)) {
+            return $query;
+        }
+
+        $types = is_array($value)
+            ? $value
+            : array_filter(array_map('trim', explode(',', $value)));
+
+        if (empty($types)) {
+            return $query;
+        }
+
+        $query->where(function ($query) use ($types) {
+            foreach ($types as $type) {
+                $type = strtolower($type);
+
+                if ($type === 'credit') {
+                    $query->orWhereHas('credit_notes', function ($sub) {
+                        $sub->where('status', '!=', 'cancelled');
+                    });
+                } elseif ($type === 'debit') {
+                    $query->orWhereHas('debit_notes', function ($sub) {
+                        $sub->where('status', '!=', 'cancelled');
+                    });
+                }
+            }
+        });
+
+        return $query;
     }
 
     public function scopeAccrued(Builder $query): Builder
@@ -274,7 +430,7 @@ class Document extends Model
         $this->document_number = app(DocumentNumber::class)->getNextNumber($type, $src->contact);
     }
 
-    public function getSentAtAttribute(string $value = null)
+    public function getSentAtAttribute(string|null $value = null)
     {
         if ($this->relationLoaded('histories')) {
             $sent = $this->histories->where('status', 'sent')->first();
@@ -285,7 +441,7 @@ class Document extends Model
         return $sent->created_at ?? null;
     }
 
-    public function getReceivedAtAttribute(string $value = null)
+    public function getReceivedAtAttribute(string|null $value = null)
     {
         if ($this->relationLoaded('histories')) {
             $received = $this->histories->where('status', 'received')->first();
@@ -383,6 +539,7 @@ class Document extends Model
         }
 
         $paid = 0;
+        $credit_paid = 0;
 
         $code = $this->currency_code;
         $rate = $this->currency_rate;
@@ -391,6 +548,10 @@ class Document extends Model
         // Lazy eager load transactions if not already loaded to prevent N+1 queries
         if (!$this->relationLoaded('transactions')) {
             $this->load('transactions');
+        }
+
+        if (!$this->relationLoaded('credits_transactions')) {
+            $this->load('credits_transactions');
         }
 
         if ($this->transactions->count()) {
@@ -405,7 +566,101 @@ class Document extends Model
             }
         }
 
+        if ($this->credits_transactions->count()) {
+            foreach ($this->credits_transactions as $transaction) {
+                if ($transaction->type !== 'expense') {
+                    continue;
+                }
+
+                $amount = $transaction->amount;
+
+                if ($code != $transaction->currency_code) {
+                    $amount = $this->convertBetween($amount, $transaction->currency_code, $transaction->currency_rate, $code, $rate);
+                }
+
+                $credit_paid += $amount;
+            }
+        }
+
+        $paid += $credit_paid;
+
+        if ($this->type === self::INVOICE_TYPE) {
+            $credit_notes_total = 0;
+            $credit_notes = $this->relationLoaded('credit_notes')
+                ? $this->credit_notes->filter(function ($credit_note) {
+                    return $credit_note->status !== 'cancelled'
+                        && strtolower((string) $credit_note->sunat_status) !== 'rechazado';
+                })
+                : self::where('invoice_id', $this->id)
+                    ->where('type', self::CREDIT_NOTE_TYPE)
+                    ->where('status', '!=', 'cancelled')
+                    ->where(function ($query) {
+                        $query->whereNull('sunat_status')
+                            ->orWhere('sunat_status', '!=', 'rechazado');
+                    })
+                    ->get(['amount', 'currency_code', 'currency_rate']);
+
+            foreach ($credit_notes as $credit_note) {
+                $amount = $credit_note->amount;
+
+                if ($code != $credit_note->currency_code) {
+                    $amount = $this->convertBetween($amount, $credit_note->currency_code, $credit_note->currency_rate, $code, $rate);
+                }
+
+                $credit_notes_total += $amount;
+            }
+
+            if ($credit_notes_total > $credit_paid) {
+                $paid += ($credit_notes_total - $credit_paid);
+            }
+        }
+
         return round($paid, $precision);
+    }
+
+    /**
+     * Get the total amount added by debit notes.
+     *
+     * @return float
+     */
+    public function getDebitNotesTotalAttribute()
+    {
+        $precision = currency($this->currency_code)->getPrecision();
+
+        if (! $this->relationLoaded('debit_notes')) {
+            $debit_notes = $this->debit_notes()
+                ->where('status', '!=', 'cancelled')
+                ->where(function ($query) {
+                    $query->whereNull('sunat_status')
+                        ->orWhere('sunat_status', '!=', 'rechazado');
+                })
+                ->get();
+        } else {
+            $debit_notes = $this->debit_notes->reject(function ($debit_note) {
+                return $debit_note->status === 'cancelled'
+                    || strtolower((string) $debit_note->sunat_status) === 'rechazado';
+            });
+        }
+
+        $total = 0;
+
+        foreach ($debit_notes as $debit_note) {
+            $amount = $debit_note->amount;
+
+            if ($this->currency_code !== $debit_note->currency_code) {
+                $amount = $this->convertBetween(
+                    $amount,
+                    $debit_note->currency_code,
+                    $debit_note->currency_rate,
+                    $this->currency_code,
+                    $this->currency_rate
+                );
+            }
+
+            $total += $amount;
+        }
+
+        return round($total, $precision);
     }
 
     /**
@@ -460,7 +715,7 @@ class Document extends Model
     {
         $precision = currency($this->currency_code)->getPrecision();
 
-        return round($this->amount - $this->paid, $precision);
+        return round($this->amount + $this->debit_notes_total - $this->paid, $precision);
     }
 
     /**
@@ -564,7 +819,7 @@ class Document extends Model
         }
 
         try {
-            if (! $this->reconciled) {
+            if ($this->status == 'draft' && ! $this->reconciled) {
                 $actions[] = [
                     'title' => trans('general.edit'),
                     'icon' => 'edit',
@@ -689,7 +944,9 @@ class Document extends Model
                 'type' => 'divider',
             ];
 
-            if (! in_array($this->status, ['cancelled', 'draft'])) {
+            $cancel_disabled_types = [self::INVOICE_TYPE, self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE];
+
+            if (! in_array($this->type, $cancel_disabled_types, true) && ! in_array($this->status, ['cancelled', 'draft'])) {
                 try {
                     $actions[] = [
                         'title' => trans('documents.actions.cancel'),
@@ -708,18 +965,20 @@ class Document extends Model
             }
 
             try {
-                $actions[] = [
-                    'type' => 'delete',
-                    'icon' => 'delete',
-                    'title' => $translation_prefix,
-                    'route' => $prefix . '.destroy',
-                    'permission' => 'delete-' . $group . '-' . $permission_prefix,
-                    'model-name' => 'document_number',
-                    'attributes' => [
-                        'id' => 'index-line-actions-delete-' . $this->type . '-' . $this->id,
-                    ],
-                    'model' => $this,
-                ];
+                if ($this->status == 'draft') {
+                    $actions[] = [
+                        'type' => 'delete',
+                        'icon' => 'delete',
+                        'title' => $translation_prefix,
+                        'route' => $prefix . '.destroy',
+                        'permission' => 'delete-' . $group . '-' . $permission_prefix,
+                        'model-name' => 'document_number',
+                        'attributes' => [
+                            'id' => 'index-line-actions-delete-' . $this->type . '-' . $this->id,
+                        ],
+                        'model' => $this,
+                    ];
+                }
             } catch (\Exception $e) {}
         } else {
             if ($this->recurring && $this->recurring->status != 'ended') {

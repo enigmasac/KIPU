@@ -870,7 +870,7 @@ abstract class Form extends Component
         $document_number = $utility->getNextNumber($type, $contact);
 
         if (empty($document_number)) {
-            $document_number = $utility->getNextNumber(Document::INVOICE_TYPE, $contact);
+            $document_number = $utility->getNextNumber(\App\Models\Document\Document::INVOICE_TYPE, $contact);
         }
 
         return $document_number;

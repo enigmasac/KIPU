@@ -57,14 +57,11 @@ abstract class Widget
         }
 
         if (Reports::isModule($this->report_class) && Reports::isModuleDisabled($this->report_class)) {
-            $alias = Reports::getModuleAlias($this->report_class);
+            if (! user() || user()->cannot('read-common-reports')) {
+                return $empty_url;
+            }
 
-            return route('apps.app.show', [
-                'alias'         => $alias,
-                'utm_source'    => 'widget',
-                'utm_medium'    => 'app',
-                'utm_campaign'  => str_replace('-', '_', $alias),
-            ]);
+            return route('reports.index');
         }
 
         if (! class_exists($this->report_class)) {
@@ -78,7 +75,9 @@ abstract class Widget
         $model = Report::where('class', $this->report_class)->first();
 
         if (! $model instanceof Report) {
-            return route('reports.create');
+            return route('reports.system.show', [
+                'report' => Reports::getSystemSlug($this->report_class),
+            ]);
         }
 
         return route('reports.show', $model->id);

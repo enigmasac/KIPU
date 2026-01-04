@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="content">
-        <x-documents.template.ddefault
+        <x-documents.template.default
             type="invoice"
             :document="$invoice"
         />

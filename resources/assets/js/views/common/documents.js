@@ -57,6 +57,9 @@ const app = new Vue({
             items: [],
             selected_items:[],
             taxes: [],
+            sale_type: 'cash',
+            installments: [],
+            invoices: [],
             page_loaded: false,
             currencies: [],
             min_due_date: false,
@@ -196,6 +199,57 @@ const app = new Vue({
             this.onChangeAmount(this.form.amount);
         },
 
+        addInstallment() {
+            const default_due = this.form.due_at ? String(this.form.due_at).substring(0, 10) : '';
+            this.installments.push({
+                amount: this.numberFormat(0, this.currency.precision),
+                due_at: default_due,
+            });
+        },
+
+        removeInstallment(index) {
+            this.installments.splice(index, 1);
+            this.form.installments = this.installments;
+        },
+
+        onSaleTypeChange() {
+            if (this.form.sale_type === 'credit') {
+                if (!this.installments.length) {
+                    this.addInstallment();
+                }
+                this.form.installments = this.installments;
+            } else {
+                this.installments = [];
+                this.form.installments = [];
+            }
+        },
+
+        // Visual helper: return taxes ordered by priority (asc) and name as tiebreaker
+        orderedTaxIds(row) {
+            if (!row || !row.tax_ids || !row.tax_ids.length) {
+                return [];
+            }
+
+            const getTaxData = (taxRef) => {
+                const id = (typeof taxRef === 'object') ? taxRef.id : taxRef;
+                return this.dynamic_taxes.find(t => t.id == id);
+            };
+
+            return [...row.tax_ids].sort((a, b) => {
+                const ta = getTaxData(a);
+                const tb = getTaxData(b);
+
+                const pa = ta ? (parseInt(ta.priority) || 0) : 0;
+                const pb = tb ? (parseInt(tb.priority) || 0) : 0;
+
+                if (pa === pb) {
+                    return String(ta ? ta.title : '').localeCompare(String(tb ? tb.title : ''));
+                }
+
+                return pa - pb;
+            });
+        },
+
         onChangePayInFull(event) {
             this.$forceUpdate();
 
@@ -294,14 +348,14 @@ const app = new Vue({
         },
 
         onRefFocus(ref) {
-            let index = this.form.items.length - 1;
-
-            if (typeof (this.$refs['items-' + index + '-' + ref]) !== 'undefined') {
-                let first_ref = this.$refs['items-' + index + '-'  + ref];
-
-                if (first_ref != undefined) {
-                    first_ref[0].focus();
-                } else if (this.$refs[Object.keys(this.$refs)[0]] != undefined) {
+            if (this.$refs[ref]) {
+                if (this.$refs[ref][0]) {
+                    this.$refs[ref][0].focus();
+                } else if (this.$refs[ref].$el) {
+                    this.$refs[ref].$el.focus();
+                }
+            } else {
+                if (this.$refs[Object.keys(this.$refs)[0]] && this.$refs[Object.keys(this.$refs)[0]][0]) {
                     this.$refs[Object.keys(this.$refs)[0]][0].focus();
                 }
             }
@@ -840,6 +894,23 @@ const app = new Vue({
     },
 
     created() {
+        // Inicializar tipo de venta / cuotas / facturas (NC)
+        this.sale_type = (typeof document_sale_type !== 'undefined' && document_sale_type) ? document_sale_type : 'cash';
+        this.form.sale_type = this.sale_type;
+
+        this.invoices = (typeof invoices !== 'undefined' && invoices) ? invoices : [];
+
+        if (typeof document_installments !== 'undefined' && document_installments && document_installments.length) {
+            this.installments = document_installments.map(inst => ({
+                amount: inst.amount,
+                due_at: inst.due_at ? String(inst.due_at).substring(0, 10) : ''
+            }));
+        } else {
+            this.installments = [];
+        }
+
+        this.form.installments = this.installments;
+
         this.form.items = [];
 
         if (typeof document_items !== 'undefined' && document_items) {
@@ -851,6 +922,8 @@ const app = new Vue({
                 this.form.items.push({
                     item_id: item.item_id,
                     name: item.name,
+                    sku: item.sku || '',
+                    sunat_unit_code: item.sunat_unit_code || 'NIU',
                     description: item.description === null ? "" : item.description,
                     quantity: item.quantity,
                     price: (item.price).toFixed(this.currency.precision ?? 2),
@@ -887,6 +960,8 @@ const app = new Vue({
                 this.items.push({
                     item_id: item.item_id,
                     name: item.name,
+                    sku: item.sku || '',
+                    sunat_unit_code: item.sunat_unit_code || 'NIU',
                     description: item.description === null ? "" : item.description,
                     quantity: item.quantity,
                     price: (item.price).toFixed(this.currency.precision ?? 2),
@@ -1022,6 +1097,25 @@ const app = new Vue({
             if (! newVal) {
                 this.send_to = false;
             }
+        },
+
+        'form.sale_type': function (newVal) {
+            if (newVal === 'credit') {
+                if (!this.installments.length) {
+                    this.addInstallment();
+                }
+                this.form.installments = this.installments;
+            } else {
+                this.installments = [];
+                this.form.installments = [];
+            }
+        },
+
+        'installments': {
+            handler(newVal) {
+                this.form.installments = newVal;
+            },
+            deep: true,
         },
     },
 });

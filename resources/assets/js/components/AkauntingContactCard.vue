@@ -77,7 +77,7 @@
                             </tr>
                             <tr v-if="contact.tax_number">
                                 <th class="font-normal text-xs ltr:text-left rtl:text-right p-0">
-                                    {{ taxNumberText }}: {{ contact.tax_number }}
+                                    {{ contact.document_type ? contact.document_type : taxNumberText }}: {{ contact.tax_number }}
                                 </th>
                             </tr>
                             <tr v-if="contact.phone">
@@ -173,6 +173,7 @@ export default {
                     email: '',
                     has_email: '',
                     tax_number: '',
+                    document_type: '',
                     currency_code: '',
                     phone: '',
                     website: '',
@@ -321,6 +322,7 @@ export default {
                             email: (contact.email) ? contact.email : '',
                             has_email: (contact.has_email) ? contact.has_email : '',
                             tax_number: (contact.tax_number) ? contact.tax_number : '',
+                            document_type: (contact.document_type) ? contact.document_type : '',
                             currency_code: (contact.currency_code) ? contact.currency_code : '',
                             phone: (contact.phone) ? contact.phone : '',
                             website: (contact.website) ? contact.website : '',
@@ -532,6 +534,7 @@ export default {
                         email: (contact.email) ? contact.email : '',
                         has_email: (contact.has_email) ? contact.has_email : '',
                         tax_number: (contact.tax_number) ? contact.tax_number : '',
+                        document_type: (contact.document_type) ? contact.document_type : '',
                         currency_code: (contact.currency_code) ? contact.currency_code : '',
                         phone: (contact.phone) ? contact.phone : '',
                         website: (contact.website) ? contact.website : '',
@@ -619,6 +622,7 @@ export default {
                     email: (contact.email) ? contact.email : '',
                     has_email: (contact.has_email) ? contact.has_email : '',
                     tax_number: (contact.tax_number) ? contact.tax_number : '',
+                    document_type: (contact.document_type) ? contact.document_type : '',
                     currency_code: (contact.currency_code) ? contact.currency_code : '',
                     phone: (contact.phone) ? contact.phone : '',
                     website: (contact.website) ? contact.website : '',

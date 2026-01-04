@@ -40,7 +40,14 @@
 
                 <x-form.section>
                     <x-slot name="head">
-                        <x-form.section.head title="{{ trans('general.assign') }}" description="{!! trans('auth.form_description.assign', ['url' => $roles_url]) !!}" />
+                        @php
+                            $assign_description = trans('auth.form_description.assign', ['url' => $roles_url ?: '#']);
+                            if (empty($roles_url)) {
+                                $assign_description = strip_tags($assign_description);
+                            }
+                        @endphp
+
+                        <x-form.section.head title="{{ trans('general.assign') }}" description="{!! $assign_description !!}" />
                     </x-slot>
 
                     <x-slot name="body">

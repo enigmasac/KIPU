@@ -29,6 +29,12 @@ class DeleteTax extends Job implements ShouldDelete
      */
     public function authorize(): void
     {
+        if ($this->model->is_system) {
+            $message = trans('messages.error.system_tax_locked', ['name' => $this->model->name]);
+
+            throw new \Exception($message);
+        }
+
         if ($relationships = $this->getRelationships()) {
             $message = trans('messages.warning.deleted', ['name' => $this->model->name, 'text' => implode(', ', $relationships)]);
 

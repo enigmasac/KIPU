@@ -14,7 +14,23 @@
             <div>
                 <h3 class="text-lg font-medium text-black">{{ setting('company.name') }}</h3>
                 <p class="text-sm text-gray-500">{{ setting('company.tax_number') }}</p>
-                <p class="text-sm text-gray-500">{!! nl2br(e(setting('company.address'))) !!}</p>
+                <p class="text-sm text-gray-500">
+                    {!! nl2br(e(setting('company.address'))) !!}
+                    <br>
+                    @if (setting('company.city'))
+                        {{ setting('company.city') }},
+                    @endif
+                    @if (setting('company.state'))
+                        {{ setting('company.state') }}
+                    @endif
+                    @if (setting('company.zip_code'))
+                        {{ setting('company.zip_code') }}
+                    @endif
+                    @if (setting('company.country'))
+                        <br>
+                        {{ trans('countries.' . setting('company.country')) }}
+                    @endif
+                </p>
             </div>
         </div>
     </x-slot>

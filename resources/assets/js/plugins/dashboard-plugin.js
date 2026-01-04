@@ -10,10 +10,19 @@ import GlobalComponents from './globalComponents';
 import GlobalDirectives from './globalDirectives';
 
 // element ui language configuration
-import lang from 'element-ui/lib/locale/lang/en';
+import langEn from 'element-ui/lib/locale/lang/en';
+import langEs from 'element-ui/lib/locale/lang/es';
 import locale from 'element-ui/lib/locale';
 
-locale.use(lang);
+const htmlLang = document.documentElement.lang || 'en';
+const baseLang = htmlLang.toLowerCase().split('-')[0];
+
+const localeMap = {
+    en: langEn,
+    es: langEs,
+};
+
+locale.use(localeMap[baseLang] || langEn);
 
 // asset imports
 

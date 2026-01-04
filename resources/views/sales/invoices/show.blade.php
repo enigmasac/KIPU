@@ -12,11 +12,11 @@
     </x-slot>
 
     <x-slot name="moreButtons">
-        <x-documents.show.more-buttons type="invoice" :document="$invoice" />
+        <x-documents.show.more-buttons type="invoice" :document="$invoice" hide-cancel />
     </x-slot>
 
     <x-slot name="content">
-        <x-documents.show.content type="invoice" :document="$invoice" hide-receive hide-make-payment hide-schedule hide-children />
+        <x-documents.show.content type="invoice" :document="$invoice" hide-receive hide-make-payment hide-schedule hide-children hide-restore />
     </x-slot>
 
     @push('stylesheet')

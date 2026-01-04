@@ -335,6 +335,16 @@ return [
             'status' => [
                 'multiple' => true,
             ],
+            'sunat_status' => [
+                'route' => 'invoices.index',
+                'values' => [
+                    'pendiente' => 'general.pending',
+                    'enviado' => 'general.sent',
+                    'rechazado' => 'general.refused',
+                    'observado' => 'general.observed',
+                ],
+                'multiple' => true,
+            ],
             'issued_at' => [
                 'key' => '/^(invoiced_at|billed_at)$/',
                 'date' => true,
@@ -353,6 +363,125 @@ return [
             'contact_address' => ['searchable' => true],
             'category_id' => [
                 'route' => ['categories.index', 'search=type:income,expense enabled:1'],
+                'multiple' => true,
+            ],
+            'parent_id',
+            'recurring' => [
+                'key' => 'recurring',
+                'relationship' => true,
+                'boolean' => true,
+            ],
+            'created_at' => ['date' => true],
+            'updated_at' => ['date' => true],
+        ],
+    ],
+
+    App\Models\Document\CreditNote::class => [
+        'columns' => [
+            'id',
+            'document_number' => ['searchable' => true],
+            'status' => [
+                'values' => [
+                    'sent,viewed,partial' => 'documents.statuses.unpaid',
+                    'paid' => 'documents.statuses.paid',
+                    'partial' => 'documents.statuses.partial',
+                    'sent' => 'documents.statuses.sent',
+                    'viewed' => 'documents.statuses.viewed',
+                    'cancelled' => 'documents.statuses.cancelled',
+                    'draft' => 'documents.statuses.draft',
+                    'partial,sent,viewed due_at<=today' => 'documents.statuses.overdue',
+                ],
+                'multiple' => true,
+            ],
+            'sunat_status' => [
+                'route' => 'invoices.index',
+                'values' => [
+                    'pendiente' => 'general.pending',
+                    'enviado' => 'general.sent',
+                    'rechazado' => 'general.refused',
+                    'observado' => 'general.observed',
+                ],
+                'multiple' => true,
+            ],
+            'issued_at' => [
+                'key' => 'invoiced_at',
+                'date' => true,
+            ],
+            'due_at' => ['date' => true],
+            'amount',
+            'currency_code' => [
+                'route' => ['currencies.index', 'search=enabled:1'],
+                'multiple' => true,
+            ],
+            'contact_id' => [
+                'route' => ['sales.customers.index', 'search=enabled:1'],
+                'multiple' => true,
+            ],
+            'contact_name' => ['searchable' => true],
+            'contact_email' => ['searchable' => true],
+            'contact_tax_number',
+            'contact_phone' => ['searchable' => true],
+            'contact_address' => ['searchable' => true],
+            'category_id' => [
+                'route' => ['categories.index', 'search=type:income enabled:1'],
+                'fields' => [
+                    'key' => 'id',
+                    'value' => 'name',
+                ],
+                'multiple' => true,
+            ],
+            'parent_id',
+            'recurring' => [
+                'key' => 'recurring',
+                'relationship' => true,
+                'boolean' => true,
+            ],
+            'created_at' => ['date' => true],
+            'updated_at' => ['date' => true],
+        ],
+    ],
+
+    App\Models\Document\DebitNote::class => [
+        'columns' => [
+            'id',
+            'document_number' => ['searchable' => true],
+            'status' => [
+                'values' => [
+                    'received,partial' => 'documents.statuses.unpaid',
+                    'paid' => 'documents.statuses.paid',
+                    'partial' => 'documents.statuses.partial',
+                    'received' => 'documents.statuses.received',
+                    'cancelled' => 'documents.statuses.cancelled',
+                    'draft' => 'documents.statuses.draft',
+                    'partial,received due_at<=today' => 'documents.statuses.overdue',
+                ],
+                'multiple' => true,
+            ],
+            'issued_at' => [
+                'key' => 'billed_at',
+                'date' => true,
+            ],
+            'due_at' => ['date' => true],
+            'amount',
+            'currency_code' => [
+                'route' => ['currencies.index', 'search=enabled:1'],
+                'multiple' => true,
+            ],
+            'contact_id' => [
+                'route' => ['purchases.vendors.index', 'search=enabled:1'],
+                'multiple' => true,
+            ],
+            'contact_name' => ['searchable' => true],
+            'contact_email' => ['searchable' => true],
+            'contact_tax_number',
+            'contact_phone' => ['searchable' => true],
+            'contact_address' => ['searchable' => true],
+            'category_id' => [
+                'route' => ['categories.index', 'search=type:expense enabled:1'],
+                'fields' => [
+                    'key' => 'id',
+                    'value' => 'name',
+                ],
                 'multiple' => true,
             ],
             'parent_id',
@@ -436,6 +565,24 @@ return [
                     'cancelled' => 'documents.statuses.cancelled',
                     'draft' => 'documents.statuses.draft',
                     'partial,sent,viewed due_at<=today' => 'documents.statuses.overdue',
+                ],
+                'multiple' => true,
+            ],
+            'sunat_status' => [
+                'route' => 'invoices.index',
+                'values' => [
+                    'pendiente' => 'general.pending',
+                    'enviado' => 'general.sent',
+                    'rechazado' => 'general.refused',
+                    'observado' => 'general.observed',
+                ],
+                'multiple' => true,
+            ],
+            'note_type' => [
+                'route' => 'invoices.index',
+                'values' => [
+                    'credit' => 'general.credit_notes',
+                    'debit' => 'general.debit_notes',
                 ],
                 'multiple' => true,
             ],

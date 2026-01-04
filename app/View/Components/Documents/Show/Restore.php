@@ -32,7 +32,15 @@ class Restore extends Component
 
         $this->type_lowercase = Str::lower(trans_choice($this->textPage, 1));
 
-        $this->last_cancelled_date = '<span class="font-medium">' . company_date($this->last_cancelled->created_at) . '</span>';
+        if ($this->last_cancelled) {
+            $last_cancelled_at = $this->last_cancelled->created_at;
+        } else {
+            $last_cancelled_at = $this->document->updated_at;
+        }
+
+        $this->last_cancelled_date = $last_cancelled_at
+            ? '<span class="font-medium">' . company_date($last_cancelled_at) . '</span>'
+            : '<span class="font-medium">' . trans('general.na') . '</span>';
 
         return view('components.documents.show.restore');
     }

@@ -11,13 +11,15 @@
 
                     <x-slot name="body">
                         <div class="sm:col-span-3 grid gap-x-8 gap-y-6 grid-rows-4">
+                            <x-form.group.text name="tax_number" label="RUC" value="{{ setting('company.tax_number') }}" />
+
                             <x-form.group.text name="name" label="{{ trans('settings.company.name') }}" value="{{ setting('company.name') }}" />
 
                             <x-form.group.text name="email" label="{{ trans('settings.company.email') }}" value="{{ setting('company.email') }}" />
 
                             <x-form.group.text name="phone" label="{{ trans('settings.company.phone') }}" value="{{ setting('company.phone') }}" not-required />
 
-                            <x-form.group.text name="tax_number" label="{{ trans('general.tax_number') }}" value="{{ setting('company.tax_number') }}" not-required />
+                            <x-form.group.text name="sunat_bn_account" label="Cuenta Banco de la Nación (SPOT)" value="{{ setting('company.sunat_bn_account') }}" not-required />
                         </div>
 
                         <div class="sm:col-span-3">

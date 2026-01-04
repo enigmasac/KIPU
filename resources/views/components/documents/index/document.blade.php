@@ -43,6 +43,14 @@
             @endif
             @stack('status_th_end')
 
+            <x-table.th class="w-20 text-center table-title">
+                <span class="text-xs text-gray-500 leading-none font-semibold">Notas</span>
+            </x-table.th>
+
+            <x-table.th class="w-2/12 text-center table-title">
+                <span class="text-xs text-gray-500 leading-none font-semibold uppercase tracking-wide">SUNAT</span>
+            </x-table.th>
+
             @stack('contact_name_ane_document_number_th_start')
             @if (! $hideContactName || ! $hideDocumentNumber)
             <x-table.th class="{{ $classContactNameAndDocumentNumber }}">
@@ -83,7 +91,66 @@
 
     <x-table.tbody>
         @foreach($documents as $item)
-            @php $paid = $item->paid; @endphp
+            @php
+                $paid = $item->paid;
+                $credit_note_label = null;
+                $credit_note_class = '';
+                $credit_notes_total = 0;
+                $debit_note_label = null;
+                $debit_note_class = '';
+                $debit_notes_total = 0;
+
+                    if ($type === 'invoice' && $item->relationLoaded('credit_notes')) {
+                    $credit_notes = $item->credit_notes->reject(function ($credit_note) {
+                        return $credit_note->status === 'cancelled'
+                            || strtolower((string) $credit_note->sunat_status) === 'rechazado';
+                    });
+                    $precision = currency($item->currency_code)->getPrecision();
+                    $credit_notes_total = round($credit_notes->sum('amount'), $precision);
+
+                        if ($credit_notes_total > 0) {
+                            $invoice_amount = round($item->amount, $precision);
+                            $is_full_credit = bccomp((string) $credit_notes_total, (string) $invoice_amount, $precision) >= 0;
+                            $credit_note_label = $is_full_credit ? 'Anulada por N.C.' : 'N.C. parcial';
+                            $credit_note_class = $is_full_credit ? 'text-red-500' : 'text-yellow-500';
+                        }
+                    }
+
+                    if ($type === 'invoice' && $item->relationLoaded('debit_notes')) {
+                    $debit_notes = $item->debit_notes->reject(function ($debit_note) {
+                        return $debit_note->status === 'cancelled'
+                            || strtolower((string) $debit_note->sunat_status) === 'rechazado';
+                    });
+                    $precision = $precision ?? currency($item->currency_code)->getPrecision();
+                    $debit_notes_total = round($debit_notes->sum('amount'), $precision);
+
+                    if ($debit_notes_total > 0) {
+                        $debit_note_label = $debit_notes_total >= round($item->amount, $precision)
+                            ? 'N.D. total'
+                            : 'N.D. parcial';
+                        $debit_note_class = 'text-green-600';
+                    }
+                }
+
+                $credit_tooltip = null;
+                $credit_icon_class = 'bg-yellow-500 text-white';
+                $credit_badge_class = 'border-yellow-500 text-yellow-500';
+                if ($credit_notes_total > 0) {
+                    $credit_tooltip = 'Afecto a nota de crédito ' .
+                        ($is_full_credit ? 'total' : 'parcial') .
+                        ': -' . money($credit_notes_total, $item->currency_code, true)->format();
+                    if ($is_full_credit) {
+                        $credit_icon_class = 'bg-red-500 text-white';
+                        $credit_badge_class = 'border-red-500 text-red-500';
+                    }
+                }
+
+                $debit_tooltip = null;
+                if ($debit_notes_total > 0) {
+                    $debit_tooltip = 'Afecto a nota de débito: +' .
+                        money($debit_notes_total, $item->currency_code, true)->format();
+                }
+            @endphp
             <x-table.tr href="{{ route($showRoute, $item->id) }}">
                 @if (! $hideBulkAction)
                 <x-table.td class="{{ $classBulkAction }}" override="class">
@@ -127,6 +194,46 @@
                 @endif
                 @stack('status_td_end')
 
+                <x-table.td class="w-20 sm:w-32 text-center">
+                <div class="flex items-center justify-center gap-3">
+                    @if ($credit_note_label)
+                        <x-tooltip :id="'tooltip-note-credit-' . $item->id" placement="top" :message="$credit_tooltip ?? $credit_note_label">
+                            <span class="relative inline-flex items-center justify-center">
+                                <span class="material-icons-outlined rounded-full p-1 {{ $credit_icon_class }}" role="img" aria-label="{{ $credit_tooltip ?? $credit_note_label }}">
+                                    receipt_long
+                                </span>
+                                <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none {{ $credit_badge_class }} rounded-full bg-white">
+                                    -
+                                </span>
+                            </span>
+                        </x-tooltip>
+                    @endif
+
+                    @if ($debit_note_label)
+                        <x-tooltip :id="'tooltip-note-debit-' . $item->id" placement="top" :message="$debit_tooltip ?? $debit_note_label">
+                            <span class="relative inline-flex items-center justify-center">
+                                <span class="material-icons-outlined rounded-full p-1 bg-green-600 text-white" role="img" aria-label="{{ $debit_tooltip ?? $debit_note_label }}">
+                                    receipt_long
+                                </span>
+                                <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none border border-green-600 rounded-full bg-white text-green-600">
+                                    +
+                                </span>
+                            </span>
+                        </x-tooltip>
+                    @endif
+
+                    @if (!$credit_note_label && ! $debit_note_label)
+                        <span class="text-gray-300 text-xs">—</span>
+                    @endif
+                </div>
+                </x-table.td>
+
+                <x-table.td class="w-2/12 text-center">
+                    <span class="px-2 py-1 rounded-md text-xs {{ $item->sunat_status == 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                        {{ ucfirst($item->sunat_status ?? 'pendiente') }}
+                    </span>
+                </x-table.td>
+
                 @stack('contact_name_and_document_number_td_start')
                 @if (! $hideContactName || ! $hideDocumentNumber)
                 <x-table.td class="{{ $classContactNameAndDocumentNumber }}">
@@ -161,11 +268,16 @@
 
                 @stack('amount_td_start')
                 @if (! $hideAmount)
-                <x-table.td class="{{ $classAmount }}" kind="amount">
-                    @stack('amount_td_inside_start')
-                    <x-money :amount="$item->amount" :currency="$item->currency_code" />
-                    @stack('amount_td_inside_end')
-                </x-table.td>
+                    <x-table.td class="{{ $classAmount }}" kind="amount">
+                        @stack('amount_td_inside_start')
+                        @php
+                            $display_amount = ($type === 'invoice') ? $item->amount_due : $item->amount;
+                        @endphp
+                        <div class="flex items-center justify-end">
+                            <x-money :amount="$display_amount" :currency="$item->currency_code" />
+                        </div>
+                        @stack('amount_td_inside_end')
+                    </x-table.td>
 
                 <x-table.td kind="action">
                     <x-table.actions :model="$item" />

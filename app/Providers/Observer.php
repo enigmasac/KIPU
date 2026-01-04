@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Banking\Transaction;
+use App\Models\Document\Document;
 use Illuminate\Support\ServiceProvider as Provider;
 
 class Observer extends Provider
@@ -25,5 +26,7 @@ class Observer extends Provider
     public function boot()
     {
         Transaction::observe('App\Observers\Transaction');
+        Document::observe('App\Observers\Document');
+        \App\Models\Document\CreditsTransaction::observe('App\Observers\Document\CreditsTransaction');
     }
 }

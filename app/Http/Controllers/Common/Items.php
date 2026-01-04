@@ -254,6 +254,10 @@ class Items extends Controller
 
         if ($items) {
             foreach ($items as $item) {
+                // SUNAT: Asegurar que las propiedades viajen en el JSON
+                $item->sku = $item->sku;
+                $item->sunat_unit_code = $item->sunat_unit_code;
+
                 $item_price = ($type == 'bill') ? $item->purchase_price : $item->sale_price;
                 $item_tax_price = 0;
 

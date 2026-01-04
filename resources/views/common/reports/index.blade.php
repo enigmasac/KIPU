@@ -35,9 +35,17 @@
                     @foreach($category['reports'] as $report)
                         <div class="flex justify-between sm:col-span-3 p-1 group">
                             <div class="lg:w-80">
-                                <x-link href="{{ route('reports.show', $report->id) }}" class="flex" override="class">
+                                @php
+                                    $is_system = ! empty($report->system_slug);
+                                    $report_key = $is_system ? $report->system_slug : $report->id;
+                                    $report_url = $is_system
+                                        ? route('reports.system.show', $report->system_slug)
+                                        : route('reports.show', $report->id);
+                                @endphp
+
+                                <x-link href="{{ $report_url }}" class="flex" override="class">
                                     <span class="material-icons-outlined text-5xl transform transition-all hover:scale-125 text-black-400">
-                                        {{ $icons[$report->id] }}
+                                        {{ $report->icon }}
                                     </span>
 
                                     <div class="ltr:ml-2 rtl:mr-2">
@@ -55,32 +63,36 @@
                             </div>
 
                             <div class="flex items-start ltr:space-x-2 rtl:space-x-reverse">
-                                <livewire:report.pin :categories="$categories" :report="$report" />
+                                @unless ($is_system)
+                                    <livewire:report.pin :categories="$categories" :report="$report" />
+                                @endunless
 
                                 @canany(['create-common-reports', 'update-common-reports', 'delete-common-reports'])
-                                <x-dropdown id="index-line-actions-report-{{ $category_id }}-{{ $report->id }}">
-                                    <x-slot name="trigger" class="flex" override="class">
-                                        <span class="w-8 h-8 flex items-center justify-center px-2 py-2 rtl:mr-4 hover:bg-gray-100 rounded-xl text-purple text-sm font-medium leading-6">
-                                            <span class="material-icons pointer-events-none">more_vert</span>
-                                        </span>
-                                    </x-slot>
+                                    @unless ($is_system)
+                                        <x-dropdown id="index-line-actions-report-{{ $category_id }}-{{ $report_key }}">
+                                            <x-slot name="trigger" class="flex" override="class">
+                                                <span class="w-8 h-8 flex items-center justify-center px-2 py-2 rtl:mr-4 hover:bg-gray-100 rounded-xl text-purple text-sm font-medium leading-6">
+                                                    <span class="material-icons pointer-events-none">more_vert</span>
+                                                </span>
+                                            </x-slot>
 
-                                    @can('update-common-reports')
-                                        <x-dropdown.link href="{{ route('reports.edit', $report->id) }}" id="index-line-actions-edit-report-{{ $report->id }}">
-                                            {{ trans('general.edit') }}
-                                        </x-dropdown.link>
-                                    @endcan
+                                            @can('update-common-reports')
+                                                <x-dropdown.link href="{{ route('reports.edit', $report->id) }}" id="index-line-actions-edit-report-{{ $report->id }}">
+                                                    {{ trans('general.edit') }}
+                                                </x-dropdown.link>
+                                            @endcan
 
-                                    @can('create-common-reports')
-                                        <x-dropdown.link href="{{ route('reports.duplicate', $report->id) }}" id="index-line-actions-duplicate-report-{{ $report->id }}">
-                                            {{ trans('general.duplicate') }}
-                                        </x-dropdown.link>
-                                    @endcan
+                                            @can('create-common-reports')
+                                                <x-dropdown.link href="{{ route('reports.duplicate', $report->id) }}" id="index-line-actions-duplicate-report-{{ $report->id }}">
+                                                    {{ trans('general.duplicate') }}
+                                                </x-dropdown.link>
+                                            @endcan
 
-                                    @can('delete-common-reports')
-                                        <x-delete-link :model="$report" route="reports.destroy" />
-                                    @endcan
-                                </x-dropdown>
+                                            @can('delete-common-reports')
+                                                <x-delete-link :model="$report" route="reports.destroy" />
+                                            @endcan
+                                        </x-dropdown>
+                                    @endunless
                                 @endcanany
                             </div>
                         </div>

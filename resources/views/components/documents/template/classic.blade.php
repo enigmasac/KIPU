@@ -48,7 +48,20 @@
                     @if (! $hideCompanyAddress)
                         <p>
                             {!! nl2br(setting('company.address')) !!}
-                            {!! $document->company->location !!}
+                            <br>
+                            @if (setting('company.city'))
+                                {{ setting('company.city') }},
+                            @endif
+                            @if (setting('company.state'))
+                                {{ setting('company.state') }}
+                            @endif
+                            @if (setting('company.zip_code'))
+                                {{ setting('company.zip_code') }}
+                            @endif
+                            @if (setting('company.country'))
+                                <br>
+                                {{ trans('countries.' . setting('company.country')) }}
+                            @endif
                         </p>
                     @endif
                     @stack('company_address_input_end')
@@ -341,14 +354,12 @@
         <div class="col-60 float-left">
             <div class="text p-index-right break-words">
                 @stack('notes_input_start')
-                    @if ($hideNote)
-                        @if ($document->notes)
-                            <strong>
-                                {{ trans_choice('general.notes', 2) }}
-                            </strong>
-
-                            {!! nl2br($document->notes) !!}
-                        @endif
+                    @if ($document->notes)
+                        <strong>
+                            {{ trans_choice('general.notes', 2) }}
+                        </strong>
+                        <br>
+                        {!! nl2br(e($document->notes)) !!}
                     @endif
                 @stack('notes_input_end')
             </div>

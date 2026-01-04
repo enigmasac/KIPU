@@ -9,17 +9,27 @@ class DocumentNumber implements DocumentNumberInterface
 {
     public function getNextNumber(string $type, ?Contact $contact): string
     {
+        // Custom logic for Boleta (SUNAT Peru)
+        if ($type === 'invoice' && request('sunat_document_type') === '03') {
+            $type = 'boleta';
+        }
+
         $type = $this->resolveTypeAlias($type);
 
         $prefix = setting($type . '.number_prefix');
-        $next = (string) setting($type . '.number_next');
-        $digit = (int) setting($type . '.number_digit');
+        $next = (string) setting($type . '.number_next', 1);
+        $digit = (int) setting($type . '.number_digit', 5);
 
         return $prefix . str_pad($next, $digit, '0', STR_PAD_LEFT);
     }
 
     public function increaseNextNumber(string $type, ?Contact $contact): void
     {
+        // Custom logic for Boleta (SUNAT Peru)
+        if ($type === 'invoice' && request('sunat_document_type') === '03') {
+            $type = 'boleta';
+        }
+
         $type = $this->resolveTypeAlias($type);
 
         $next = setting($type . '.number_next', 1) + 1;

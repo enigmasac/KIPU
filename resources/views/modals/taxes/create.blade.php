@@ -5,6 +5,8 @@
 
         <x-form.group.text name="rate" label="{{ trans('taxes.rate') }}" form-group-class="col-span-6" />
 
+        <x-form.group.text name="sunat_code" label="Código SUNAT" placeholder="Ej. 1000" form-group-class="col-span-6" />
+
         <x-form.input.hidden name="type" value="normal" />
         <x-form.input.hidden name="enabled" value="1" />
     </div>

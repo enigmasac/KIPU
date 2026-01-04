@@ -36,6 +36,7 @@ return [
         'import_sheet'      => 'Error: Sheet name is not valid. Please, check the sample file.',
         'same_amount'       => 'Error: The total amount of split must be exactly the same as the :transaction total: :amount',
         'over_match'        => 'Error: :type not connected! The amount you entered can not exceed the payment total: :amount',
+        'system_tax_locked' => 'Error: :name is a system tax and cannot be modified.',
     ],
 
     'warning' => [

@@ -1,143 +1,47 @@
-<div class="relative sm:col-span-6 overflow-x-scroll large-overflow-unset">
+<div class="relative sm:col-span-6 overflow-x-scroll large-overflow-unset" v-if="type != 'credit-note' || form.invoice_id">
     <div style="table-layout: fixed;">
         <div class="overflow-x-visible overflow-y-hidden">
-            <table class="small-table-width" id="items">
+            <table class="w-full" id="items" style="min-width: 1000px;">
                 <colgroup>
-                    <col class="small-col" style="width: 24px;">
-                    <col class="small-col name-col" style="width: 20%;">
-                    <col class="small-col description-col" style="width: 30%;">
-                    <col class="small-col" style="width: 12%;">
-                    <col class="small-col" style="width: 15%;">
-                    <col class="small-col amount-col" style="width: 20%;">
-                    <col class="small-col" style="width: 24px;">
+                    <col style="width: 30px;"> <!-- Handle -->
+                    <col style="width: 12%;"> <!-- Código -->
+                    <col style="width: 28%;"> <!-- Item -->
+                    <col style="width: 10%;"> <!-- Cant. -->
+                    <col style="width: 10%;"> <!-- Unidad -->
+                    <col style="width: 15%;"> <!-- Precio -->
+                    <col style="width: 15%;"> <!-- Total -->
+                    <col style="width: 30px;"> <!-- Delete -->
                 </colgroup>
 
-                <thead class="border-b">
+                <thead class="border-b bg-gray-50">
                     <tr>
-                        @stack('move_th_start')
-
-                        <th class="w-6 block text-left border-t-0 border-r-0 border-b-0" style="vertical-align:bottom;">
-                            @if (! $hideEditItemColumns)
-                                <x-documents.form.item-columns :type="$type" />
-                            @endif
-                        </th>
-
-                        @stack('move_th_end')
-
-                        @if (! $hideItems)
-                            @stack('name_th_start')
-
-                                <th class="px-3 py-1 ltr:pl-2 rtl:pr-2 ltr:text-left rtl:text-right text-xs font-normal border-t-0 border-r-0 border-b-0" style="vertical-align:bottom;">
-                                    @if (! $hideItemName)
-                                        {{ (trans_choice($textItemName, 2) != $textItemName) ? trans_choice($textItemName, 2) : trans($textItemName) }}
-
-                                        @if ($hideSettingItemName)
-                                            &nbsp;&nbsp;
-                                            <x-tooltip id="tooltip-item-price" placement="top" message="{{ trans('documents.item_price_hidden', ['type' => config('type.document.' . $type . '.translation.prefix')]) }}">
-                                                <x-icon icon="visibility_off" class="text-sm font-normal"></x-icon>
-                                            </x-tooltip>
-                                        @endif
-                                    @endif
-                                </th>
-
-                            @stack('name_th_end')
-
-                            @stack('description_th_start')
-
-                            <th class="px-3 py-1 text-left text-xs font-normal border-t-0 border-r-0 border-b-0" style=" vertical-align:bottom;">
-                                @if (! $hideItemDescription)
-                                    {{ trans($textItemDescription) }}
-
-                                    @if ($hideSettingItemDescription)
-                                        &nbsp;&nbsp;
-                                        <x-tooltip id="tooltip-item-price" placement="top" message="{{ trans('documents.item_price_hidden', ['type' => config('type.document.' . $type . '.translation.prefix')]) }}">
-                                            <x-icon icon="visibility_off" class="text-sm font-normal"></x-icon>
-                                        </x-tooltip>
-                                    @endif
-                                @endif
-                            </th>
-
-                            @stack('description_th_end')
-                        @endif
-
-                        @stack('quantity_th_start')
-
-                        <th class="px-3 py-1 ltr:text-left rtl:text-right text-xs font-normal border-t-0 border-r-0 border-b-0" style="vertical-align:bottom;">
-                            @if (! $hideItemQuantity)
-                                {{ trans($textItemQuantity) }}
-
-                                @if ($hideSettingItemQuantity)
-                                    &nbsp;&nbsp;
-                                    <x-tooltip id="tooltip-item-price" placement="top" message="{{ trans('documents.item_price_hidden', ['type' => config('type.document.' . $type . '.translation.prefix')]) }}">
-                                        <x-icon icon="visibility_off" class="text-sm font-normal"></x-icon>
-                                    </x-tooltip>
-                                @endif
-                            @endif
-                        </th>
-
-                        @stack('quantity_th_end')
-
-                        @stack('price_th_start')
-
-                        <th class="px-3 py-1 ltr:text-left rtl:text-right text-xs font-normal border-t-0 border-r-0 border-b-0 pr-1" style="vertical-align:bottom;">
-                            @if (! $hideItemPrice)
-                                {{ trans($textItemPrice) }}
-
-                                @if ($hideSettingItemPrice)
-                                    &nbsp;&nbsp;
-                                    <x-tooltip id="tooltip-item-price" placement="top" message="{{ trans('documents.item_price_hidden', ['type' => config('type.document.' . $type . '.translation.prefix')]) }}">
-                                        <x-icon icon="visibility_off" class="text-sm font-normal"></x-icon>
-                                    </x-tooltip>
-                                @endif
-                            @endif
-                        </th>
-
-                        @stack('price_th_end')
-
-                        @stack('total_th_start')
-
-                        <th class="px-3 py-1 ltr:text-right rtl:text-left text-xs font-normal border-t-0 border-b-0 item-total" style="vertical-align:bottom;">
-                            @if (! $hideItemAmount)
-                                {{ trans($textItemAmount) }}
-
-                                @if ($hideSettingItemAmount)
-                                    &nbsp;&nbsp;
-                                    <x-tooltip id="tooltip-item-price" placement="top" message="{{ trans('documents.item_price_hidden', ['type' => config('type.document.' . $type . '.translation.prefix')]) }}">
-                                        <x-icon icon="visibility_off" class="text-sm font-normal"></x-icon>
-                                    </x-tooltip>
-                                @endif
-                            @endif
-                        </th>
-
-                        @stack('total_th_end')
-
-                        @stack('remove_th_start')
-
-                        <th class="border-t-0 border-r-0 border-b-0 align-bottom" style="width:24px; display:block;">
-                            <div></div>
-                        </th>
-
-                        @stack('remove_th_end')
+                        <th class="px-2 py-2"></th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-500">CÓDIGO</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-500">ITEM / PRODUCTO</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-500">CANT.</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-500">U.M.</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-500">VALOR UNIT.</th>
+                        <th class="px-2 py-2 text-right text-xs font-bold uppercase tracking-wider text-gray-500">PRECIO VENTA</th>
+                        <th class="px-2 py-2"></th>
                     </tr>
                 </thead>
 
-                <tbody id="{{ (! $hideDiscount && in_array(setting('localisation.discount_location', 'total'), ['item', 'both'])) ? 'invoice-item-discount-rows' : 'invoice-item-rows' }}" class="table-padding-05">
+                <tbody id="invoice-item-rows">
                     <x-documents.form.line-item :type="$type" />
 
-                    @stack('add_item_td_start')
-
-                    <tr id="addItem">
-                        <td colspan="7">
-                            <x-documents.form.item-button
-                                type="{{ $type }}"
-                                is-sale="{{ $isSalePrice }}"
-                                is-purchase="{{ $isPurchasePrice }}"
-                                search-char-limit="{{ $searchCharLimit }}"
-                            />
+                    <!-- FILA AGREGAR PRODUCTO (ANCHO TOTAL) -->
+                    <tr id="addItem" v-if="!form.invoice_id" class="border-t">
+                        <td colspan="8" class="p-0">
+                            <div class="w-full">
+                                <x-documents.form.item-button
+                                    type="{{ $type }}"
+                                    is-sale="{{ $isSalePrice }}"
+                                    is-purchase="{{ $isPurchasePrice }}"
+                                    search-char-limit="{{ $searchCharLimit }}"
+                                />
+                            </div>
                         </td>
                     </tr>
-
-                    @stack('add_item_td_end')
                 </tbody>
             </table>
         </div>

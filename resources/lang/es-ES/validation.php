@@ -154,6 +154,10 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'credit_note_reason_code' => 'Motivo SUNAT',
+        'invoice_id' => 'Factura de referencia',
+        'parent_id' => 'Factura de referencia',
+    ],
 
 ];

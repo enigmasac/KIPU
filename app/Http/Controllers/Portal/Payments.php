@@ -96,6 +96,7 @@ class Payments extends Controller
 
         $view = view('banking.transactions.print_default', compact('transaction', 'currency_style', 'real_type'))->render();
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
+        $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);

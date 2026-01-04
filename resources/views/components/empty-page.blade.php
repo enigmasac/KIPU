@@ -1,5 +1,5 @@
 <div class="flex flex-col lg:flex-row">
-    <div class="w-full lg:w-1/2">
+    <div class="w-full">
         <div class="border-b px-2 pb-3">
             <h1 class="flex items-center text-2xl xl:text-5xl text-black font-light -ml-0.5">
                 <x-title>
@@ -70,10 +70,6 @@
                 @endforeach
             @endif
         </ul>
-    </div>
-
-    <div class="w-full lg:w-1/2 flex justify-end mt-8 lg:mt-60">
-        <img src="{{ $image }}" alt="{{ $title }}" class="ltr:scale-x-100 rtl:-scale-x-100" />
     </div>
 </div>
 

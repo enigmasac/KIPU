@@ -38,12 +38,6 @@ class Invoices extends BulkAction
             'message'       => 'bulk_actions.message.sent',
             'permission'    => 'update-sales-invoices',
         ],
-        'cancelled' => [
-            'icon'          => 'cancel',
-            'name'          => 'documents.actions.cancel',
-            'message'       => 'bulk_actions.message.cancelled',
-            'permission'    => 'update-sales-invoices',
-        ],
         'delete' => [
             'icon'          => 'delete',
             'name'          => 'general.delete',

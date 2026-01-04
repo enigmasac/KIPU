@@ -11,7 +11,7 @@ class AccountBalance extends Widget
 
     public $description = 'widgets.description.account_balance';
 
-    public $report_class = 'App\Reports\IncomeExpense';
+    public $report_class = 'App\Reports\IncomeExpenseSummary';
 
     public function show()
     {

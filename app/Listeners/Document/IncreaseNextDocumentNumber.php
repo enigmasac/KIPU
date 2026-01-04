@@ -17,6 +17,12 @@ class IncreaseNextDocumentNumber
      */
     public function handle(Event $event)
     {
+        // SUNAT Compliance: Deferred Numbering.
+        // Do not increase the official counter for drafts.
+        if ($event->document->status === 'draft') {
+            return;
+        }
+
         // Update next document number
         $this->increaseNextDocumentNumber($event->document->type);
     }

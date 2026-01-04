@@ -30,6 +30,12 @@ class UpdateTax extends Job implements ShouldUpdate
      */
     public function authorize(): void
     {
+        if ($this->model->is_system) {
+            $message = trans('messages.error.system_tax_locked', ['name' => $this->model->name]);
+
+            throw new \Exception($message);
+        }
+
         if (! $relationships = $this->getRelationships()) {
             return;
         }

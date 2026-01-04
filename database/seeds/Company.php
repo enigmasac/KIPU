@@ -20,5 +20,6 @@ class Company extends Seeder
         $this->call(Modules::class);
         $this->call(Reports::class);
         $this->call(Settings::class);
+        $this->call(SunatTaxes::class);
     }
 }

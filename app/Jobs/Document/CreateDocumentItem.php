@@ -145,9 +145,14 @@ class CreateDocumentItem extends Job implements HasOwner, HasSource, ShouldCreat
         $this->request['tax'] = round($item_tax_total, $precision);
         $this->request['discount_type'] = ! empty($this->request['discount_type']) ? $this->request['discount_type'] : 'percent';
         $this->request['discount_rate'] = ! empty($this->request['discount']) ? $this->request['discount'] : 0;
-        $this->request['total'] = round($actual_price_item, $precision);
+        $this->request['total'] = round($item_discounted_amount, $precision);
         $this->request['created_from'] = $this->request['created_from'];
         $this->request['created_by'] = $this->request['created_by'];
+
+        // SUNAT Compliance: Explicitly pass our new fields
+        $this->request['sku'] = ! empty($this->request['sku']) ? $this->request['sku'] : '';
+        $this->request['sunat_unit_code'] = ! empty($this->request['sunat_unit_code']) ? $this->request['sunat_unit_code'] : 'NIU';
+        $this->request['sunat_tax_type'] = ! empty($this->request['sunat_tax_type']) ? $this->request['sunat_tax_type'] : '10';
 
         $document_item = DocumentItem::create($this->request);
 

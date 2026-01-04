@@ -48,7 +48,20 @@
                     @if (! $hideCompanyAddress)
                         <p class="text-white">
                             {!! nl2br(setting('company.address')) !!}
-                            {!! $document->company->location !!}
+                            <br>
+                            @if (setting('company.city'))
+                                {{ setting('company.city') }},
+                            @endif
+                            @if (setting('company.state'))
+                                {{ setting('company.state') }}
+                            @endif
+                            @if (setting('company.zip_code'))
+                                {{ setting('company.zip_code') }}
+                            @endif
+                            @if (setting('company.country'))
+                                <br>
+                                {{ trans('countries.' . setting('company.country')) }}
+                            @endif
                         </p>
                     @endif
                     @stack('company_address_input_end')
