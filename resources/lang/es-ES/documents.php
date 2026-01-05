@@ -54,7 +54,7 @@ return [
         'not_invoiced'          => 'No Facturado',
         'confirmed'             => 'Confirmado',
         'not_confirmed'         => 'No confirmado',
-        'active'                => 'Activo',
+        'active'                => 'Plantilla',
         'ended'                 => 'Terminado',
     ],
 
@@ -89,6 +89,7 @@ return [
         'create_recurring'  => ':user ha creado esta plantilla recurrente el :date',
         'schedule'          => ':user ha programado este :type el :date',
         'send'              => ':user ha emitido este :type el :date',
+        'children'          => ':count :type se crearon automáticamente',
     ],
 
 ];

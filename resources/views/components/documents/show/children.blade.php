@@ -19,7 +19,7 @@
                 @endphp
 
                 <div class="my-2">
-                    {!! trans('recurring.child', ['url' => $url, 'date' => company_date($child->created_at)]) !!}
+                    {!! trans('recurring.child', ['url' => $url, 'date' => Date::parse($child->created_at)->translatedFormat(company_date_format())]) !!}
                 </div>
             @endforeach
         @else

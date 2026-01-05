@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Document extends Model
 {
-    use HasFactory, Documents, Cloneable, Contacts, Currencies, DateTime, Media, Recurring;
+    use HasFactory, Documents, Cloneable, Contacts, Currencies, DateTime, Media, Recurring, \App\Traits\HasSunatAttributes;
 
     public const INVOICE_TYPE = 'invoice';
     public const INVOICE_RECURRING_TYPE = 'invoice-recurring';
@@ -121,6 +121,11 @@ class Document extends Model
         static::addGlobalScope(new Scope);
 
         static::deleting(function($document) {
+            // Unlink children if deleting a recurring template to prevent cascade deletion of issued invoices
+            if (str_contains($document->type, 'recurring')) {
+                $document->children()->update(['parent_id' => 0]);
+            }
+
             // SUNAT Compliance: Prevent deletion of issued documents.
             if ($document->status === 'draft') {
                 return;
@@ -151,7 +156,8 @@ class Document extends Model
         static::updating(function($document) {
             // SUNAT Compliance: Prevent editing of issued documents
             // We allow updates only if it's currently in 'draft' status.
-            if ($document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && $document->created_at->diffInSeconds(now()) > 60) {
+            // EXCEPTION: Recurring templates (invoice-recurring) can always be edited.
+            if (!str_contains($document->type, 'recurring') && $document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && $document->created_at->diffInSeconds(now()) > 60) {
                 throw new \Exception('No se puede editar un documento que ya ha sido emitido. Por favor, use una Nota de Crédito para anularlo.');
             }
 
@@ -170,13 +176,17 @@ class Document extends Model
 
                 // Assign Real SUNAT Number
                 $type = $document->type;
-                // Determine real type if recurring (e.g. invoice-recurring -> invoice)
-                if (app()->has(\App\Console\Commands\RecurringCheck::class)) {
-                     // We use the trait method logic manually here or just rely on the base type if standard
-                     // Usually document->type is 'invoice' even if recurring metadata is attached, but let's be safe
-                     if (str_contains($type, 'recurring')) {
-                         $type = str_replace('-recurring', '', $type);
-                     }
+                
+                // Determine real type if recurring
+                if (str_contains($type, 'recurring')) {
+                     $type = str_replace('-recurring', '', $type);
+                }
+
+                // SUNAT / KIPU ERP: Simulación de Request para procesos automáticos (Recurrentes)
+                // DocumentNumber.php depende de request('sunat_document_type') para distinguir Boleta de Factura.
+                // Inyectamos el valor real del documento en el request global temporalmente.
+                if ($document->sunat_document_type) {
+                    request()->merge(['sunat_document_type' => $document->sunat_document_type]);
                 }
                 
                 // Get the next real number
@@ -728,6 +738,11 @@ class Document extends Model
      */
     public function getStatusLabelAttribute()
     {
+        // Recurring templates are not drafts, they are templates.
+        if (str_contains($this->type, 'recurring')) {
+            return 'status-partial'; // Orange/Blue color instead of Gray
+        }
+
         // SUNAT: Para notas de crédito y débito, el estado 'sent' es un éxito final (verde)
         if (in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE]) && $this->status === 'sent') {
             return 'status-success';
@@ -736,6 +751,7 @@ class Document extends Model
         return match($this->status) {
             'paid'      => 'status-success',
             'partial'   => 'status-partial',
+            'active'    => 'status-partial',
             'sent'      => 'status-danger',
             'received'  => 'status-danger',
             'viewed'    => 'status-sent',
@@ -797,49 +813,6 @@ class Document extends Model
     public function referenced_document()
     {
         return $this->belongsTo(self::class, 'invoice_id');
-    }
-
-    /**
-     * Get the related invoice number for notes.
-     */
-    public function getInvoiceNumberAttribute()
-    {
-        if ($this->relationLoaded('referenced_document') && $this->referenced_document) {
-            return $this->referenced_document->document_number;
-        }
-
-        $id = $this->invoice_id ?: $this->parent_id;
-
-        if ($id) {
-            return \DB::table('documents')->where('id', $id)->value('document_number');
-        }
-
-        return null;
-    }
-
-    /**
-     * Get the SUNAT reason description for notes.
-     */
-    public function getReasonDescriptionAttribute()
-    {
-        $code = $this->credit_note_reason_code ?? $this->debit_note_reason_code;
-
-        if (!$code) return null;
-
-        $reasons = [
-            '01' => 'Anulación de la operación',
-            '02' => 'Anulación por error en el RUC',
-            '03' => 'Corrección por error en la descripción',
-            '04' => 'Descuento global',
-            '05' => 'Descuento por ítem',
-            '06' => 'Devolución total',
-            '07' => 'Devolución por ítem',
-            '08' => 'Bonificación',
-            '09' => 'Disminución en el valor',
-            '10' => 'Otros Conceptos',
-        ];
-
-        return ($reasons[$code] ?? $code);
     }
 
     /**
@@ -1055,6 +1028,21 @@ class Document extends Model
                     ];
                 } catch (\Exception $e) {}
             }
+
+            try {
+                $actions[] = [
+                    'type' => 'delete',
+                    'icon' => 'delete',
+                    'title' => $translation_prefix,
+                    'route' => $prefix . '.destroy',
+                    'permission' => 'delete-' . $group . '-' . $permission_prefix,
+                    'model-name' => 'document_number',
+                    'attributes' => [
+                        'id' => 'index-line-actions-delete-' . $this->type . '-' . $this->id,
+                    ],
+                    'model' => $this,
+                ];
+            } catch (\Exception $e) {}
         }
 
         return $actions;

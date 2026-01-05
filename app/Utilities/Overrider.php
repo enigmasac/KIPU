@@ -46,7 +46,7 @@ class Overrider
             config(['mail.mailers.sendmail.path' => setting('email.sendmail_path')]);
         } elseif ($email_protocol == 'smtp') {
             config(['mail.mailers.smtp.host' => setting('email.smtp_host')]);
-            config(['mail.mailers.smtp.port' => setting('email.smtp_port')]);
+            config(['mail.mailers.smtp.port' => (int) setting('email.smtp_port')]);
             config(['mail.mailers.smtp.username' => setting('email.smtp_username')]);
             config(['mail.mailers.smtp.password' => setting('email.smtp_password')]);
             config(['mail.mailers.smtp.encryption' => setting('email.smtp_encryption')]);

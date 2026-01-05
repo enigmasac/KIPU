@@ -12,7 +12,7 @@ use App\Traits\Documents;
 
 class CreditNote extends Document
 {
-    use Documents;
+    use Documents, \App\Traits\HasSunatAttributes;
 
     public const TYPE = Document::CREDIT_NOTE_TYPE;
 

@@ -89,12 +89,12 @@
             />
         @endif
 
-        @if ($type == 'invoice')
-            <x-form.group.select name="sunat_document_type" label="Tipo de Comprobante" :options="['01' => 'Factura', '03' => 'Boleta']" :selected="data_get($document, 'sunat_document_type', '01')" v-model="form.sunat_document_type" form-group-class="sm:col-span-2" />
+        <!-- CAMPOS SUNAT FORZADOS PARA TODOS LOS TIPOS -->
+        <x-form.group.select name="sunat_document_type" label="Tipo de Comprobante" :options="['01' => 'Factura', '03' => 'Boleta']" :selected="data_get($document, 'sunat_document_type', '01')" v-model="form.sunat_document_type" form-group-class="sm:col-span-2" />
 
-            <x-form.group.select name="sunat_operation_type" label="Tipo de Operación" :options="['01' => 'Venta Normal', '02' => 'Venta Gratuita']" :selected="data_get($document, 'sunat_operation_type', '01')" form-group-class="sm:col-span-2" />
+        <x-form.group.select name="sunat_operation_type" label="Tipo de Operación" :options="['01' => 'Venta Normal', '02' => 'Venta Gratuita']" :selected="data_get($document, 'sunat_operation_type', '01')" form-group-class="sm:col-span-2" />
 
-            <x-form.group.select name="sale_type" label="Tipo de Venta" :options="['cash' => 'Venta al Contado', 'credit' => 'Venta al Crédito']" v-model="form.sale_type" :selected="data_get($document, 'sale_type', 'cash')" form-group-class="sm:col-span-2" />
-        @endif
+        <x-form.group.select name="sale_type" label="Tipo de Venta" :options="['cash' => 'Venta al Contado', 'credit' => 'Venta al Crédito']" v-model="form.sale_type" :selected="data_get($document, 'sale_type', 'cash')" form-group-class="sm:col-span-2" />
+
     </div>
 </div>

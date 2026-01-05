@@ -1,6 +1,6 @@
 <x-layouts.admin>
     <x-slot name="title">
-        {{ trans_choice('general.recurring_invoices', 1) . ': ' . $recurring_invoice->document_number }}
+        {{ $recurring_invoice->document_number }}
     </x-slot>
 
     <x-slot name="status">

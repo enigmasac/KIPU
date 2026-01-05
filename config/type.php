@@ -141,8 +141,8 @@ return [
             'class'                     => [],
             'notification' => [
                 'class'                 => 'App\Notifications\Sale\Invoice',
-                'notify_contact'        => true,
-                'notify_user'           => true,
+                'notify_contact'        => false,
+                'notify_user'           => false,
             ],
             'auto_send' => 'App\Events\Document\DocumentSent',
             'script' => [

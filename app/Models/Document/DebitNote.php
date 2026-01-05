@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DebitNote extends Document
 {
+    use \App\Traits\HasSunatAttributes;
     public const TYPE = Document::DEBIT_NOTE_TYPE;
 
     protected $appends = ['attachment', 'amount_without_tax', 'discount', 'paid', 'received_at', 'status_label', 'sent_at', 'reconciled', 'contact_location', 'invoice_number', 'reason_description'];

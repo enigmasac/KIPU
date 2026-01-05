@@ -77,6 +77,16 @@ mix
     ])
     .tailwind('./tailwind.config.js')
 
+    // SUNAT / Kipu ERP: Bundle de estilos de terceros para evitar copia manual
+    .styles([
+        'public/css/third_party/dropzone_custom.css',
+        'public/css/third_party/element-ui_custom.css',
+        'public/css/third_party/flatpickr_custom.css',
+        'public/css/third_party/swiper-bundle.min.css',
+        'public/css/third_party/vue-html-editor.css',
+        'public/css/third_party/vue-html-editor_custom.css',
+    ], 'public/css/third_party_bundle.css')
+
     if (mix.inProduction()) {
         mix.version()
     }

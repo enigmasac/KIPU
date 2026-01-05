@@ -8,6 +8,7 @@ use App\Http\Requests\Common\Import as ImportRequest;
 use App\Http\Requests\Document\Document as Request;
 use App\Imports\Sales\RecurringInvoices\RecurringInvoices as Import;
 use App\Jobs\Document\CreateDocument;
+use App\Jobs\Document\DeleteDocument;
 use App\Jobs\Document\DuplicateDocument;
 use App\Jobs\Document\UpdateDocument;
 use App\Models\Common\Recurring;
@@ -226,5 +227,31 @@ class RecurringInvoices extends Controller
         }
 
         return redirect()->route('recurring-invoices.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  Document $recurring_invoice
+     *
+     * @return Response
+     */
+    public function destroy(Document $recurring_invoice)
+    {
+        $response = $this->ajaxDispatch(new DeleteDocument($recurring_invoice));
+
+        $response['redirect'] = route('recurring-invoices.index');
+
+        if ($response['success']) {
+            $message = trans('messages.success.deleted', ['type' => trans_choice('general.recurring_invoices', 1)]);
+
+            flash($message)->success();
+        } else {
+            $message = $response['message'];
+
+            flash($message)->error()->important();
+        }
+
+        return response()->json($response);
     }
 }

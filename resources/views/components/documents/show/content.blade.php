@@ -7,7 +7,7 @@
                 @php
                     $recurring_message = trans('recurring.message', [
                         'type' => mb_strtolower(trans_choice($textRecurringType, 1)),
-                        'date' => $next->format(company_date_format())
+                        'date' => Date::parse($next)->translatedFormat(company_date_format())
                     ]);
                 @endphp
 
