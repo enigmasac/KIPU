@@ -228,6 +228,58 @@
                         </p>
                     @endif
                 @stack('due_at_input_end')
+
+                @if (in_array($document->type, ['credit-note', 'debit-note']))
+                    {{-- APARTADO: COMPROBANTE AFECTADO --}}
+                    <div class="mt-4 border-t-1 pt-2">
+                        <p class="mb-0">
+                            <span class="font-semibold spacing w-numbers text-purple">Comprobante Afectado:</span>
+                            <span class="float-right spacing font-bold">
+                                {{ $document->invoice_number ?? 'No vinculado' }}
+                            </span>
+                        </p>
+                        @if($document->reason_description)
+                            <p class="mb-0">
+                                <span class="font-semibold spacing w-numbers">Motivo SUNAT:</span>
+                                <span class="float-right spacing text-xs text-right">
+                                    {{ $document->reason_description }}
+                                </span>
+                            </p>
+                        @endif
+                    </div>
+                @endif
+
+                @if ($document->type === 'invoice')
+                    @php
+                        $precision = currency($document->currency_code)->getPrecision();
+                        $net_total = $document->amount;
+                        
+                        if ($document->relationLoaded('credit_notes')) {
+                            $net_total -= $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount');
+                        }
+                        
+                        $is_annulled = bccomp((string)$net_total, '0', $precision) <= 0;
+                        $real_due = $is_annulled ? 0 : $document->amount_due;
+                    @endphp
+
+                    {{-- INFORMACIÓN EXTRA SUNAT / PAGOS --}}
+                    <div class="mt-4 border-t-1 pt-2">
+                        <p class="mb-0">
+                            <span class="font-semibold spacing w-numbers">Estado:</span>
+                            <span class="float-right spacing uppercase font-bold {{ $is_annulled ? 'text-red-700' : ($document->status == 'paid' ? 'text-green-600' : 'text-red-500') }}">
+                                {{ $is_annulled ? 'ANULADA (N.C.)' : ($document->status == 'paid' ? 'PAGADA' : ($document->status == 'partial' ? 'PARCIAL' : 'PENDIENTE')) }}
+                            </span>
+                        </p>
+                        @if (!$is_annulled && $real_due > 0)
+                            <p class="mb-0">
+                                <span class="font-semibold spacing w-numbers">Saldo Pendiente:</span>
+                                <span class="float-right spacing text-red-500 font-bold">
+                                    <x-money :amount="$real_due" :currency="$document->currency_code" />
+                                </span>
+                            </p>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -357,20 +409,6 @@
                     </div>
                     @stack($total->code . '_total_tr_end')
                 @else
-                    @if ($document->paid)
-                        @stack('paid_total_tr_start')
-                        <div class="text border-bottom-1 py-1">
-                            <span class="float-left font-semibold">
-                                {{ trans('invoices.paid') }}:
-                            </span>
-
-                            <span>
-                                - <x-money :amount="$document->paid" :currency="$document->currency_code" />
-                            </span>
-                        </div>
-                        @stack('paid_total_tr_end')
-                    @endif
-
                     @stack('grand_total_tr_start')
                     <div class="text border-bottom-1 py-1">
                         <span class="float-left font-semibold">
@@ -378,7 +416,7 @@
                         </span>
 
                         <span>
-                            <x-money :amount="$document->amount_due" :currency="$document->currency_code" />
+                            <x-money :amount="$document->amount" :currency="$document->currency_code" />
                         </span>
                     </div>
                     @stack('grand_total_tr_end')

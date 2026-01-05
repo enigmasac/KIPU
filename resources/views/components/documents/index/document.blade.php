@@ -43,9 +43,15 @@
             @endif
             @stack('status_th_end')
 
-            <x-table.th class="w-20 text-center table-title">
-                <span class="text-xs text-gray-500 leading-none font-semibold">Notas</span>
-            </x-table.th>
+            @if (!in_array($type, ['credit-note', 'debit-note']))
+                <x-table.th class="w-20 text-center table-title">
+                    <span class="text-xs text-gray-500 leading-none font-semibold">Notas</span>
+                </x-table.th>
+            @else
+                <x-table.th class="w-2/12 text-center table-title">
+                    <span class="text-xs text-gray-500 leading-none font-semibold uppercase tracking-wide">Afecta a</span>
+                </x-table.th>
+            @endif
 
             <x-table.th class="w-2/12 text-center table-title">
                 <span class="text-xs text-gray-500 leading-none font-semibold uppercase tracking-wide">SUNAT</span>
@@ -194,39 +200,51 @@
                 @endif
                 @stack('status_td_end')
 
-                <x-table.td class="w-20 sm:w-32 text-center">
-                <div class="flex items-center justify-center gap-3">
-                    @if ($credit_note_label)
-                        <x-tooltip :id="'tooltip-note-credit-' . $item->id" placement="top" :message="$credit_tooltip ?? $credit_note_label">
-                            <span class="relative inline-flex items-center justify-center">
-                                <span class="material-icons-outlined rounded-full p-1 {{ $credit_icon_class }}" role="img" aria-label="{{ $credit_tooltip ?? $credit_note_label }}">
-                                    receipt_long
+                @if (!in_array($type, ['credit-note', 'debit-note']))
+                    <x-table.td class="w-20 sm:w-32 text-center">
+                    <div class="flex items-center justify-center gap-3">
+                        @if ($credit_note_label)
+                            <x-tooltip :id="'tooltip-note-credit-' . $item->id" placement="top" :message="$credit_tooltip ?? $credit_note_label">
+                                <span class="relative inline-flex items-center justify-center">
+                                    <span class="material-icons-outlined rounded-full p-1 {{ $credit_icon_class }}" role="img" aria-label="{{ $credit_tooltip ?? $credit_note_label }}">
+                                        receipt_long
+                                    </span>
+                                    <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none {{ $credit_badge_class }} rounded-full bg-white">
+                                        -
+                                    </span>
                                 </span>
-                                <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none {{ $credit_badge_class }} rounded-full bg-white">
-                                    -
-                                </span>
-                            </span>
-                        </x-tooltip>
-                    @endif
+                            </x-tooltip>
+                        @endif
 
-                    @if ($debit_note_label)
-                        <x-tooltip :id="'tooltip-note-debit-' . $item->id" placement="top" :message="$debit_tooltip ?? $debit_note_label">
-                            <span class="relative inline-flex items-center justify-center">
-                                <span class="material-icons-outlined rounded-full p-1 bg-green-600 text-white" role="img" aria-label="{{ $debit_tooltip ?? $debit_note_label }}">
-                                    receipt_long
+                        @if ($debit_note_label)
+                            <x-tooltip :id="'tooltip-note-debit-' . $item->id" placement="top" :message="$debit_tooltip ?? $debit_note_label">
+                                <span class="relative inline-flex items-center justify-center">
+                                    <span class="material-icons-outlined rounded-full p-1 bg-green-600 text-white" role="img" aria-label="{{ $debit_tooltip ?? $debit_note_label }}">
+                                        receipt_long
+                                    </span>
+                                    <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none border border-green-600 rounded-full bg-white text-green-600">
+                                        +
+                                    </span>
                                 </span>
-                                <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none border border-green-600 rounded-full bg-white text-green-600">
-                                    +
-                                </span>
-                            </span>
-                        </x-tooltip>
-                    @endif
+                            </x-tooltip>
+                        @endif
 
-                    @if (!$credit_note_label && ! $debit_note_label)
-                        <span class="text-gray-300 text-xs">—</span>
-                    @endif
-                </div>
-                </x-table.td>
+                        @if (!$credit_note_label && ! $debit_note_label)
+                            <span class="text-gray-300 text-xs">—</span>
+                        @endif
+                    </div>
+                    </x-table.td>
+                @else
+                    <x-table.td class="w-2/12 text-center">
+                        @if($item->invoice_number)
+                            <a href="{{ route('invoices.show', $item->invoice_id ?: $item->parent_id) }}" class="text-xs hover:underline">
+                                {{ $item->invoice_number }}
+                            </a>
+                        @else
+                            <span class="text-xs text-gray-300">---</span>
+                        @endif
+                    </x-table.td>
+                @endif
 
                 <x-table.td class="w-2/12 text-center">
                     <span class="px-2 py-1 rounded-md text-xs {{ $item->sunat_status == 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
@@ -266,21 +284,28 @@
                 @endif
                 @stack('contact_name_and_document_number_td_end')
 
-                @stack('amount_td_start')
-                @if (! $hideAmount)
-                    <x-table.td class="{{ $classAmount }}" kind="amount">
-                        @stack('amount_td_inside_start')
-                        @php
-                            $display_amount = ($type === 'invoice') ? $item->amount_due : $item->amount;
-                        @endphp
-                        <div class="flex items-center justify-end">
-                            <x-money :amount="$display_amount" :currency="$item->currency_code" />
-                        </div>
-                        @stack('amount_td_inside_end')
-                    </x-table.td>
-
-                <x-table.td kind="action">
-                    <x-table.actions :model="$item" />
+                                @stack('amount_td_start')
+                                @if (! $hideAmount)
+                                    <x-table.td class="{{ $classAmount }}" kind="amount">
+                                        @stack('amount_td_inside_start')
+                                        @php
+                                            $net_amount = $item->amount;
+                                            if ($type === 'invoice') {
+                                                $net_amount = $item->amount - ($credit_notes_total ?? 0) + ($debit_notes_total ?? 0);
+                                            }
+                                        @endphp
+                                        <div class="flex flex-col items-end">
+                                            <x-money :amount="$net_amount" :currency="$item->currency_code" />
+                                            @if($type === 'invoice' && (($credit_notes_total ?? 0) > 0 || ($debit_notes_total ?? 0) > 0))
+                                                <span class="text-[10px] text-gray-400 line-through leading-none mt-1">
+                                                    <x-money :amount="$item->amount" :currency="$item->currency_code" />
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @stack('amount_td_inside_end')
+                                    </x-table.td>
+                
+                                <x-table.td kind="action">                    <x-table.actions :model="$item" />
                 </x-table.td>
                 @endif
                 @stack('amount_td_end')

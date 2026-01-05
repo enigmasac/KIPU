@@ -32,7 +32,7 @@ class Document extends Model
 
     protected $table = 'documents';
 
-    protected $appends = ['attachment', 'amount_without_tax', 'discount', 'paid', 'received_at', 'status_label', 'sent_at', 'reconciled', 'contact_location'];
+    protected $appends = ['attachment', 'amount_without_tax', 'discount', 'paid', 'received_at', 'status_label', 'sent_at', 'reconciled', 'contact_location', 'invoice_number', 'reason_description'];
 
     protected $fillable = [
         'company_id',
@@ -150,8 +150,7 @@ class Document extends Model
 
         static::updating(function($document) {
             // SUNAT Compliance: Prevent editing of issued documents
-            // We allow updates if the document was created less than 60 seconds ago (system creation process)
-            // or if it's currently in 'draft' status.
+            // We allow updates only if it's currently in 'draft' status.
             if ($document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && $document->created_at->diffInSeconds(now()) > 60) {
                 throw new \Exception('No se puede editar un documento que ya ha sido emitido. Por favor, use una Nota de Crédito para anularlo.');
             }
@@ -725,6 +724,11 @@ class Document extends Model
      */
     public function getStatusLabelAttribute()
     {
+        // SUNAT: Para notas de crédito y débito, el estado 'sent' es un éxito final (verde)
+        if (in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE]) && $this->status === 'sent') {
+            return 'status-success';
+        }
+
         return match($this->status) {
             'paid'      => 'status-success',
             'partial'   => 'status-partial',
@@ -786,6 +790,54 @@ class Document extends Model
         return $this->getFormattedAddress($this->contact_city, $country ?? null, $this->contact_state, $this->contact_zip_code);
     }
 
+    public function referenced_document()
+    {
+        return $this->belongsTo(self::class, 'invoice_id');
+    }
+
+    /**
+     * Get the related invoice number for notes.
+     */
+    public function getInvoiceNumberAttribute()
+    {
+        if ($this->relationLoaded('referenced_document') && $this->referenced_document) {
+            return $this->referenced_document->document_number;
+        }
+
+        $id = $this->invoice_id ?: $this->parent_id;
+
+        if ($id) {
+            return \DB::table('documents')->where('id', $id)->value('document_number');
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the SUNAT reason description for notes.
+     */
+    public function getReasonDescriptionAttribute()
+    {
+        $code = $this->credit_note_reason_code ?? $this->debit_note_reason_code;
+
+        if (!$code) return null;
+
+        $reasons = [
+            '01' => 'Anulación de la operación',
+            '02' => 'Anulación por error en el RUC',
+            '03' => 'Corrección por error en la descripción',
+            '04' => 'Descuento global',
+            '05' => 'Descuento por ítem',
+            '06' => 'Devolución total',
+            '07' => 'Devolución por ítem',
+            '08' => 'Bonificación',
+            '09' => 'Disminución en el valor',
+            '10' => 'Otros Conceptos',
+        ];
+
+        return ($reasons[$code] ?? $code);
+    }
+
     /**
      * Get the line actions.
      *
@@ -819,7 +871,8 @@ class Document extends Model
         }
 
         try {
-            if ($this->status == 'draft' && ! $this->reconciled) {
+            // SUNAT: La edición solo es válida en estado Borrador (Draft) antes de cualquier proceso de emisión.
+            if ($this->status === 'draft' && ! $this->reconciled) {
                 $actions[] = [
                     'title' => trans('general.edit'),
                     'icon' => 'edit',
@@ -833,19 +886,23 @@ class Document extends Model
         } catch (\Exception $e) {}
 
         try {
-            $actions[] = [
-                'title' => trans('general.duplicate'),
-                'icon' => 'file_copy',
-                'url' => route($prefix . '.duplicate', $this->id),
-                'permission' => 'create-' . $group . '-' . $permission_prefix,
-                'attributes' => [
-                    'id' => 'index-line-actions-duplicate-' . $this->type . '-' . $this->id,
-                ],
-            ];
+            if (! in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])) {
+                $actions[] = [
+                    'title' => trans('general.duplicate'),
+                    'icon' => 'file_copy',
+                    'url' => route($prefix . '.duplicate', $this->id),
+                    'permission' => 'create-' . $group . '-' . $permission_prefix,
+                    'attributes' => [
+                        'id' => 'index-line-actions-duplicate-' . $this->type . '-' . $this->id,
+                    ],
+                ];
+            }
         } catch (\Exception $e) {}
 
         if (
             $this->status != 'paid'
+            && $this->status != 'draft'
+            && ! in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])
             && ! str_contains($this->type, 'recurring')
             && (empty($this->transactions->count())
             || (! empty($this->transactions->count()) && $this->paid != $this->amount))
@@ -965,7 +1022,7 @@ class Document extends Model
             }
 
             try {
-                if ($this->status == 'draft') {
+                if ($this->status === 'draft') {
                     $actions[] = [
                         'type' => 'delete',
                         'icon' => 'delete',

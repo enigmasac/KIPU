@@ -13,7 +13,26 @@
     <x-slot name="body">
         @stack('timeline_send_body_start')
 
-        <div class="flex flex-wrap space-x-3 rtl:space-x-reverse">
+        <div class="flex flex-wrap items-center gap-3 rtl:space-x-reverse">
+            @stack('timeline_send_body_button_mark_sent_start')
+
+            @if (! $hideMarkSent)
+                @can($permissionUpdate)
+                    @if ($document->status == 'draft')
+                        <a id="show-slider-actions-mark-sent-{{ $document->type }}" 
+                           href="{{ route($markSentRoute, $document->id) }}" 
+                           class="px-3 py-1.5 rounded-xl text-sm font-medium text-white shadow-sm transition-all hover:opacity-90" 
+                           style="background-color: #6ea053 !important; display: inline-flex; align-items: center; justify-content: center;">
+                            {{ trans($textMarkSent) }}
+                        </a>
+                    @else
+                        <button class="px-3 py-1.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed" disabled="disabled" style="display: inline-flex; align-items: center; justify-content: center;">
+                            {{ trans($textMarkSent) }}
+                        </button>
+                    @endif
+                @endcan
+            @endif
+
             @stack('timeline_send_body_button_email_start')
 
             @if (! $hideEmail)
@@ -35,26 +54,6 @@
                     </x-tooltip>
                 @endif
             @endif
-
-            @stack('timeline_send_body_button_mark_sent_start')
-
-            @if (! $hideMarkSent)
-                @can($permissionUpdate)
-                    @if ($document->status == 'draft')
-                        <x-link id="show-slider-actions-mark-sent-{{ $document->type }}" href="{{ route($markSentRoute, $document->id) }}" @click="e => e.target.classList.add('disabled')">
-                            <x-link.loading>
-                                {{ trans($textMarkSent) }}
-                            </x-link.loading>
-                        </x-link>
-                    @else
-                        <x-button kind="disabled" disabled="disabled">
-                            {{ trans($textMarkSent) }}
-                        </x-button>
-                    @endif
-                @endcan
-            @endif
-
-            @stack('timeline_send_body_button_cancelled_start')
 
             @if (! $hideShare)
                 @if ($document->status != 'cancelled')

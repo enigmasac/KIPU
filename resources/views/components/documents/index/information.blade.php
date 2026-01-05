@@ -111,10 +111,7 @@
                     </span>
 
                     <span>
-                        @php
-                            $due_amount = $document->type === 'invoice' ? $document->amount_due : $document->amount;
-                        @endphp
-                        <x-money :amount="$due_amount" :currency="$document->currency_code" />
+                        <x-money :amount="$document->amount" :currency="$document->currency_code" />
                     </span>
                 </div>
             </div>

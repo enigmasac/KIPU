@@ -93,11 +93,6 @@
                 </div>
             </div>  
             <div :class="show.contact_selected ? 'flex' : 'hidden'" class="absolute flex-col mt-2">
-                <button type="button" class="p-0 text-xs text-purple ltr:ltr:text-left rtl:text-right rtl:text-right" @click="onContactEdit">
-                    <span class="bg-no-repeat bg-0-2 bg-0-full hover:bg-full-2 bg-gradient-to-b from-transparent to-purple transition-backgroundSize">
-                        {{ editContactText.replace(':contact_name', contact.name).replace(':field', contact.name) }}
-                    </span>
-                </button>
                 <button type="button" class="p-0 text-xs text-purple ltr:ltr:text-left rtl:text-right rtl:text-right" @click="onContactList">
                     <span class="bg-no-repeat bg-0-2 bg-0-full hover:bg-full-2 bg-gradient-to-b from-transparent to-purple transition-backgroundSize">
                         {{ chooseDifferentContactText }}

@@ -40,15 +40,15 @@ return [
     'credit'              => 'Crédito',
     'refund'              => 'Reembolso',
     'make_refund'         => 'Realizar reembolso',
-    'mark_sent'           => 'Marcar como enviado',
+    'mark_sent'           => 'Emitir en SUNAT',
     'mark_viewed'         => 'Marcar como visto',
     'mark_cancelled'      => 'Marcar como cancelado',
     'download_pdf'        => 'Descargar PDF',
     'send_mail'           => 'Enviar correo electrónico',
     'all_credit_notes'    => 'Inicie sesión para ver todas las notas de crédito',
     'create_credit_note'  => 'Emitir Nota de Crédito',
-    'send_credit_note'    => 'Enviar nota de crédito',
-    'timeline_sent_title' => 'Enviar nota de crédito',
+    'send_credit_note'    => 'Emitir Nota de Crédito',
+    'timeline_sent_title' => 'Emitir Nota de Crédito',
     'refund_customer'     => 'Reembolsar cliente',
     'refunds_made'        => 'Reembolsos realizados',
 
@@ -70,7 +70,7 @@ return [
         'marked_cancelled' => '¡Nota de crédito marcada como cancelada!',
         'refund_was_made'  => '¡Se realizó el reembolso!',
         'email_required'   => '¡No hay dirección de correo electrónico para este cliente!',
-        'draft'            => 'Esta es una nota de crédito en <b>BORRADOR</b> y se reflejará en los gráficos después de que se envíe.',
+        'draft'            => 'Esta es una nota de crédito en <b>BORRADOR</b> y se reflejará en los gráficos después de que sea emitida en SUNAT.',
 
         'status' => [
             'created' => 'Creado el :date',

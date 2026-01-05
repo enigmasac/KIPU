@@ -11,6 +11,8 @@ class DebitNote extends Document
 {
     public const TYPE = Document::DEBIT_NOTE_TYPE;
 
+    protected $appends = ['attachment', 'amount_without_tax', 'discount', 'paid', 'received_at', 'status_label', 'sent_at', 'reconciled', 'contact_location', 'invoice_number', 'reason_description'];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -53,11 +55,6 @@ class DebitNote extends Document
         }
 
         return parent::getStatusLabelAttribute();
-    }
-
-    public function getBillNumberAttribute(): string
-    {
-        return optional($this->bill)->document_number ?? '';
     }
 
 /*

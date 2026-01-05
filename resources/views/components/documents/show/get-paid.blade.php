@@ -14,7 +14,7 @@
 
             @if (! $hideAddPayment)
                 @if ($document->totals->count())
-                    @if (($document->status != 'paid') && ($document->amount_due > 0) && (empty($document->transactions->count()) || (! empty($document->transactions->count()) && ($document->paid != $document->amount))))
+                    @if (($document->status != 'paid') && ($document->status != 'draft') && ($document->amount_due > 0) && (empty($document->transactions->count()) || (! empty($document->transactions->count()) && ($document->paid != $document->amount))))
                         @if ($document->status != 'cancelled')
                             <x-button
                                 @click="onAddPayment('{{ route('modals.documents.document.transactions.create', $document->id) }}')"
@@ -131,8 +131,12 @@
                     </div>
                 @endforeach
             @else
-                <div class="my-2">
-                    <span>{{ trans('general.no_records') }}</span>
+                <div class="my-2 text-yellow-600 italic">
+                    @if ($document->status === 'draft')
+                        No se pueden registrar cobros sobre un comprobante en borrador. Por favor, emita el comprobante primero.
+                    @else
+                        <span>{{ trans('general.no_records') }}</span>
+                    @endif
                 </div>
             @endif
 

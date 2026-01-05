@@ -56,6 +56,8 @@
             <x-documents.show.send type="{{ $type }}" :document="$document" />
         @endif
 
+        @include('partials.documents.note.affected_document')
+
         @stack('send_end')
 
         @stack('receive_start')

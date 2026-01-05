@@ -10,7 +10,7 @@
 
         @stack('duplicate_button_start')
 
-        @if (! $hideDuplicate)
+        @if (! $hideDuplicate && ! in_array($document->type, ['credit-note', 'debit-note']))
             @can($permissionCreate)
                 <x-dropdown.link href="{{ route($duplicateRoute, $document->id) }}" id="show-more-actions-duplicate-{{ $document->type }}">
                     {{ trans('general.duplicate') }}
@@ -126,7 +126,7 @@
 
         @stack('delete_button_start')
 
-        @if (! $hideDelete)
+        @if (! $hideDelete && $document->status === 'draft')
             @can($permissionDelete)
                 @if ($checkReconciled)
                     @if (! $document->reconciled)

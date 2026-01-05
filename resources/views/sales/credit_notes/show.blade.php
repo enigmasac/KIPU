@@ -1,6 +1,6 @@
 <x-layouts.admin>
     <x-slot name="title">
-        {{ trans_choice('general.credit_notes', 1) . ': ' . $credit_note->document_number }}
+        {{ $credit_note->document_number }}
     </x-slot>
 
     <x-slot name="status">

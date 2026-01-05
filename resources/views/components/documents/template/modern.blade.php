@@ -234,6 +234,28 @@
                         </p>
                     @endif
                 @stack('due_at_input_end')
+
+                @if (in_array($document->type, ['credit-note', 'debit-note']))
+                    {{-- APARTADO: COMPROBANTE AFECTADO --}}
+                    <div class="mt-4 border-t-1 pt-2">
+                        <p class="mb-0 text-white">
+                            <span class="font-semibold spacing">Comprobante Afectado:</span>
+                            <span class="float-right spacing font-bold">
+                                {{ $document->invoice_number ?? 'No vinculado' }}
+                            </span>
+                        </p>
+                        @if($document->reason_description)
+                            <p class="mb-0 text-white">
+                                <span class="font-semibold spacing text-xs">Motivo SUNAT:</span>
+                                <span class="float-right spacing text-xs text-right">
+                                    {{ $document->reason_description }}
+                                </span>
+                            </p>
+                        @endif
+                    </div>
+                @endif
+
+                @if ($document->type === 'invoice')
             </div>
         </div>
     </div>
@@ -353,20 +375,6 @@
                     </div>
                     @stack($total->code . '_total_tr_end')
                 @else
-                    @if ($document->paid)
-                        @stack('paid_total_tr_start')
-                        <div class="text">
-                            <span class="float-left font-semibold">
-                                {{ trans('invoices.paid') }}:
-                            </span>
-
-                            <span>
-                                - <x-money :amount="$document->paid" :currency="$document->currency_code" />
-                            </span>
-                        </div>
-                        @stack('paid_total_tr_end')
-                    @endif
-
                     @stack('grand_total_tr_start')
                         <div class="text">
                             <span class="float-left font-semibold">
@@ -374,7 +382,7 @@
                             </span>
 
                             <span>
-                                <x-money :amount="$document->amount_due" :currency="$document->currency_code" />
+                                <x-money :amount="$document->amount" :currency="$document->currency_code" />
                             </span>
                         </div>
                     @stack('grand_total_tr_end')

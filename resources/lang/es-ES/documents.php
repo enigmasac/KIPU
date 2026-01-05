@@ -68,7 +68,7 @@ return [
     'messages' => [
         'email_sent'            => '¡Se ha enviado :type por correo!',
         'marked_as'             => '¡:type marcado/a como :status!',
-        'marked_sent'           => '¡:type marcado/a como enviado!',
+        'marked_sent'           => 'Emitir en SUNAT',
         'marked_paid'           => '¡:type marcado/a como pagado/a!',
         'marked_viewed'         => '¡:type marcado/a como visto/a!',
         'marked_cancelled'      => '¡:type marcado/a como cancelado/a!',
@@ -80,8 +80,15 @@ return [
 
         'tooltip' => [
             'document_date'     => 'La fecha :type se asignará automáticamente basándose en el calendario :type y la frecuencia.',
-            'document_number'   => 'El número :type se asignará automáticamente cuando se genere cada :type recurrente.',
+            'document_number'   => 'La número :type se asignará automáticamente cuando se genere cada :type recurrente.',
         ],
+    ],
+
+    'slider' => [
+        'create'            => ':user ha creado este :type el :date',
+        'create_recurring'  => ':user ha creado esta plantilla recurrente el :date',
+        'schedule'          => ':user ha programado este :type el :date',
+        'send'              => ':user ha emitido este :type el :date',
     ],
 
 ];

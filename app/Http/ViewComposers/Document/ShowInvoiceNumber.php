@@ -11,7 +11,9 @@ class ShowInvoiceNumber
     {
         $credit_note = $view->getData()['credit_note'];
 
-        if(!$credit_note->invoice_number) {
+        $invoice_number = $credit_note->invoice_number;
+
+        if (!$invoice_number) {
             return;
         }
 

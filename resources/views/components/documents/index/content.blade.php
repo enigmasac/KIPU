@@ -13,21 +13,40 @@
                 <x-slot name="navs">
                     @stack('document_nav_start')
 
-                    @if ($tabActive == $real_type . '-unpaid')
+                    @if ($tabActive == $real_type . '-all')
                         <x-tabs.nav-pin
-                            id="{{ $real_type . '-unpaid' }}"
-                            name="{{ trans('documents.statuses.unpaid') }}"
+                            id="{{ $real_type . '-all' }}"
+                            name="{{ trans('general.all_type', ['type' => trans_choice($textTabDocument, 2)]) }}"
                             type="{{ $real_type }}"
-                            tab="unpaid"
+                            tab="all"
                         />
                     @else
                         <x-tabs.nav-pin
-                            id="{{ $real_type . '-unpaid' }}"
-                            href="{{ route($routeTabDocument, $routeParamsTabUnpaid) }}"
-                            name="{{ trans('documents.statuses.unpaid') }}"
+                            id="{{ $real_type . '-all' }}"
+                            href="{{ route($routeTabDocument, ['list_records' => 'all']) }}"
+                            name="{{ trans('general.all_type', ['type' => trans_choice($textTabDocument, 2)]) }}"
                             type="{{ $real_type }}"
-                            tab="unpaid"
+                            tab="all"
                         />
+                    @endif
+
+                    @if ($type !== 'credit-note' && $type !== 'debit-note')
+                        @if ($tabActive == $real_type . '-unpaid')
+                            <x-tabs.nav-pin
+                                id="{{ $real_type . '-unpaid' }}"
+                                name="{{ trans('documents.statuses.unpaid') }}"
+                                type="{{ $real_type }}"
+                                tab="unpaid"
+                            />
+                        @else
+                            <x-tabs.nav-pin
+                                id="{{ $real_type . '-unpaid' }}"
+                                href="{{ route($routeTabDocument, $routeParamsTabUnpaid) }}"
+                                name="{{ trans('documents.statuses.unpaid') }}"
+                                type="{{ $real_type }}"
+                                tab="unpaid"
+                            />
+                        @endif
                     @endif
 
                     @if ($tabActive == $real_type . '-draft')
@@ -44,23 +63,6 @@
                             name="{{ trans('documents.statuses.draft') }}"
                             type="{{ $real_type }}"
                             tab="draft"
-                        />
-                    @endif
-
-                    @if ($tabActive == $real_type . '-all')
-                        <x-tabs.nav-pin
-                            id="{{ $real_type . '-all' }}"
-                            name="{{ trans('general.all_type', ['type' => trans_choice($textTabDocument, 2)]) }}"
-                            type="{{ $real_type }}"
-                            tab="all"
-                        />
-                    @else
-                        <x-tabs.nav-pin
-                            id="{{ $real_type . '-all' }}"
-                            href="{{ route($routeTabDocument, ['list_records' => 'all']) }}"
-                            name="{{ trans('general.all_type', ['type' => trans_choice($textTabDocument, 2)]) }}"
-                            type="{{ $real_type }}"
-                            tab="all"
                         />
                     @endif
 

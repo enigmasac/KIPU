@@ -18,14 +18,10 @@
 
             @if (! $hideEdit)
                 @can($permissionUpdate)
-                    @if ($document->status != 'cancelled')
+                    @if ($document->status === 'draft')
                         <x-link href="{{ route($editRoute, $document->id) }}" id="show-slider-actions-edit-{{ $document->type }}" @click="e => e.target.classList.add('disabled')">
                             {{ trans('general.edit') }}
                         </x-link>
-                    @else
-                        <x-button kind="disabled" disabled="disabled">
-                            {{ trans('general.edit') }}
-                        </x-button>
                     @endif
                 @endcan
             @endif

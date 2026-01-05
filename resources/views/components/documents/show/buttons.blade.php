@@ -10,7 +10,7 @@
 
 @stack('edit_button_start')
 
-@if (! in_array($document->status, $hideButtonStatuses))
+@if ($document->status === 'draft')
     @if (! $hideEdit)
         @can($permissionUpdate)
             <x-link href="{{ route($editRoute, $document->id) }}" id="show-more-actions-edit-{{ $document->type }}">

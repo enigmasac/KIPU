@@ -24,7 +24,7 @@ class CreditNotes extends Controller
 
     public function index()
     {
-        $credit_notes = Document::with('contact', 'transactions')->collect(['issued_at' => 'desc']);
+        $credit_notes = Document::with('contact', 'transactions', 'referenced_document')->collect(['issued_at' => 'desc']);
 
         return $this->response('sales.credit_notes.index', compact('credit_notes'));
     }

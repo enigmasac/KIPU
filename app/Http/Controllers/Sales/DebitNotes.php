@@ -26,7 +26,7 @@ class DebitNotes extends Controller
     public function index()
     {
         $debit_notes = Document::where('type', Document::DEBIT_NOTE_TYPE)
-            ->with('contact', 'transactions')
+            ->with('contact', 'transactions', 'referenced_document')
             ->collect(['issued_at' => 'desc']);
 
         return $this->response('sales.debit_notes.index', compact('debit_notes'));

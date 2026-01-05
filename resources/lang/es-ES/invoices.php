@@ -34,7 +34,7 @@ return [
     'payments'              => 'Pagos',
     'add_payment'           => 'Añadir pago',
     'mark_paid'             => 'Marcar Como Pagada',
-    'mark_sent'             => 'Marcar Como Enviada',
+    'mark_sent'             => 'Emitir en SUNAT',
     'mark_viewed'           => 'Marcar como visto',
     'mark_cancelled'        => 'Marcar como Cancelada',
     'download_pdf'          => 'Descargar PDF',
@@ -45,6 +45,7 @@ return [
     'get_paid'              => 'Recibir Pago',
     'accept_payments'       => 'Aceptar Pagos Online',
     'payment_received'      => 'Pago recibido',
+    'payments_received'     => 'Cobros recibidos',
 
     'form_description' => [
         'billing'           => 'Los datos de facturación aparecen en su factura. La fecha de la factura se utiliza en el panel de control e informes. Seleccione la fecha que usted espera que se le pague como fecha de vencimiento.',
@@ -52,7 +53,7 @@ return [
 
     'messages' => [
         'email_required'    => 'Ninguna dirección de correo electrónico para este cliente!',
-        'draft'             => 'Esta es una factura <b>BORRADOR</b> y se reflejará en los gráficos luego de que sea enviada.',
+        'draft'             => 'Esta es una factura <b>BORRADOR</b> y se reflejará en los gráficos luego de que sea emitida en SUNAT.',
 
         'status' => [
             'created'       => 'Creada el :date',

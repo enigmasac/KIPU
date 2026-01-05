@@ -73,8 +73,12 @@
                     </div>
                 @endforeach
             @else
-                <div class="my-2">
-                    <span>{{ trans('general.no_records') }}</span>
+                <div class="my-2 text-yellow-600 italic">
+                    @if ($document->status === 'draft')
+                        No se pueden registrar cobros sobre un comprobante en borrador. Por favor, emita el comprobante primero.
+                    @else
+                        <span>{{ trans('general.no_records') }}</span>
+                    @endif
                 </div>
             @endif
         </div>

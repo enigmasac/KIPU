@@ -16,6 +16,8 @@ class CreditNote extends Document
 
     public const TYPE = Document::CREDIT_NOTE_TYPE;
 
+    protected $appends = ['attachment', 'amount_without_tax', 'discount', 'paid', 'received_at', 'status_label', 'sent_at', 'reconciled', 'contact_location', 'invoice_number', 'reason_description'];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -65,11 +67,6 @@ class CreditNote extends Document
         }
 
         return parent::getStatusLabelAttribute();
-    }
-
-    public function getInvoiceNumberAttribute(): string
-    {
-        return optional($this->invoice)->document_number ?? '';
     }
 
 /*

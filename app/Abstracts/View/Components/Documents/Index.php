@@ -510,11 +510,23 @@ abstract class Index extends Component
 
         $route = $this->getIndexRoute($type, null);
 
-        $totals = $this->getTotalsForFutureDocuments($type);
+        // SUNAT: Para notas, obtenemos totales de borrador y enviados de forma manual
+        if (in_array($type, ['credit-note', 'debit-note'])) {
+            $totals = [
+                'sent' => \App\Models\Document\Document::type($type)->status('sent')->sum('amount'),
+                'draft' => \App\Models\Document\Document::type($type)->status('draft')->sum('amount'),
+            ];
+        } else {
+            $totals = $this->getTotalsForFutureDocuments($type);
+        }
 
         $items = [];
 
         foreach ($totals as $key => $total) {
+            if (in_array($type, ['credit-note', 'debit-note']) && !in_array($key, ['draft', 'sent'])) {
+                continue;
+            }
+
             $title = ($key == 'overdue') ? trans('general.overdue') : trans('documents.statuses.' . $key);
             $href = route($route, ['search' => 'status:' . $key]);
             $amount = money($total)->formatForHumans();
@@ -563,7 +575,7 @@ abstract class Index extends Component
             return $tabSuffix;
         }
 
-        if (request()->get('list_records') == 'all') {
+        if (request()->get('list_records') == 'all' || in_array($type, ['credit-note', 'debit-note'])) {
             return 'all';
         }
 

@@ -42,6 +42,7 @@ class Invoices extends Controller
             'totals',
             'histories',
             'media',
+            'referenced_document',
             'credit_notes' => function ($query) {
                 $query->select('id', 'invoice_id', 'document_number', 'amount', 'currency_code', 'status', 'issued_at');
             },
@@ -176,6 +177,12 @@ class Invoices extends Controller
      */
     public function edit(Document $invoice)
     {
+        if ($invoice->status !== 'draft') {
+            flash('No se puede editar un comprobante que ya ha sido emitido. Por favor, use una Nota de Crédito para anularlo.')->error()->important();
+
+            return redirect()->route('invoices.show', $invoice->id);
+        }
+
         return view('sales.invoices.edit', compact('invoice'));
     }
 

@@ -62,6 +62,8 @@ return [
     'widgets'               => 'Widget|Widgets',
     'templates'             => 'Plantilla|Plantillas',
     'sales'                 => 'Venta|Ventas',
+    'sales.credit_notes'    => 'Nota de Crédito|Notas de Crédito',
+    'sales.debit_notes'     => 'Nota de Débito|Notas de Débito',
     'purchases'             => 'Compra|Compras',
     'notifications'         => 'Notificación|Notificaciones',
     'countries'             => 'País|Países',

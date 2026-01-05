@@ -24,14 +24,6 @@ class Invoices extends BulkAction
     ];
 
     public $actions = [
-        'edit' => [
-            'icon'          => 'edit',
-            'name'          => 'general.edit',
-            'message'       => '',
-            'permission'    => 'update-sales-invoices',
-            'type'          => 'modal',
-            'handle'        => 'update',
-        ],
         'sent' => [
             'icon'          => 'send',
             'name'          => 'invoices.mark_sent',
@@ -57,41 +49,6 @@ class Invoices extends BulkAction
             'type'          => 'download',
         ],
     ];
-
-    public function edit($request)
-    {
-        $selected = $this->getSelectedInput($request);
-
-        return $this->response('bulk-actions.sales.invoices.edit', compact('selected'));
-    }
-
-    public function update($request)
-    {
-        $invoices = $this->getSelectedRecords($request);
-
-        foreach ($invoices as $invoice) {
-            try {
-                $discount = $invoice->totals->where('code', 'discount')->makeHidden('title')->pluck('amount')->first();
-
-                // for extra total rows..
-                $totals = $invoice->totals()->whereNotIn('code', ['sub_total', 'total', 'tax', 'discount'])->get()->toArray();
-
-                $request->merge([
-                    'items' => $invoice->items->toArray(),
-                    'uploaded_attachment' => $invoice->attachment,
-                    'category_id' => ($request->get('category_id')) ?? $invoice->category_id,
-                    'discount' => $discount,
-                    'totals' => $totals,
-                ])->except([
-
-                ]);
-
-                $this->dispatch(new UpdateDocument($invoice, $this->getUpdateRequest($request)));
-            } catch (\Exception $e) {
-                flash($e->getMessage())->error()->important();
-            }
-        }
-    }
 
     public function sent($request)
     {
