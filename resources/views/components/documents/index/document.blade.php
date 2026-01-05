@@ -193,8 +193,18 @@
                 @stack('status_td_start')
                 @if (!$hideStatus)
                     <x-table.td class="{{ $classStatus }}">
-                        @stack('status_td_inside_start')
-                        <x-show.status status="{{ $item->status }}" background-color="bg-{{ $item->status_label }}" text-color="text-text-{{ $item->status_label }}" />
+                @stack('status_td_inside_start')
+                        @php
+                            $display_status = $item->status;
+                            $status_label_class = $item->status_label;
+
+                            // SUNAT: Si la factura está totalmente anulada por Notas de Crédito, forzamos el estado visual
+                            if ($type === 'invoice' && (($credit_notes_total ?? 0) >= round($item->amount, 2))) {
+                                $display_status = 'cancelled';
+                                $status_label_class = 'status-canceled';
+                            }
+                        @endphp
+                        <x-show.status status="{{ $display_status }}" background-color="bg-{{ $status_label_class }}" text-color="text-text-{{ $status_label_class }}" />
                         @stack('status_td_inside_end')
                     </x-table.td>
                 @endif

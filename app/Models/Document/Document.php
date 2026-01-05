@@ -712,6 +712,10 @@ class Document extends Model
      */
     public function getAmountDueAttribute()
     {
+        if ($this->status === 'cancelled') {
+            return 0;
+        }
+
         $precision = currency($this->currency_code)->getPrecision();
 
         return round($this->amount + $this->debit_notes_total - $this->paid, $precision);

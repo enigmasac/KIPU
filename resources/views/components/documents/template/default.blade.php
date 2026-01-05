@@ -258,7 +258,7 @@
                             $net_total -= $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount');
                         }
                         
-                        $is_annulled = bccomp((string)$net_total, '0', $precision) <= 0;
+                        $is_annulled = ($document->status === 'cancelled') || (bccomp((string)$net_total, '0', $precision) <= 0);
                         $real_due = $is_annulled ? 0 : $document->amount_due;
                     @endphp
 
@@ -267,7 +267,7 @@
                         <p class="mb-0">
                             <span class="font-semibold spacing w-numbers">Estado:</span>
                             <span class="float-right spacing uppercase font-bold {{ $is_annulled ? 'text-red-700' : ($document->status == 'paid' ? 'text-green-600' : 'text-red-500') }}">
-                                {{ $is_annulled ? 'ANULADA (N.C.)' : ($document->status == 'paid' ? 'PAGADA' : ($document->status == 'partial' ? 'PARCIAL' : 'PENDIENTE')) }}
+                                {{ $is_annulled ? 'ANULADA' : ($document->status == 'paid' ? 'PAGADA' : ($document->status == 'partial' ? 'PARCIAL' : 'PENDIENTE')) }}
                             </span>
                         </p>
                         @if (!$is_annulled && $real_due > 0)
@@ -409,14 +409,32 @@
                     </div>
                     @stack($total->code . '_total_tr_end')
                 @else
+                    @php
+                        $cn_sum = ($document->type === 'invoice' && $document->relationLoaded('credit_notes')) 
+                            ? $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount') 
+                            : 0;
+                        $net_total = $document->amount - $cn_sum;
+                    @endphp
+
+                    @if ($cn_sum > 0)
+                        <div class="text border-bottom-1 py-1 text-red-500" style="color: #cc0000 !important;">
+                            <span class="float-left font-semibold">
+                                Nota de Crédito:
+                            </span>
+                            <span>
+                                - <x-money :amount="$cn_sum" :currency="$document->currency_code" />
+                            </span>
+                        </div>
+                    @endif
+
                     @stack('grand_total_tr_start')
                     <div class="text border-bottom-1 py-1">
                         <span class="float-left font-semibold">
-                            {{ trans($total->name) }}:
+                            {{ $cn_sum > 0 ? 'Importe Neto:' : 'Total:' }}
                         </span>
 
-                        <span>
-                            <x-money :amount="$document->amount" :currency="$document->currency_code" />
+                        <span class="{{ $cn_sum > 0 ? 'font-bold' : '' }}">
+                            <x-money :amount="$net_total" :currency="$document->currency_code" />
                         </span>
                     </div>
                     @stack('grand_total_tr_end')

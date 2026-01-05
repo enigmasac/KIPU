@@ -375,14 +375,32 @@
                     </div>
                     @stack($total->code . '_total_tr_end')
                 @else
+                    @php
+                        $cn_sum = ($document->type === 'invoice' && $document->relationLoaded('credit_notes')) 
+                            ? $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount') 
+                            : 0;
+                        $net_total = $document->amount - $cn_sum;
+                    @endphp
+
+                    @if ($cn_sum > 0)
+                        <div class="text text-red-500" style="color: #cc0000 !important;">
+                            <span class="float-left font-semibold">
+                                Nota de Crédito:
+                            </span>
+                            <span>
+                                - <x-money :amount="$cn_sum" :currency="$document->currency_code" />
+                            </span>
+                        </div>
+                    @endif
+
                     @stack('grand_total_tr_start')
                         <div class="text">
                             <span class="float-left font-semibold">
-                                {{ trans($total->name) }}:
+                                {{ $cn_sum > 0 ? 'Importe Neto:' : 'Total:' }}
                             </span>
 
-                            <span>
-                                <x-money :amount="$document->amount" :currency="$document->currency_code" />
+                            <span class="{{ $cn_sum > 0 ? 'font-bold' : '' }}">
+                                <x-money :amount="$net_total" :currency="$document->currency_code" />
                             </span>
                         </div>
                     @stack('grand_total_tr_end')

@@ -77,6 +77,8 @@ class Invoices extends Controller
             'transactions',
             'recurring',
             'children',
+            'credit_notes',
+            'debit_notes',
         ]);
 
         return view('sales.invoices.show', compact('invoice'));
