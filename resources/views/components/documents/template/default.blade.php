@@ -43,7 +43,7 @@
                 {{-- Datos Empresa --}}
                 <div class="sunat-text" style="font-size: 10px; line-height: 1.3;">
                     <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
-                    {!! nl2br(setting('company.address')) !!}
+                    {!! nl2br(str_replace('.', ' ', setting('company.address'))) !!}
                     @if(setting('company.city'))
                         , {{ setting('company.city') }}
                     @endif
@@ -64,7 +64,7 @@
             <td style="width: 60%; vertical-align: top; padding: 0;">
                 <div class="sunat-box"
                     style="border: 2px solid #000; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0; text-align: center;">
-                    <div class="sunat-text" style="padding: 4px 8px; font-size: 14px; font-weight: bold;">R.U.C.
+                    <div class="sunat-text" style="padding: 4px 8px; font-size: 14px; font-weight: bold;">RUC
                         {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
                     <div
                         style="background-color: #f0f0f0; padding: 4px 8px; border-top: 1px solid #000; border-bottom: 1px solid #000;">
@@ -100,7 +100,7 @@
                     </td>
                     <td style="width: 45px; font-weight: bold; padding: 1px 2px;">Emisión:</td>
                     <td class="sunat-text" style="width: 70px; padding: 1px 2px; white-space: nowrap;">
-                        {{ $document->issued_at ? $document->issued_at->format('d/m/Y') : '' }}</td>
+                        {{ $document->issued_at ? $document->issued_at->format('Y-m-d') : '' }}</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 1px 2px;">Dirección:</td>
@@ -108,9 +108,9 @@
                         {{ $document->contact_address }}@if($document->contact_city),
                         {{ $document->contact_city }}@endif @if($document->contact_zip_code) -
                         {{ $document->contact_zip_code }}@endif</td>
-                    <td style="font-weight: bold; padding: 1px 2px;">Venc.:</td>
+                     <td style="font-weight: bold; padding: 1px 2px;">Venc:</td>
                     <td class="sunat-text" style="padding: 1px 2px; white-space: nowrap;">
-                        {{ $document->due_at ? $document->due_at->format('d/m/Y') : '-' }}</td>
+                        {{ $document->due_at ? $document->due_at->format('Y-m-d') : '-' }}</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 1px 2px;">Condición:</td>
@@ -137,12 +137,12 @@
                 <table class="lines lines-radius-border" style="width: 100%; font-size: 9px;">
                     <thead style="background-color:{{ $backgroundColor }} !important; -webkit-print-color-adjust: exact;">
                         <tr>
-                            <th class="text-white" style="width: 8%; text-align: center; padding: 3px;">CANT.</th>
+                            <th class="text-white" style="width: 8%; text-align: center; padding: 3px;">CANT</th>
                             <th class="text-white" style="width: 8%; text-align: center; padding: 3px;">UM</th>
                             <th class="text-white" style="width: 12%; text-align: center; padding: 3px;">CÓDIGO</th>
                             <th class="text-white" style="width: 37%; text-align: left; padding: 3px;">DESCRIPCIÓN</th>
-                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">V.UNIT</th>
-                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">P.UNIT</th>
+                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">V UNIT</th>
+                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">P UNIT</th>
                             <th class="text-white" style="width: 13%; text-align: right; padding: 3px;">TOTAL</th>
                         </tr>
                     </thead>
