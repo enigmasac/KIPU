@@ -1,13 +1,14 @@
 <div class="print-template">
     {{-- SUNAT HEADER LAYOUT - RESTRUCTURED (Logo+Data Left | RUC Right) --}}
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+    {{-- SUNAT HEADER LAYOUT - RESTRUCTURED (Logo+Data Left | RUC Right) --}}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO (ROJO) Y DATOS EMPRESA (AMARILLO) --}}
-            <td style="width: 60%; vertical-align: top; padding-right: 15px;">
+            <td style="width: 65%; vertical-align: top; padding-right: 20px;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 10px; text-align: left;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 90px; max-width: 100%; width: auto;" />
+                    <div style="margin-bottom: 12px; text-align: left;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 120px; max-width: 100%; width: auto;" />
                     </div>
                 @endif
 
@@ -32,11 +33,11 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
-            <td style="width: 40%; vertical-align: top;">
-                <div class="sunat-box" style="padding: 12px; border: 2px solid #000;">
+            <td style="width: 35%; vertical-align: top;">
+                <div class="sunat-box" style="padding: 15px 10px; border: 2px solid #000;">
                     <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; margin: 10px -12px; padding: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
-                        <div class="sunat-text" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">
+                    <div style="background-color: #f0f0f0; margin: 12px -10px; padding: 12px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                        <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match($document->sunat_document_type) {
                                     '01' => 'FACTURA ELECTRÓNICA',
@@ -77,7 +78,7 @@
                     <td style="font-weight: bold; padding: 1px 2px;">Condición:</td>
                     <td class="sunat-text" style="padding: 1px 2px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
                     <td style="font-weight: bold; padding: 1px 2px;">Moneda:</td>
-                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->currency_code }}</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->currency_code == 'PEN' ? 'SOLES' : $document->currency_name }}</td>
                     @if($document->reference)
                         <td style="font-weight: bold; padding: 1px 2px;">O/C:</td>
                         <td class="sunat-text" style="padding: 1px 2px;">{{ $document->reference }}</td>
