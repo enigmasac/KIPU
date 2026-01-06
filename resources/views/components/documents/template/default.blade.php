@@ -1,45 +1,47 @@
 <div class="print-template">
-    {{-- SUNAT HEADER LAYOUT - COMPACTO --}}
-    <div class="row" style="margin-bottom: 8px;">
-        {{-- COLUMNA IZQUIERDA: LOGO Y DATOS --}}
-        <div class="col-58">
-            @if (!$hideCompanyLogo && !empty($logo))
-                <img class="d-logo" src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 50px; padding: 0; margin-bottom: 5px;" />
-            @endif
-            <div class="sunat-text" style="font-size: 10px; line-height: 1.3;">
-                <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
-                {!! nl2br(setting('company.address')) !!}
-                @if (setting('company.phone'))
-                    <br>Tel: {{ setting('company.phone') }}
+    {{-- SUNAT HEADER LAYOUT - TABLE BASED FOR STABILITY --}}
+    <table style="width: 100%; margin-bottom: 8px; border-collapse: collapse;">
+        <tr>
+            {{-- COLUMNA IZQUIERDA: LOGO Y DATOS --}}
+            <td style="width: 60%; vertical-align: top; padding-right: 10px;">
+                @if (!$hideCompanyLogo && !empty($logo))
+                    <img class="d-logo" src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 50px; padding: 0; margin-bottom: 5px;" />
                 @endif
-                @if (setting('company.email'))
-                    | {{ setting('company.email') }}
-                @endif
-            </div>
-        </div>
-
-        {{-- COLUMNA DERECHA: CAJA RUC --}}
-        <div class="col-42">
-            <div class="sunat-box" style="padding: 8px;">
-                <div class="sunat-text" style="font-size: 12px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                <div style="background-color: #f0f0f0; margin: 5px -8px; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
-                    <div class="sunat-text" style="font-size: 10px; font-weight: bold; text-transform: uppercase;">
-                        @php
-                            $doc_type_label = match($document->sunat_document_type) {
-                                '01' => 'FACTURA ELECTRÓNICA',
-                                '03' => 'BOLETA DE VENTA',
-                                '07' => 'NOTA DE CRÉDITO',
-                                '08' => 'NOTA DE DÉBITO',
-                                default => ($document->type == 'invoice' ? 'FACTURA ELECTRÓNICA' : ($document->type == 'credit-note' ? 'NOTA DE CRÉDITO' : 'BOLETA DE VENTA'))
-                            };
-                        @endphp
-                        {{ $doc_type_label }}
-                    </div>
+                <div class="sunat-text" style="font-size: 10px; line-height: 1.3;">
+                    <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
+                    {!! nl2br(setting('company.address')) !!}
+                    @if (setting('company.phone'))
+                        <br>Tel: {{ setting('company.phone') }}
+                    @endif
+                    @if (setting('company.email'))
+                        | {{ setting('company.email') }}
+                    @endif
                 </div>
-                <div class="sunat-text" style="font-size: 11px; font-weight: bold;">{{ $document->document_number }}</div>
-            </div>
-        </div>
-    </div>
+            </td>
+
+            {{-- COLUMNA DERECHA: CAJA RUC --}}
+            <td style="width: 40%; vertical-align: top;">
+                <div class="sunat-box" style="padding: 8px;">
+                    <div class="sunat-text" style="font-size: 12px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
+                    <div style="background-color: #f0f0f0; margin: 5px -8px; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                        <div class="sunat-text" style="font-size: 10px; font-weight: bold; text-transform: uppercase;">
+                            @php
+                                $doc_type_label = match($document->sunat_document_type) {
+                                    '01' => 'FACTURA ELECTRÓNICA',
+                                    '03' => 'BOLETA DE VENTA',
+                                    '07' => 'NOTA DE CRÉDITO',
+                                    '08' => 'NOTA DE DÉBITO',
+                                    default => ($document->type == 'invoice' ? 'FACTURA ELECTRÓNICA' : ($document->type == 'credit-note' ? 'NOTA DE CRÉDITO' : 'BOLETA DE VENTA'))
+                                };
+                            @endphp
+                            {{ $doc_type_label }}
+                        </div>
+                    </div>
+                    <div class="sunat-text" style="font-size: 11px; font-weight: bold;">{{ $document->document_number }}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     {{-- CLIENTE INFO - COMPACTO 2 FILAS --}}
     <div class="row sunat-client-box" style="padding: 4px 6px; margin-bottom: 6px;">
