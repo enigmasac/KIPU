@@ -4,7 +4,7 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO (ROJO) Y DATOS EMPRESA (AMARILLO) --}}
-            <td style="width: 65%; vertical-align: top; padding-right: 20px;">
+            <td style="width: 55%; vertical-align: top; padding-right: 20px;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
                     <div style="margin-bottom: 12px; text-align: left;">
@@ -33,10 +33,10 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
-            <td style="width: 35%; vertical-align: top;">
-                <div class="sunat-box" style="padding: 15px 10px; border: 2px solid #000;">
+            <td style="width: 45%; vertical-align: top;">
+                <div class="sunat-box" style="padding: 8px; border: 2px solid #000;">
                     <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; margin: 12px -10px; padding: 12px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                    <div style="background-color: #f0f0f0; margin: 6px -8px; padding: 6px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
                         <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match($document->sunat_document_type) {
