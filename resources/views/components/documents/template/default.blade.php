@@ -7,8 +7,9 @@
             <td style="width: 55%; vertical-align: top; padding: 0 15px 0 0;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 5px; text-align: left; max-width: 300px; max-height: 100px; overflow: hidden;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="height: auto; width: auto; max-width: 300px; max-height: 100px;" />
+                    <div style="margin-bottom: 8px;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}"
+                            style="display: block; max-width: 250px; max-height: 80px; width: auto; height: auto;" />
                     </div>
                 @endif
 
@@ -17,29 +18,32 @@
                     <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
                     {!! nl2br(setting('company.address')) !!}
                     @if(setting('company.city'))
-                         , {{ setting('company.city') }}
+                        , {{ setting('company.city') }}
                     @endif
                     @if(setting('company.zip_code'))
-                         - {{ setting('company.zip_code') }}
+                        - {{ setting('company.zip_code') }}
                     @endif
                     <br>
                     @if (setting('company.phone'))
                         Tel: {{ setting('company.phone') }}
                     @endif
                     @if (setting('company.email'))
-                         | {{ setting('company.email') }}
+                        | {{ setting('company.email') }}
                     @endif
                 </div>
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC --}}
             <td style="width: 45%; vertical-align: top; padding: 0; text-align: right;">
-                <div class="sunat-box" style="border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0;">
-                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                <div class="sunat-box"
+                    style="border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0;">
+                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">R.U.C.
+                        {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
+                    <div
+                        style="background-color: #f0f0f0; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
                         <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
                             @php
-                                $doc_type_label = match($document->sunat_document_type) {
+                                $doc_type_label = match ($document->sunat_document_type) {
                                     '01' => 'FACTURA ELECTRÓNICA',
                                     '03' => 'BOLETA DE VENTA',
                                     '07' => 'NOTA DE CRÉDITO',
@@ -50,7 +54,8 @@
                             {{ $doc_type_label }}
                         </div>
                     </div>
-                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">{{ $document->document_number }}</div>
+                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">
+                        {{ $document->document_number }}</div>
                 </div>
             </td>
         </tr>
@@ -64,21 +69,29 @@
                     <td style="width: 50px; font-weight: bold; padding: 1px 2px;">Cliente:</td>
                     <td class="sunat-text" style="padding: 1px 2px;">{{ $document->contact_name }}</td>
                     <td style="width: 55px; font-weight: bold; padding: 1px 2px;">RUC/DNI:</td>
-                    <td class="sunat-text" style="width: 90px; padding: 1px 2px;">{{ $document->contact_tax_number }}</td>
+                    <td class="sunat-text" style="width: 90px; padding: 1px 2px;">{{ $document->contact_tax_number }}
+                    </td>
                     <td style="width: 45px; font-weight: bold; padding: 1px 2px;">Emisión:</td>
-                    <td class="sunat-text" style="width: 70px; padding: 1px 2px; white-space: nowrap;">{{ $document->issued_at ? $document->issued_at->format('d/m/Y') : '' }}</td>
+                    <td class="sunat-text" style="width: 70px; padding: 1px 2px; white-space: nowrap;">
+                        {{ $document->issued_at ? $document->issued_at->format('d/m/Y') : '' }}</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 1px 2px;">Dirección:</td>
-                    <td class="sunat-text" colspan="3" style="padding: 1px 2px;">{{ $document->contact_address }}@if($document->contact_city), {{ $document->contact_city }}@endif @if($document->contact_zip_code) - {{ $document->contact_zip_code }}@endif</td>
+                    <td class="sunat-text" colspan="3" style="padding: 1px 2px;">
+                        {{ $document->contact_address }}@if($document->contact_city),
+                        {{ $document->contact_city }}@endif @if($document->contact_zip_code) -
+                        {{ $document->contact_zip_code }}@endif</td>
                     <td style="font-weight: bold; padding: 1px 2px;">Venc.:</td>
-                    <td class="sunat-text" style="padding: 1px 2px; white-space: nowrap;">{{ $document->due_at ? $document->due_at->format('d/m/Y') : '-' }}</td>
+                    <td class="sunat-text" style="padding: 1px 2px; white-space: nowrap;">
+                        {{ $document->due_at ? $document->due_at->format('d/m/Y') : '-' }}</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 1px 2px;">Condición:</td>
-                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">
+                        {{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
                     <td style="font-weight: bold; padding: 1px 2px;">Moneda:</td>
-                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->currency_code == 'PEN' ? 'SOLES' : $document->currency_name }}</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">
+                        {{ $document->currency_code == 'PEN' ? 'SOLES' : $document->currency_name }}</td>
                     @if($document->reference)
                         <td style="font-weight: bold; padding: 1px 2px;">O/C:</td>
                         <td class="sunat-text" style="padding: 1px 2px;">{{ $document->reference }}</td>
@@ -110,22 +123,28 @@
                         @if ($document->items->count())
                             @foreach($document->items as $item)
                                 @php
-                                    $unit_value = $item->price; 
+                                    $unit_value = $item->price;
                                     $line_total_with_tax = $item->total + $item->tax;
                                     $unit_price = $line_total_with_tax / max($item->quantity, 1);
                                 @endphp
                                 <tr style="border-bottom: 1px solid #eee;">
                                     <td style="text-align: center; padding: 3px;">{{ $item->quantity }}</td>
-                                    <td style="text-align: center; padding: 3px;">{{ $item->sunat_unit_code ?? ($item->item?->sunat_unit_code ?? 'NIU') }}</td>
+                                    <td style="text-align: center; padding: 3px;">
+                                        {{ $item->sunat_unit_code ?? ($item->item?->sunat_unit_code ?? 'NIU') }}</td>
                                     <td style="text-align: center; padding: 3px;">{{ $item->sku }}</td>
                                     <td style="text-align: left; padding: 3px;">{{ $item->name }}</td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_value" :currency="$document->currency_code" /></td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_price" :currency="$document->currency_code" /></td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$line_total_with_tax" :currency="$document->currency_code" /></td>
+                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_value"
+                                            :currency="$document->currency_code" /></td>
+                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_price"
+                                            :currency="$document->currency_code" /></td>
+                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$line_total_with_tax"
+                                            :currency="$document->currency_code" /></td>
                                 </tr>
                             @endforeach
                         @else
-                            <tr><td colspan="7" class="text-center">{{ trans('documents.empty_items') }}</td></tr>
+                            <tr>
+                                <td colspan="7" class="text-center">{{ trans('documents.empty_items') }}</td>
+                            </tr>
                         @endif
                     </tbody>
                 </table>
@@ -180,26 +199,30 @@
 
         {{-- CUENTAS BANCARIAS --}}
         <div style="display: inline-block; width: 85%; vertical-align: top; padding-left: 10px;">
-            <strong style="font-size: 8px; border-bottom: 1px solid #ddd; display: block; padding-bottom: 2px; margin-bottom: 3px; color: #000;">Cuentas Bancarias</strong>
+            <strong
+                style="font-size: 8px; border-bottom: 1px solid #ddd; display: block; padding-bottom: 2px; margin-bottom: 3px; color: #000;">Cuentas
+                Bancarias</strong>
             <div class="sunat-text" style="font-size: 8px;">
                 @php
                     $accounts = \App\Models\Banking\Account::where('enabled', 1)->get();
                 @endphp
-                
+
                 {{-- Grid de Cuentas --}}
                 <div style="width: 100%;">
                     @forelse($accounts as $acc)
                         <div style="display: inline-block; width: 48%; margin-bottom: 2px;">
-                            <strong>{{ $acc->bank_name ?: $acc->name }}:</strong> {{ $acc->currency_code }} {{ $acc->number }}
+                            <strong>{{ $acc->bank_name ?: $acc->name }}:</strong> {{ $acc->currency_code }}
+                            {{ $acc->number }}
                         </div>
                     @empty
                         @if(!setting('company.sunat_bn_account'))
                             <div style="color: #999;">Sin cuentas configuradas</div>
                         @endif
                     @endforelse
-                    
+
                     @if(setting('company.sunat_bn_account'))
-                        <div style="display: inline-block; width: 100%; margin-top: 2px; padding-top: 2px; border-top: 1px dotted #ccc;">
+                        <div
+                            style="display: inline-block; width: 100%; margin-top: 2px; padding-top: 2px; border-top: 1px dotted #ccc;">
                             <strong>Banco de la Nación (Detracciones):</strong> {{ setting('company.sunat_bn_account') }}
                         </div>
                     @endif
@@ -214,12 +237,13 @@
             {{-- Hash y Link Online --}}
             <div style="margin-bottom: 3px;">
                 @if($document->latest_sunat_emission && $document->latest_sunat_emission->hash)
-                    <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }} &nbsp;|&nbsp; 
+                    <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }} &nbsp;|&nbsp;
                 @endif
                 @php
                     $invoiceUrl = \Illuminate\Support\Facades\URL::signedRoute('signed.invoices.show', [$document->id]);
                 @endphp
-                <strong>Ver documento online:</strong> <span style="word-break: break-all; color: blue;">{{ $invoiceUrl }}</span>
+                <strong>Ver documento online:</strong> <span
+                    style="word-break: break-all; color: blue;">{{ $invoiceUrl }}</span>
             </div>
 
             {{-- Textos Legales --}}
@@ -227,7 +251,7 @@
             @if ($document->footer)
                 {!! nl2br($document->footer) !!}<br>
             @endif
-            
+
             {{-- Branding --}}
             <div style="margin-top: 2px; font-weight: bold; color: #555;">
                 Emitido con KIPU ERP | www.kipuerp.com
