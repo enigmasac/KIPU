@@ -11,7 +11,7 @@ use App\Utilities\Widgets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-if (! function_exists('user')) {
+if (!function_exists('user')) {
     /**
      * Get the authenticated user.
      *
@@ -23,7 +23,7 @@ if (! function_exists('user')) {
     }
 }
 
-if (! function_exists('user_id')) {
+if (!function_exists('user_id')) {
     /**
      * Get id of current user.
      */
@@ -33,19 +33,21 @@ if (! function_exists('user_id')) {
     }
 }
 
-if (! function_exists('company_date_format')) {
+if (!function_exists('company_date_format')) {
     /**
      * Get the date format of company.
      */
     function company_date_format(): string
     {
-        $date_time = new class() { use DateTime; };
+        $date_time = new class () {
+            use DateTime;
+        };
 
         return $date_time->getCompanyDateFormat();
     }
 }
 
-if (! function_exists('company_date')) {
+if (!function_exists('company_date')) {
     /**
      * Format the given date based on company settings.
      */
@@ -55,7 +57,7 @@ if (! function_exists('company_date')) {
     }
 }
 
-if (! function_exists('show_widget')) {
+if (!function_exists('show_widget')) {
     /**
      * Show a widget.
      *
@@ -71,7 +73,7 @@ if (! function_exists('show_widget')) {
     }
 }
 
-if (! function_exists('company')) {
+if (!function_exists('company')) {
     /**
      * Get current/any company model.
      */
@@ -91,19 +93,21 @@ if (! function_exists('company')) {
     }
 }
 
-if (! function_exists('module_is_enabled')) {
+if (!function_exists('module_is_enabled')) {
     /**
      * Check if a module is enabled.
      */
     function module_is_enabled(string $alias): bool
     {
-        $module = new class() { use Modules; };
+        $module = new class () {
+            use Modules;
+        };
 
         return $module->moduleIsEnabled($alias);
     }
 }
 
-if (! function_exists('company_id')) {
+if (!function_exists('company_id')) {
     /**
      * Get id of current company.
      */
@@ -113,7 +117,7 @@ if (! function_exists('company_id')) {
     }
 }
 
-if (! function_exists('team')) {
+if (!function_exists('team')) {
     /**
      * Get team of current company.
      */
@@ -123,7 +127,7 @@ if (! function_exists('team')) {
     }
 }
 
-if (! function_exists('team_id')) {
+if (!function_exists('team_id')) {
     /**
      * Get id of current company team.
      */
@@ -133,7 +137,7 @@ if (! function_exists('team_id')) {
     }
 }
 
-if (! function_exists('should_queue')) {
+if (!function_exists('should_queue')) {
     /**
      * Check if queue is enabled.
      */
@@ -143,19 +147,21 @@ if (! function_exists('should_queue')) {
     }
 }
 
-if (! function_exists('source_name')) {
+if (!function_exists('source_name')) {
     /**
      * Get the current source.
      */
     function source_name(string|null $alias = null): string
     {
-        $tmp = new class() { use Sources; };
+        $tmp = new class () {
+            use Sources;
+        };
 
         return $tmp->getSourceName(null, $alias);
     }
 }
 
-if (! function_exists('cache_prefix')) {
+if (!function_exists('cache_prefix')) {
     /**
      * Cache system added company_id prefix.
      */
@@ -165,7 +171,7 @@ if (! function_exists('cache_prefix')) {
     }
 }
 
-if (! function_exists('array_values_recursive')) {
+if (!function_exists('array_values_recursive')) {
     /**
      * Get array values recursively.
      */
@@ -173,7 +179,7 @@ if (! function_exists('array_values_recursive')) {
     {
         $flat = [];
 
-        foreach($array as $value) {
+        foreach ($array as $value) {
             if (is_array($value)) {
                 $flat = array_merge($flat, array_values_recursive($value));
             } else {
@@ -185,19 +191,23 @@ if (! function_exists('array_values_recursive')) {
     }
 }
 
-if (! function_exists('prepare_pdf_html')) {
+if (!function_exists('prepare_pdf_html')) {
     /**
      * Convert asset URLs to local file paths for DomPDF.
      */
     function prepare_pdf_html(string $html): string
     {
+        // Inline print.css content
         $print_css_path = public_path('css/print.css');
         if (is_readable($print_css_path)) {
             $print_css = file_get_contents($print_css_path);
             if ($print_css !== false) {
-                $print_css = preg_replace('/^@charset[^;]+;\\s*/i', '', $print_css);
+                $print_css = preg_replace('/^@charset[^;]+;\s*/i', '', $print_css);
                 $style_tag = "<style>\n" . $print_css . "\n</style>";
-                $html = preg_replace('#<link[^>]+href=[\"\\\'][^\"\\\']*css/print\\.css[^\"\\\']*[\"\\\'][^>]*>#i', $style_tag, $html);
+                // Fix: Use a more robust regex to match the href attribute value, allowing any character except the closing quote.
+                // The original `[^"\']*` was syntactically correct but might be too restrictive if the path itself contained a quote (unlikely but possible in malformed HTML).
+                // The change ensures it matches any character until the closing quote.
+                $html = preg_replace('#<link[^>]+href=(["\'])(.*?css/print\.css.*?)\1[^>]*>#i', $style_tag, $html);
             }
         }
 
@@ -228,32 +238,44 @@ if (! function_exists('prepare_pdf_html')) {
 
         $roots = array_unique(array_filter($roots));
 
-        $html = preg_replace('#<base\\s+href=\"[^\"]*\">#i', '<base href="' . $file_base . '">', $html);
+        // Replace <base> tag
+        $html = preg_replace('#<base\s+href="[^"]*">#i', '<base href="' . $file_base . '">', $html);
 
+        // CRITICAL FIX: Only replace URLs in HTML attributes (href, src, url()),
+        // NOT in text content. Use more precise regex patterns.
+
+        // Replace absolute URLs in href/src attributes
         foreach ($roots as $root) {
-            $html = str_replace($root . '/', $file_base, $html);
-            $html = str_replace($root, rtrim($file_base, '/'), $html);
+            // Only replace in href="" and src="" attributes
+            $html = preg_replace(
+                '#(href|src)=(["\'])' . preg_quote($root, '#') . '/([^"\']*)\2#i',
+                '$1=$2' . $file_base . '$3$2',
+                $html
+            );
         }
 
+        // Replace relative URLs in href/src (but NOT in text content)
         $html = preg_replace_callback(
-            '#(href|src)=\"/(?!/)([^\"]*)\"#',
+            '#(href|src)="/(?!/)([^\"]*)"#',
             fn($match) => $match[1] . '="' . $file_base . $match[2] . '"',
             $html
         );
 
+        // Replace url() in CSS (inline styles and style tags)
         $html = preg_replace_callback(
-            '#url\\((\"|\')?/(?!/)([^\\)\"\']+)(\"|\')?\\)#',
+            '#url\((["\'])?/(?!/)([^\)"\']+)(["\'])?\)#',
             fn($match) => 'url(' . ($match[1] ?? '') . $file_base . $match[2] . ($match[3] ?? '') . ')',
             $html
         );
 
+        // Clean up double public/ paths
         $html = str_replace($file_base . 'public/', $file_base, $html);
 
         return $html;
     }
 }
 
-if (! function_exists('running_in_install')) {
+if (!function_exists('running_in_install')) {
     /**
      * Detect if application is running in queue.
      */
@@ -263,7 +285,7 @@ if (! function_exists('running_in_install')) {
     }
 }
 
-if (! function_exists('running_in_queue')) {
+if (!function_exists('running_in_queue')) {
     /**
      * Detect if application is running in queue.
      */
@@ -277,7 +299,7 @@ if (! function_exists('running_in_queue')) {
     }
 }
 
-if (! function_exists('running_in_schedule')) {
+if (!function_exists('running_in_schedule')) {
     /**
      * Detect if application is running in schedule.
      */
@@ -290,7 +312,7 @@ if (! function_exists('running_in_schedule')) {
     }
 }
 
-if (! function_exists('running_in_test')) {
+if (!function_exists('running_in_test')) {
     /**
      * Detect if application is running in test.
      */
@@ -300,7 +322,7 @@ if (! function_exists('running_in_test')) {
     }
 }
 
-if (! function_exists('simple_icons')) {
+if (!function_exists('simple_icons')) {
     /**
      * Get the simple icon content
      */
@@ -312,7 +334,7 @@ if (! function_exists('simple_icons')) {
     }
 }
 
-if (! function_exists('default_currency')) {
+if (!function_exists('default_currency')) {
     /**
      * Get the default currency code
      */
@@ -322,7 +344,7 @@ if (! function_exists('default_currency')) {
     }
 }
 
-if (! function_exists('env_is_production')) {
+if (!function_exists('env_is_production')) {
     /**
      * Determine if the application is in the production environment
      */
@@ -332,7 +354,7 @@ if (! function_exists('env_is_production')) {
     }
 }
 
-if (! function_exists('env_is_development')) {
+if (!function_exists('env_is_development')) {
     /**
      * Determine if the application is in the development environment
      */
@@ -342,7 +364,7 @@ if (! function_exists('env_is_development')) {
     }
 }
 
-if (! function_exists('env_is_build')) {
+if (!function_exists('env_is_build')) {
     /**
      * Determine if the application is in the build environment
      */
@@ -352,7 +374,7 @@ if (! function_exists('env_is_build')) {
     }
 }
 
-if (! function_exists('env_is_local')) {
+if (!function_exists('env_is_local')) {
     /**
      * Determine if the application is in the local environment
      */
@@ -362,7 +384,7 @@ if (! function_exists('env_is_local')) {
     }
 }
 
-if (! function_exists('env_is_testing')) {
+if (!function_exists('env_is_testing')) {
     /**
      * Determine if the application is in the testing environment
      */
@@ -372,7 +394,7 @@ if (! function_exists('env_is_testing')) {
     }
 }
 
-if (! function_exists('is_local_storage')) {
+if (!function_exists('is_local_storage')) {
     /**
      * Determine if the storage is local.
      */
@@ -384,68 +406,72 @@ if (! function_exists('is_local_storage')) {
     }
 }
 
-if (! function_exists('is_cloud_storage')) {
+if (!function_exists('is_cloud_storage')) {
     /**
      * Determine if the storage is cloud.
      */
     function is_cloud_storage(): bool
     {
-        return ! is_local_storage();
+        return !is_local_storage();
     }
 }
 
-if (! function_exists('get_storage_path')) {
+if (!function_exists('get_storage_path')) {
     /**
      * Get the path from the storage.
      */
     function get_storage_path(string $path = ''): string
     {
         return is_local_storage()
-                ? storage_path($path)
-                : Storage::path($path);
+            ? storage_path($path)
+            : Storage::path($path);
     }
 }
 
-if (! function_exists('user_model_class')) {
+if (!function_exists('user_model_class')) {
     function user_model_class(): string
     {
         return config('auth.providers.users.model');
     }
 }
 
-if (! function_exists('role_model_class')) {
+if (!function_exists('role_model_class')) {
     function role_model_class(): string
     {
         return config('laratrust.models.role');
     }
 }
 
-if (! function_exists('team_model_class')) {
+if (!function_exists('team_model_class')) {
     function team_model_class(): string
     {
         return config('laratrust.models.team');
     }
 }
 
-if (! function_exists('search_string_value')) {
+if (!function_exists('search_string_value')) {
     function search_string_value(string $name, string $default = '', string $input = ''): string|array
     {
-        $search = new class() { use SearchString; };
+        $search = new class () {
+            use SearchString;
+        };
 
         return $search->getSearchStringValue($name, $default, $input);
     }
 }
 
-if (! function_exists('is_cloud')) {
+if (!function_exists('is_cloud')) {
     function is_cloud(): bool
     {
-        $cloud = new class() { use Cloud; };
+        $cloud = new class () {
+            use Cloud;
+        };
 
         return $cloud->isCloud();
     }
 }
 
-if (! function_exists('request_is_install')) {
+if (!function_exists('request_is_install')) {
     function request_is_install(Request|null $request = null): bool
     {
         $r = $request ?: request();
@@ -454,14 +480,14 @@ if (! function_exists('request_is_install')) {
     }
 }
 
-if (! function_exists('request_is_api')) {
+if (!function_exists('request_is_api')) {
     function request_is_api(Request|null $request = null): bool
     {
         return false;
     }
 }
 
-if (! function_exists('request_is_auth')) {
+if (!function_exists('request_is_auth')) {
     function request_is_auth(Request|null $request = null): bool
     {
         $r = $request ?: request();
@@ -470,7 +496,7 @@ if (! function_exists('request_is_auth')) {
     }
 }
 
-if (! function_exists('request_is_signed')) {
+if (!function_exists('request_is_signed')) {
     function request_is_signed(Request|null $request = null, int|null $company_id = null): bool
     {
         if (is_null($company_id)) {
@@ -483,7 +509,7 @@ if (! function_exists('request_is_signed')) {
     }
 }
 
-if (! function_exists('request_is_portal')) {
+if (!function_exists('request_is_portal')) {
     function request_is_portal(Request|null $request = null, int|null $company_id = null): bool
     {
         if (is_null($company_id)) {
@@ -496,17 +522,17 @@ if (! function_exists('request_is_portal')) {
     }
 }
 
-if (! function_exists('calculation_to_quantity')) {
+if (!function_exists('calculation_to_quantity')) {
     function calculation_to_quantity($quantity)
     {
-        if (! preg_match('/^[0-9+\-x*\/().\s]+$/', $quantity)) {
+        if (!preg_match('/^[0-9+\-x*\/().\s]+$/', $quantity)) {
             throw new \InvalidArgumentException('Invalid mathematical expression.');
         }
 
         $quantity = Str::replace('x', '*', $quantity);
 
         try {
-            $result = eval('return ' . $quantity . ';');
+            $result = eval ('return ' . $quantity . ';');
         } catch (\Throwable $e) {
             throw new \InvalidArgumentException('Error evaluating the expression: ' . $e->getMessage());
         }
