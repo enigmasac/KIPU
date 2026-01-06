@@ -293,42 +293,22 @@ abstract class Template extends Component
             $path = base_path('public/img/company.png');
         }
 
-        // DIRECT FILE READ - NO IMAGE PROCESSING
+        // Return absolute path for PDF generation to avoid base64 overhead/corruption
         try {
             if ($media) {
-                // Get raw content directly from disk/storage
-                $contentRaw = $media->contents();
-                $mime = $media->mime_type;
+                // Return file protocol path
+                return 'file://' . $media->getDiskPath();
             } else {
-                // Get raw content from path
-                $contentRaw = file_get_contents($path);
-                $mime = mime_content_type($path);
-            }
-
-            if ($contentRaw) {
-                // Return base64 directly
-                return 'data:' . $mime . ';base64,' . base64_encode($contentRaw);
+                return 'file://' . $path;
             }
         } catch (\Exception $e) {
             Log::error('Logo generation error: ' . $e->getMessage());
-        }
-
-        // Fallback to empty logic if failed, to hit the default return $logo;
-        $image = null;
-
-        /* 
-        Original Logic Removed to avoid any resizing interactions
-        */
-
-        if (empty($image)) {
             return $logo;
         }
 
-        $extension = File::extension($path);
-
-        $content = 'data:image/' . $extension . ';base64,' . base64_encode($image);
-
-        return $content;
+        /*
+         * DEPRECATED: Base64 encoding removed to fix PDF generation corruption
+         */
     }
 
     protected function getBackgroundColor($type, $backgroundColor)
