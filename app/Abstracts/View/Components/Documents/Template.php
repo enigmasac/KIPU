@@ -293,25 +293,32 @@ abstract class Template extends Component
             $path = base_path('public/img/company.png');
         }
 
+        // DIRECT FILE READ - NO IMAGE PROCESSING
         try {
-            // Bypass cache to ensure we get the full resolution image
             if ($media) {
-                $imgObj = Image::make($media->contents());
-                Log::info('DEBUG LOGO MEDIA: Width: ' . $imgObj->width() . ' Height: ' . $imgObj->height());
-                $image = $imgObj->encode();
+                // Get raw content directly from disk/storage
+                $contentRaw = $media->contents();
+                $mime = $media->mime_type;
             } else {
-                $imgObj = Image::make($path);
-                Log::info('DEBUG LOGO PATH: Width: ' . $imgObj->width() . ' Height: ' . $imgObj->height());
-                $image = $imgObj->encode();
+                // Get raw content from path
+                $contentRaw = file_get_contents($path);
+                $mime = mime_content_type($path);
             }
-        } catch (NotReadableException | \Exception $e) {
-            Log::info('Company ID: ' . company_id() . ' components/documentshow.php exception.');
-            Log::info($e->getMessage());
 
-            $path = base_path('public/img/company.png');
-
-            $image = Image::make($path)->encode();
+            if ($contentRaw) {
+                // Return base64 directly
+                return 'data:' . $mime . ';base64,' . base64_encode($contentRaw);
+            }
+        } catch (\Exception $e) {
+            Log::error('Logo generation error: ' . $e->getMessage());
         }
+
+        // Fallback to empty logic if failed, to hit the default return $logo;
+        $image = null;
+
+        /* 
+        Original Logic Removed to avoid any resizing interactions
+        */
 
         if (empty($image)) {
             return $logo;
