@@ -3,7 +3,7 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO Y DATOS EMPRESA --}}
-            <td style="width: 42%; vertical-align: top; padding: 0 8px 0 0;">
+            <td style="width: 40%; vertical-align: top; padding: 0 5px 0 0;">
                 {{-- Logo con contenedor de tamaño fijo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
                     <div style="width: 300px; height: 80px; display: flex; align-items: center; margin-bottom: 8px;">
@@ -32,7 +32,7 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC --}}
-            <td style="width: 58%; vertical-align: top; padding: 0;">
+            <td style="width: 60%; vertical-align: top; padding: 0;">
                 <div class="sunat-box" style="border: 2px solid #000; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0; text-align: center;">
                     <div class="sunat-text" style="padding: 4px 8px; font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
                     <div style="background-color: #f0f0f0; padding: 4px 8px; border-top: 1px solid #000; border-bottom: 1px solid #000;">
