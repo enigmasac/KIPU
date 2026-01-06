@@ -143,6 +143,10 @@ export default {
                 previewTemplate: preview.innerHTML,
                 dictDefaultMessage: this.textDropFile,
                 autoProcessQueue: false,
+                // Force disable client-side resizing
+                resizeWidth: null,
+                resizeHeight: null,
+                resizeQuality: 1.0,
 
                 init: function () {
                     let dropzone = this;
