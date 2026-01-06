@@ -215,14 +215,5 @@
         </div>
     </div>
 
-    {{-- FOOTER LEGAL Y KIPU --}}
-    <div class="row" style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px;">
-        <div class="col-100 text-center sunat-text" style="font-size: 7px; line-height: 1.4;">
-            Representación impresa de {{ $doc_type_label }}. Puede verificarla en www.sunat.gob.pe<br>
-            @if ($document->footer)
-                {!! nl2br($document->footer) !!}<br>
-            @endif
-            <strong>Emitido con KIPU ERP</strong> | www.kipuerp.com
-        </div>
-    </div>
+
 </div>
