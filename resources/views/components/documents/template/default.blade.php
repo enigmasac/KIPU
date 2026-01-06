@@ -1,32 +1,42 @@
 <div class="print-template">
-    {{-- SUNAT HEADER LAYOUT - STANDARD TABLE --}}
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    {{-- SUNAT HEADER LAYOUT - RESTRUCTURED (Logo+Data Left | RUC Right) --}}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
         <tr>
-            {{-- COLUMNA IZQUIERDA: LOGO Y DATOS --}}
-            <td style="width: 60%; vertical-align: top; padding-right: 20px;">
+            {{-- COLUMNA IZQUIERDA: LOGO (ROJO) Y DATOS EMPRESA (AMARILLO) --}}
+            <td style="width: 60%; vertical-align: top; padding-right: 15px;">
+                {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 10px;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 60px; width: auto;" />
+                    <div style="margin-bottom: 10px; text-align: left;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 90px; max-width: 100%; width: auto;" />
                     </div>
                 @endif
-                <div class="sunat-text" style="font-size: 10px; line-height: 1.3;">
+
+                {{-- Bloque Amarillo: Datos Empresa --}}
+                <div class="sunat-text" style="font-size: 10px; line-height: 1.35;">
                     <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
                     {!! nl2br(setting('company.address')) !!}
+                    @if(setting('company.city'))
+                         , {{ setting('company.city') }}
+                    @endif
+                    @if(setting('company.zip_code'))
+                         - {{ setting('company.zip_code') }}
+                    @endif
+                    <br>
                     @if (setting('company.phone'))
-                        <br>Tel: {{ setting('company.phone') }}
+                        Tel: {{ setting('company.phone') }}
                     @endif
                     @if (setting('company.email'))
-                        | {{ setting('company.email') }}
+                         | {{ setting('company.email') }}
                     @endif
                 </div>
             </td>
 
-            {{-- COLUMNA DERECHA: CAJA RUC --}}
+            {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
             <td style="width: 40%; vertical-align: top;">
-                <div class="sunat-box" style="padding: 10px; border: 2px solid #000;">
-                    <div class="sunat-text" style="font-size: 13px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; margin: 8px -10px; padding: 8px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
-                        <div class="sunat-text" style="font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                <div class="sunat-box" style="padding: 12px; border: 2px solid #000;">
+                    <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
+                    <div style="background-color: #f0f0f0; margin: 10px -12px; padding: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                        <div class="sunat-text" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match($document->sunat_document_type) {
                                     '01' => 'FACTURA ELECTRÓNICA',
@@ -39,7 +49,7 @@
                             {{ $doc_type_label }}
                         </div>
                     </div>
-                    <div class="sunat-text" style="font-size: 13px; font-weight: bold;">{{ $document->document_number }}</div>
+                    <div class="sunat-text" style="font-size: 14px; font-weight: bold;">{{ $document->document_number }}</div>
                 </div>
             </td>
         </tr>
@@ -132,8 +142,13 @@
             @endif
             <div class="sunat-text" style="border: 1px solid #ccc; padding: 5px; border-radius: 3px; font-size: 9px;">
                 <strong>SON:</strong> {{ $document->amount_in_words }}
+                <br>
+                <div style="margin-top: 3px;">
+                    <strong>ESTADO:</strong> {{ $document->status == 'paid' ? 'PAGADO' : 'PENDIENTE DE PAGO' }}
+                </div>
             </div>
         </div>
+
         <div class="col-40 float-right text-right">
             <div style="border: 1px solid #ccc; border-radius: 3px; overflow: hidden; font-size: 9px;">
                 @foreach ($document->totals_sorted as $total)
