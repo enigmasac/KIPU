@@ -3,7 +3,7 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO Y DATOS EMPRESA --}}
-            <td style="width: 55%; vertical-align: top; padding: 0 15px 0 0;">
+            <td style="width: 65%; vertical-align: top; padding: 0 15px 0 0;">
                 {{-- Logo con contenedor de tamaño fijo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
                     <div style="width: 300px; height: 80px; display: flex; align-items: center; margin-bottom: 8px;">
@@ -32,11 +32,11 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC --}}
-            <td style="width: 45%; vertical-align: top; padding: 0; text-align: right;">
-                <div class="sunat-box" style="border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0;">
-                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
-                        <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
+            <td style="width: 35%; vertical-align: top; padding: 0;">
+                <div class="sunat-box" style="border: 2px solid #000; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0; text-align: center;">
+                    <div class="sunat-text" style="padding: 10px 8px; font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
+                    <div style="background-color: #f0f0f0; padding: 10px 8px; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                        <div class="sunat-text" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match ($document->sunat_document_type) {
                                     '01' => 'FACTURA ELECTRÓNICA',
@@ -49,7 +49,7 @@
                             {{ $doc_type_label }}
                         </div>
                     </div>
-                    <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">{{ $document->document_number }}</div>
+                    <div class="sunat-text" style="padding: 10px 8px; font-size: 14px; font-weight: bold;">{{ $document->document_number }}</div>
                 </div>
             </td>
         </tr>
