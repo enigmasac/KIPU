@@ -4,10 +4,10 @@
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO Y DATOS EMPRESA --}}
             <td style="width: 40%; vertical-align: top; padding: 0 5px 0 0;">
-                {{-- Logo con contenedor de tamaño fijo --}}
+                {{-- Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="width: 300px; height: 80px; display: flex; align-items: center; margin-bottom: 8px;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
+                    <div style="margin-bottom: 8px;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="display: block; max-width: 250px; max-height: 80px; width: auto; height: auto;" />
                     </div>
                 @endif
 
