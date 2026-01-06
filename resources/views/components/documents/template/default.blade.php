@@ -4,11 +4,11 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO (ROJO) Y DATOS EMPRESA (AMARILLO) --}}
-            <td style="width: 55%; vertical-align: top; padding-right: 15px;">
+            <td style="width: 55%; vertical-align: top; padding: 0 15px 0 0;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 8px; text-align: left;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 80px; max-width: 100%; width: auto;" />
+                    <div style="margin-bottom: 5px; text-align: left;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 80px; width: auto; max-width: 100%;" />
                     </div>
                 @endif
 
@@ -33,10 +33,10 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
-            <td style="width: 45%; vertical-align: top; text-align: right;">
-                <div class="sunat-box" style="padding: 5px; border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box;">
+            <td style="width: 45%; vertical-align: top; padding: 0; text-align: right;">
+                <div class="sunat-box" style="padding: 4px; border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box;">
                     <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; margin: 4px -5px; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                    <div style="background-color: #f0f0f0; margin: 4px -4px; padding: 4px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
                         <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match($document->sunat_document_type) {
