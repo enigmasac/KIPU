@@ -41,32 +41,32 @@
         </div>
     </div>
 
-    {{-- CLIENTE INFO - COMPACTO --}}
-    <div class="row sunat-client-box" style="padding: 5px; margin-bottom: 8px;">
+    {{-- CLIENTE INFO - COMPACTO 2 FILAS --}}
+    <div class="row sunat-client-box" style="padding: 4px 6px; margin-bottom: 6px;">
         <div class="col-100">
-            <table class="sunat-text" style="width: 100%; border-collapse: collapse; font-size: 9px;">
+            <table class="sunat-text" style="width: 100%; border-collapse: collapse; font-size: 9px; line-height: 1.3;">
                 <tr>
-                    <td style="width: 12%; font-weight: bold; padding: 2px;">Cliente:</td>
-                    <td class="sunat-text" style="width: 38%; padding: 2px;">{{ $document->contact_name }}</td>
-                    <td style="width: 12%; font-weight: bold; padding: 2px;">RUC/DNI:</td>
-                    <td class="sunat-text" style="width: 13%; padding: 2px;">{{ $document->contact_tax_number }}</td>
-                    <td style="width: 10%; font-weight: bold; padding: 2px;">Fecha:</td>
-                    <td class="sunat-text" style="width: 15%; padding: 2px;">@date($document->issued_at)</td>
+                    <td style="width: 50px; font-weight: bold; padding: 1px 2px;">Cliente:</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->contact_name }}</td>
+                    <td style="width: 55px; font-weight: bold; padding: 1px 2px;">RUC/DNI:</td>
+                    <td class="sunat-text" style="width: 90px; padding: 1px 2px;">{{ $document->contact_tax_number }}</td>
+                    <td style="width: 45px; font-weight: bold; padding: 1px 2px;">Emisión:</td>
+                    <td class="sunat-text" style="width: 70px; padding: 1px 2px; white-space: nowrap;">{{ $document->issued_at ? $document->issued_at->format('d/m/Y') : '' }}</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; padding: 2px;">Dirección:</td>
-                    <td class="sunat-text" colspan="3" style="padding: 2px;">{{ $document->contact_address }}</td>
-                    <td style="font-weight: bold; padding: 2px;">Moneda:</td>
-                    <td class="sunat-text" style="padding: 2px;">{{ $document->currency_code }}</td>
+                    <td style="font-weight: bold; padding: 1px 2px;">Dirección:</td>
+                    <td class="sunat-text" colspan="3" style="padding: 1px 2px;">{{ $document->contact_address }}@if($document->contact_city), {{ $document->contact_city }}@endif @if($document->contact_zip_code) - {{ $document->contact_zip_code }}@endif</td>
+                    <td style="font-weight: bold; padding: 1px 2px;">Venc.:</td>
+                    <td class="sunat-text" style="padding: 1px 2px; white-space: nowrap;">{{ $document->due_at ? $document->due_at->format('d/m/Y') : '-' }}</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; padding: 2px;">Condición:</td>
-                    <td class="sunat-text" style="padding: 2px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
-                    <td style="font-weight: bold; padding: 2px;">Venc.:</td>
-                    <td class="sunat-text" style="padding: 2px;">@date($document->due_at)</td>
+                    <td style="font-weight: bold; padding: 1px 2px;">Condición:</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
+                    <td style="font-weight: bold; padding: 1px 2px;">Moneda:</td>
+                    <td class="sunat-text" style="padding: 1px 2px;">{{ $document->currency_code }}</td>
                     @if($document->reference)
-                        <td style="font-weight: bold; padding: 2px;">O/C:</td>
-                        <td class="sunat-text" style="padding: 2px;">{{ $document->reference }}</td>
+                        <td style="font-weight: bold; padding: 1px 2px;">O/C:</td>
+                        <td class="sunat-text" style="padding: 1px 2px;">{{ $document->reference }}</td>
                     @else
                         <td colspan="2"></td>
                     @endif
