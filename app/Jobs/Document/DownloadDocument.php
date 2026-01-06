@@ -43,15 +43,18 @@ class DownloadDocument extends Job
         ];
 
         $view = view($this->document->template_path, $data)->render();
-            
+
         $html = mb_convert_encoding($view, 'HTML-ENTITIES', 'UTF-8');
-        $html = prepare_pdf_html($html);
+        // TEMPORARILY DISABLED: This function is corrupting the HTML with file:// paths
+        // $html = prepare_pdf_html($html);
 
         $pdf = app('dompdf.wrapper');
         $pdf->setOptions([
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true,
-            'defaultFont' => 'sans-serif'
+            'defaultFont' => 'sans-serif',
+            'enable_css_float' => true,
+            'enable_html5_parser' => true,
         ]);
         $pdf->loadHTML($html);
 
