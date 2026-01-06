@@ -7,12 +7,13 @@
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8; charset=ISO-8859-1"/>
 
-    <title>{!! $title !!} - @setting('company.name')</title>
+    <tit
+ l  e>{!! $title !!} - @setting('company.name')</title>
 
-    <base href="{{ config('app.url') . '/' }}">
+    {{-- <base href="{{ config('app.url') . '/' }}"> --}}
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('img/favicon.ico') }}" type="image/png">
@@ -21,23 +22,23 @@
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" type="text/css">
 
     @if (isset($currency_style) && $currency_style || in_array(app()->getLocale(), ['zh-CN', 'ja-JP', 'zh-TW']))
-    <style type="text/css">
-        @font-face {
-            font-family: 'Firefly Sung';
-            font-weight: 'normal';
-            src: url('{{ asset("css/fonts/firefly_sung_normal.ttf") }}') format("truetype");
-        }
+        <style type="text/css">
+            @font-face {
+                font-family: 'Firefly Sung';
+                font-weight: 'normal';
+                src: url('{{ asset("css/fonts/firefly_sung_normal.ttf") }}') format("truetype");
+            }
 
-        * {
-            font-family: 'Firefly Sung', sans-serif !important;
-        }
-    </style>
+            * {
+                font-family: 'Firefly Sung', sans-serif !important;
+            }
+        </style>
     @else
-    <style type="text/css">
-        * {
-            font-family: DejaVu Sans, sans-serif !important;
-        }
-    </style>
+        <style type="text/css">
+            * {
+                font-family: Arial, sans-serif !important;
+            }
+        </style>
     @endif
 
     @stack('css')

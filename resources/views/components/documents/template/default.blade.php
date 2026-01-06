@@ -10,8 +10,7 @@
     $hideItems = $hideItems ?? false;
     $backgroundColor = $backgroundColor ?? '#55588b';
 
-    // 2. Resolver Logo manualmente a Base64 - DESACTIVADO TEMPORALMENTE PARA DIAGNOSTICO
-    /*
+    // 2. Resolver Logo manualmente a Base64
     if (empty($logo)) {
         $logoId = setting('company.logo');
         if ($logoId) {
@@ -26,7 +25,6 @@
             }
         }
     }
-    */
 @endphp
 <div class="print-template" style="font-family: Arial, sans-serif !important;">
     {{-- SUNAT HEADER LAYOUT --}}
