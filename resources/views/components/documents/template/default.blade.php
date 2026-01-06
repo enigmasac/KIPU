@@ -1,27 +1,32 @@
 @php
-    // PARCHE DE EMERGENCIA: Inicialización manual de variables si la clase componente no carga
+    // PARCHE DE EMERGENCIA: Inicialización manual de variables y logo base64
     use App\Models\Common\Media;
+    use Illuminate\Support\Facades\File;
     
-    $document = $document ?? null; // Should be passed via attributes
+    $document = $document ?? null;
     
     // 1. Inicializar Defaults
     $hideCompanyLogo = $hideCompanyLogo ?? false;
     $hideItems = $hideItems ?? false;
-    $backgroundColor = $backgroundColor ?? '#55588b'; // Default Akaunting Purple
+    $backgroundColor = $backgroundColor ?? '#55588b';
 
-    // 2. Resolver Logo manualmente si no viene
+    // 2. Resolver Logo manualmente a Base64 (más seguro para PDF)
     if (empty($logo)) {
         $logoId = setting('company.logo');
         if ($logoId) {
             $media = Media::find($logoId);
             if ($media) {
-                // Usamos path absoluto file:// para PDF
-                $logo = 'file://' . $media->getDiskPath();
+                $path = $media->getDiskPath();
+                if (file_exists($path)) {
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    $logo = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
             }
         }
     }
 @endphp
-<div class="print-template">
+<div class="print-template" style="font-family: Arial, sans-serif !important;">
     {{-- SUNAT HEADER LAYOUT --}}
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
