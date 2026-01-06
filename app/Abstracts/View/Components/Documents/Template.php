@@ -296,9 +296,13 @@ abstract class Template extends Component
         try {
             // Bypass cache to ensure we get the full resolution image
             if ($media) {
-                $image = Image::make($media->contents())->encode();
+                $imgObj = Image::make($media->contents());
+                Log::info('DEBUG LOGO MEDIA: Width: ' . $imgObj->width() . ' Height: ' . $imgObj->height());
+                $image = $imgObj->encode();
             } else {
-                $image = Image::make($path)->encode();
+                $imgObj = Image::make($path);
+                Log::info('DEBUG LOGO PATH: Width: ' . $imgObj->width() . ' Height: ' . $imgObj->height());
+                $image = $imgObj->encode();
             }
         } catch (NotReadableException | \Exception $e) {
             Log::info('Company ID: ' . company_id() . ' components/documentshow.php exception.');
