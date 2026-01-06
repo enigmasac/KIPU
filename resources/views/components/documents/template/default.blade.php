@@ -4,16 +4,16 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             {{-- COLUMNA IZQUIERDA: LOGO (ROJO) Y DATOS EMPRESA (AMARILLO) --}}
-            <td style="width: 55%; vertical-align: top; padding-right: 20px;">
+            <td style="width: 55%; vertical-align: top; padding-right: 15px;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 12px; text-align: left;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 120px; max-width: 100%; width: auto;" />
+                    <div style="margin-bottom: 8px; text-align: left;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 80px; max-width: 100%; width: auto;" />
                     </div>
                 @endif
 
                 {{-- Bloque Amarillo: Datos Empresa --}}
-                <div class="sunat-text" style="font-size: 10px; line-height: 1.35;">
+                <div class="sunat-text" style="font-size: 10px; line-height: 1.3;">
                     <strong style="font-size: 11px;">{{ setting('company.name') }}</strong><br>
                     {!! nl2br(setting('company.address')) !!}
                     @if(setting('company.city'))
@@ -33,10 +33,10 @@
             </td>
 
             {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
-            <td style="width: 45%; vertical-align: top;">
-                <div class="sunat-box" style="padding: 8px; border: 2px solid #000;">
+            <td style="width: 45%; vertical-align: top; text-align: right;">
+                <div class="sunat-box" style="padding: 5px; border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box;">
                     <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
-                    <div style="background-color: #f0f0f0; margin: 6px -8px; padding: 6px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                    <div style="background-color: #f0f0f0; margin: 4px -5px; padding: 5px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
                         <div class="sunat-text" style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
                             @php
                                 $doc_type_label = match($document->sunat_document_type) {
