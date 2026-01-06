@@ -1,45 +1,45 @@
 <x-table>
     <x-table.thead>
         <x-table.tr>
-            @if (! $hideBulkAction)
-            <x-table.th class="{{ $classBulkAction }}" override="class">
-                <x-index.bulkaction.all />
-            </x-table.th>
+            @if (!$hideBulkAction)
+                <x-table.th class="{{ $classBulkAction }}" override="class">
+                    <x-index.bulkaction.all />
+                </x-table.th>
             @endif
 
             @stack('due_at_and_issued_at_th_start')
-            @if (! $hideDueAt || ! $hideIssuedAt)
-            <x-table.th class="{{ $classDueAtAndIssueAt }}">
-                @stack('due_at_th_start')
-                @if (! $hideDueAt)
-                <x-slot name="first">
-                    @stack('due_at_th_inside_start')
-                    <x-sortablelink column="due_at" title="{{ trans($textDueAt) }}" />
-                    @stack('due_at_th_inside_end')
-                </x-slot>
-                @endif
-                @stack('due_at_th_end')
+            @if (!$hideDueAt || !$hideIssuedAt)
+                <x-table.th class="{{ $classDueAtAndIssueAt }} text-center">
+                    @stack('due_at_th_start')
+                    @if (!$hideDueAt)
+                        <x-slot name="first">
+                            @stack('due_at_th_inside_start')
+                            <x-sortablelink column="due_at" title="{{ trans($textDueAt) }}" />
+                            @stack('due_at_th_inside_end')
+                        </x-slot>
+                    @endif
+                    @stack('due_at_th_end')
 
-                @stack('issued_at_th_start')
-                @if (! $hideIssuedAt)
-                <x-slot name="second">
-                    @stack('issued_at_th_inside_start')
-                    <x-sortablelink column="issued_at" title="{{ trans($textIssuedAt) }}" />
-                    @stack('issued_at_th_inside_end')
-                </x-slot>
-                @endif
-                @stack('issued_at_th_end')
-            </x-table.th>
+                    @stack('issued_at_th_start')
+                    @if (!$hideIssuedAt)
+                        <x-slot name="second">
+                            @stack('issued_at_th_inside_start')
+                            <x-sortablelink column="issued_at" title="{{ trans($textIssuedAt) }}" />
+                            @stack('issued_at_th_inside_end')
+                        </x-slot>
+                    @endif
+                    @stack('issued_at_th_end')
+                </x-table.th>
             @endif
             @stack('due_at_and_issued_at_th_end')
 
             @stack('status_th_start')
-            @if (! $hideStatus)
-            <x-table.th class="{{ $classStatus }}">
-                @stack('status_th_inside_start')
-                <x-sortablelink column="status" title="{{ trans_choice('general.statuses', 1) }}" />
-                @stack('status_th_inside_end')
-            </x-table.th>
+            @if (!$hideStatus)
+                <x-table.th class="{{ $classStatus }} text-center">
+                    @stack('status_th_inside_start')
+                    <x-sortablelink column="status" title="{{ trans_choice('general.statuses', 1) }}" />
+                    @stack('status_th_inside_end')
+                </x-table.th>
             @endif
             @stack('status_th_end')
 
@@ -54,42 +54,44 @@
             @endif
 
             <x-table.th class="w-2/12 text-center table-title">
-                <span class="text-xs text-gray-500 leading-none font-semibold uppercase tracking-wide">SUNAT</span>
+                <div class="flex justify-center w-full">
+                    <span class="text-xs text-gray-500 leading-none font-semibold uppercase tracking-wide">SUNAT</span>
+                </div>
             </x-table.th>
 
             @stack('contact_name_ane_document_number_th_start')
-            @if (! $hideContactName || ! $hideDocumentNumber)
-            <x-table.th class="{{ $classContactNameAndDocumentNumber }}">
-                @stack('contact_name_th_start')
-                @if (! $hideContactName)
-                <x-slot name="first">
-                    @stack('contact_name_th_inside_start')
-                    <x-sortablelink column="contact_name" title="{{ trans_choice($textContactName, 1) }}" />
-                    @stack('contact_name_th_inside_end')
-                </x-slot>
-                @endif
-                @stack('contact_name_th_end')
+            @if (!$hideContactName || !$hideDocumentNumber)
+                <x-table.th class="{{ $classContactNameAndDocumentNumber }} text-center">
+                    @stack('contact_name_th_start')
+                    @if (!$hideContactName)
+                        <x-slot name="first">
+                            @stack('contact_name_th_inside_start')
+                            <x-sortablelink column="contact_name" title="{{ trans_choice($textContactName, 1) }}" />
+                            @stack('contact_name_th_inside_end')
+                        </x-slot>
+                    @endif
+                    @stack('contact_name_th_end')
 
-                @stack('document_number_th_start')
-                @if (! $hideDocumentNumber)
-                <x-slot name="second">
-                    @stack('document_number_th_inside_start')
-                    <x-sortablelink column="document_number" title="{{ trans_choice($textDocumentNumber, 1) }}" />
-                    @stack('document_number_th_inside_end')
-                </x-slot>
-                @endif
-                @stack('document_number_th_end')
-            </x-table.th>
+                    @stack('document_number_th_start')
+                    @if (!$hideDocumentNumber)
+                        <x-slot name="second">
+                            @stack('document_number_th_inside_start')
+                            <x-sortablelink column="document_number" title="{{ trans_choice($textDocumentNumber, 1) }}" />
+                            @stack('document_number_th_inside_end')
+                        </x-slot>
+                    @endif
+                    @stack('document_number_th_end')
+                </x-table.th>
             @endif
             @stack('contact_name_ane_document_number_th_end')
 
             @stack('amount_th_start')
-            @if (! $hideAmount)
-            <x-table.th class="{{ $classAmount }}" kind="amount">
-                @stack('amount_th_inside_start')
-                <x-sortablelink column="amount" title="{{ trans('general.amount') }}" />
-                @stack('amount_th_inside_end')
-            </x-table.th>
+            @if (!$hideAmount)
+                <x-table.th class="{{ $classAmount }} text-right" kind="amount">
+                    @stack('amount_th_inside_start')
+                    <x-sortablelink column="amount" title="{{ trans('general.amount') }}" />
+                    @stack('amount_th_inside_end')
+                </x-table.th>
             @endif
             @stack('amount_th_end')
         </x-table.tr>
@@ -106,26 +108,26 @@
                 $debit_note_class = '';
                 $debit_notes_total = 0;
 
-                    if ($type === 'invoice' && $item->relationLoaded('credit_notes')) {
+                if ($type === 'invoice' && $item->relationLoaded('credit_notes')) {
                     $credit_notes = $item->credit_notes->reject(function ($credit_note) {
                         return $credit_note->status === 'cancelled'
-                            || strtolower((string) $credit_note->sunat_status) === 'rechazado';
+                            || trim(strtolower((string) $credit_note->sunat_status)) === 'rechazado';
                     });
                     $precision = currency($item->currency_code)->getPrecision();
                     $credit_notes_total = round($credit_notes->sum('amount'), $precision);
 
-                        if ($credit_notes_total > 0) {
-                            $invoice_amount = round($item->amount, $precision);
-                            $is_full_credit = bccomp((string) $credit_notes_total, (string) $invoice_amount, $precision) >= 0;
-                            $credit_note_label = $is_full_credit ? 'Anulada por N.C.' : 'N.C. parcial';
-                            $credit_note_class = $is_full_credit ? 'text-red-500' : 'text-yellow-500';
-                        }
+                    if ($credit_notes_total > 0) {
+                        $invoice_amount = round($item->amount, $precision);
+                        $is_full_credit = bccomp((string) $credit_notes_total, (string) $invoice_amount, $precision) >= 0;
+                        $credit_note_label = $is_full_credit ? 'Anulada por N.C.' : 'N.C. parcial';
+                        $credit_note_class = $is_full_credit ? 'text-red-500' : 'text-yellow-500';
                     }
+                }
 
-                    if ($type === 'invoice' && $item->relationLoaded('debit_notes')) {
+                if ($type === 'invoice' && $item->relationLoaded('debit_notes')) {
                     $debit_notes = $item->debit_notes->reject(function ($debit_note) {
                         return $debit_note->status === 'cancelled'
-                            || strtolower((string) $debit_note->sunat_status) === 'rechazado';
+                            || trim(strtolower((string) $debit_note->sunat_status)) === 'rechazado';
                     });
                     $precision = $precision ?? currency($item->currency_code)->getPrecision();
                     $debit_notes_total = round($debit_notes->sum('amount'), $precision);
@@ -158,53 +160,48 @@
                 }
             @endphp
             <x-table.tr href="{{ route($showRoute, $item->id) }}">
-                @if (! $hideBulkAction)
-                <x-table.td class="{{ $classBulkAction }}" override="class">
-                    <x-index.bulkaction.single id="{{ $item->id }}" name="{{ $item->document_number }}" />
-                </x-table.td>
+                @if (!$hideBulkAction)
+                    <x-table.td class="{{ $classBulkAction }}" override="class">
+                        <x-index.bulkaction.single id="{{ $item->id }}" name="{{ $item->document_number }}" />
+                    </x-table.td>
                 @endif
 
                 @stack('due_at_and_issued_at_td_start')
-                @if (! $hideDueAt || ! $hideIssuedAt)
-                <x-table.td class="{{ $classDueAtAndIssueAt }}">
-                    @stack('due_at_td_start')
-                    @if (! $hideDueAt)
-                    <x-slot name="first" class="font-bold" override="class">
-                        @stack('due_at_td_inside_start')
-                        <x-date :date="$item->due_at" function="diffForHumans" />
-                        @stack('due_at_td_inside_end')
-                    </x-slot>
-                    @endif
-                    @stack('due_at_td_end')
+                @if (!$hideDueAt || !$hideIssuedAt)
+                    <x-table.td class="{{ $classDueAtAndIssueAt }} text-center">
+                        @stack('due_at_td_start')
+                        @if (!$hideDueAt)
+                            <x-slot name="first" class="font-bold" override="class">
+                                @stack('due_at_td_inside_start')
+                                <x-date :date="$item->due_at" function="diffForHumans" />
+                                @stack('due_at_td_inside_end')
+                            </x-slot>
+                        @endif
+                        @stack('due_at_td_end')
 
-                    @stack('issued_at_td_start')
-                    @if (! $hideIssuedAt)
-                    <x-slot name="second">
-                        @stack('issued_at_td_inside_start')
-                        <x-date date="{{ $item->issued_at }}" />
-                        @stack('issued_at_td_inside_end')
-                    </x-slot>
-                    @endif
-                    @stack('issued_at_td_end')
-                </x-table.td>
+                        @stack('issued_at_td_start')
+                        @if (!$hideIssuedAt)
+                            <x-slot name="second">
+                                @stack('issued_at_td_inside_start')
+                                <x-date date="{{ $item->issued_at }}" />
+                                @stack('issued_at_td_inside_end')
+                            </x-slot>
+                        @endif
+                        @stack('issued_at_td_end')
+                    </x-table.td>
                 @endif
                 @stack('due_at_and_issued_at_td_end')
 
                 @stack('status_td_start')
                 @if (!$hideStatus)
-                    <x-table.td class="{{ $classStatus }}">
-                @stack('status_td_inside_start')
+                    <x-table.td class="{{ $classStatus }} text-center">
+                        @stack('status_td_inside_start')
                         @php
                             $display_status = $item->status;
                             $status_label_class = $item->status_label;
-
-                            // SUNAT: Si la factura está totalmente anulada por Notas de Crédito, forzamos el estado visual
-                            if ($type === 'invoice' && (($credit_notes_total ?? 0) >= round($item->amount, 2))) {
-                                $display_status = 'cancelled';
-                                $status_label_class = 'status-canceled';
-                            }
                         @endphp
-                        <x-show.status status="{{ $display_status }}" background-color="bg-{{ $status_label_class }}" text-color="text-text-{{ $status_label_class }}" />
+                        <x-show.status status="{{ $display_status }}" background-color="bg-{{ $status_label_class }}"
+                            text-color="text-text-{{ $status_label_class }}" />
                         @stack('status_td_inside_end')
                     </x-table.td>
                 @endif
@@ -212,42 +209,47 @@
 
                 @if (!in_array($type, ['credit-note', 'debit-note']))
                     <x-table.td class="w-20 sm:w-32 text-center">
-                    <div class="flex items-center justify-center gap-3">
-                        @if ($credit_note_label)
-                            <x-tooltip :id="'tooltip-note-credit-' . $item->id" placement="top" :message="$credit_tooltip ?? $credit_note_label">
-                                <span class="relative inline-flex items-center justify-center">
-                                    <span class="material-icons-outlined rounded-full p-1 {{ $credit_icon_class }}" role="img" aria-label="{{ $credit_tooltip ?? $credit_note_label }}">
-                                        receipt_long
+                        <div class="flex items-center justify-center gap-3">
+                            @if ($credit_note_label)
+                                <x-tooltip :id="'tooltip-note-credit-' . $item->id" placement="top" :message="$credit_tooltip ?? $credit_note_label">
+                                    <span class="relative inline-flex items-center justify-center">
+                                        <span class="material-icons-outlined rounded-full p-1 {{ $credit_icon_class }}" role="img"
+                                            aria-label="{{ $credit_tooltip ?? $credit_note_label }}">
+                                            receipt_long
+                                        </span>
+                                        <span
+                                            class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none {{ $credit_badge_class }} rounded-full bg-white">
+                                            -
+                                        </span>
                                     </span>
-                                    <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none {{ $credit_badge_class }} rounded-full bg-white">
-                                        -
-                                    </span>
-                                </span>
-                            </x-tooltip>
-                        @endif
+                                </x-tooltip>
+                            @endif
 
-                        @if ($debit_note_label)
-                            <x-tooltip :id="'tooltip-note-debit-' . $item->id" placement="top" :message="$debit_tooltip ?? $debit_note_label">
-                                <span class="relative inline-flex items-center justify-center">
-                                    <span class="material-icons-outlined rounded-full p-1 bg-green-600 text-white" role="img" aria-label="{{ $debit_tooltip ?? $debit_note_label }}">
-                                        receipt_long
+                            @if ($debit_note_label)
+                                <x-tooltip :id="'tooltip-note-debit-' . $item->id" placement="top" :message="$debit_tooltip ?? $debit_note_label">
+                                    <span class="relative inline-flex items-center justify-center">
+                                        <span class="material-icons-outlined rounded-full p-1 bg-green-600 text-white" role="img"
+                                            aria-label="{{ $debit_tooltip ?? $debit_note_label }}">
+                                            receipt_long
+                                        </span>
+                                        <span
+                                            class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none border border-green-600 rounded-full bg-white text-green-600">
+                                            +
+                                        </span>
                                     </span>
-                                    <span class="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[10px] font-bold leading-none border border-green-600 rounded-full bg-white text-green-600">
-                                        +
-                                    </span>
-                                </span>
-                            </x-tooltip>
-                        @endif
+                                </x-tooltip>
+                            @endif
 
-                        @if (!$credit_note_label && ! $debit_note_label)
-                            <span class="text-gray-300 text-xs">—</span>
-                        @endif
-                    </div>
+                            @if (!$credit_note_label && !$debit_note_label)
+                                <span class="text-gray-300 text-xs">—</span>
+                            @endif
+                        </div>
                     </x-table.td>
                 @else
                     <x-table.td class="w-2/12 text-center">
                         @if($item->invoice_number)
-                            <a href="{{ route('invoices.show', $item->invoice_id ?: $item->parent_id) }}" class="text-xs hover:underline">
+                            <a href="{{ route('invoices.show', $item->invoice_id ?: $item->parent_id) }}"
+                                class="text-xs hover:underline">
                                 {{ $item->invoice_number }}
                             </a>
                         @else
@@ -257,66 +259,83 @@
                 @endif
 
                 <x-table.td class="w-2/12 text-center">
-                    <span class="px-2 py-1 rounded-md text-xs {{ $item->sunat_status == 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
-                        {{ ucfirst($item->sunat_status ?? 'pendiente') }}
+                    @php
+                        $sunatColor = match ($item->sunat_status) {
+                            'accepted' => 'bg-green-100 text-green-800',
+                            'rechazado', 'error' => 'bg-red-100 text-red-800',
+                            'pendiente' => 'bg-yellow-100 text-yellow-800',
+                            default => 'bg-gray-100 text-gray-800'
+                        };
+                        $sunatText = match ($item->sunat_status) {
+                            'accepted' => 'Aceptado',
+                            'rechazado' => 'Rechazado',
+                            'error' => 'Error',
+                            'pendiente' => 'Pendiente',
+                            default => 'No Enviado'
+                        };
+                    @endphp
+                    <span class="px-2 py-1 rounded-md text-xs {{ $sunatColor }}">
+                        {{ $sunatText }}
                     </span>
                 </x-table.td>
 
                 @stack('contact_name_and_document_number_td_start')
-                @if (! $hideContactName || ! $hideDocumentNumber)
-                <x-table.td class="{{ $classContactNameAndDocumentNumber }}">
-                    @stack('contact_name_td_start')
-                    @if (! $hideContactName)
-                    <x-slot name="first">
-                        @stack('contact_name_td_inside_start')
-                        {{ $item->contact_name }}
-                        @stack('contact_name_td_inside_end')
-                    </x-slot>
-                    @endif
-                    @stack('contact_name_td_end')
+                @if (!$hideContactName || !$hideDocumentNumber)
+                    <x-table.td class="{{ $classContactNameAndDocumentNumber }}">
+                        @stack('contact_name_td_start')
+                        @if (!$hideContactName)
+                            <x-slot name="first">
+                                @stack('contact_name_td_inside_start')
+                                {{ $item->contact_name }}
+                                @stack('contact_name_td_inside_end')
+                            </x-slot>
+                        @endif
+                        @stack('contact_name_td_end')
 
-                    @stack('document_number_td_start')
-                    @if (! $hideDocumentNumber)
-                    <x-slot name="second" class="w-20 group" data-tooltip-target="tooltip-information-{{ $item->id }}" data-tooltip-placement="left" override="class">
-                        @stack('document_number_td_inside_start')
-                        <span class="border-black border-b border-dashed">
-                            {{ $item->document_number }}
-                        </span>
+                        @stack('document_number_td_start')
+                        @if (!$hideDocumentNumber)
+                            <x-slot name="second" class="w-20 group" data-tooltip-target="tooltip-information-{{ $item->id }}"
+                                data-tooltip-placement="left" override="class">
+                                @stack('document_number_td_inside_start')
+                                <span class="border-black border-b border-dashed">
+                                    {{ $item->document_number }}
+                                </span>
 
-                        <div class="w-28 absolute h-10 -ml-12 -mt-6"></div>
-                        @stack('document_number_td_inside_end')
+                                <div class="w-28 absolute h-10 -ml-12 -mt-6"></div>
+                                @stack('document_number_td_inside_end')
 
-                        <x-documents.index.information :document="$item" :hide-show="$hideShow" :show-route="$showContactRoute" />
-                    </x-slot>
-                    @endif
-                    @stack('document_number_td_end')
-                </x-table.td>
+                                <x-documents.index.information :document="$item" :hide-show="$hideShow"
+                                    :show-route="$showContactRoute" />
+                            </x-slot>
+                        @endif
+                        @stack('document_number_td_end')
+                    </x-table.td>
                 @endif
                 @stack('contact_name_and_document_number_td_end')
 
-                                @stack('amount_td_start')
-                                @if (! $hideAmount)
-                                    <x-table.td class="{{ $classAmount }}" kind="amount">
-                                        @stack('amount_td_inside_start')
-                                        @php
-                                            $net_amount = $item->amount;
-                                            if ($type === 'invoice') {
-                                                $net_amount = $item->amount - ($credit_notes_total ?? 0) + ($debit_notes_total ?? 0);
-                                            }
-                                        @endphp
-                                        <div class="flex flex-col items-end">
-                                            <x-money :amount="$net_amount" :currency="$item->currency_code" />
-                                            @if($type === 'invoice' && (($credit_notes_total ?? 0) > 0 || ($debit_notes_total ?? 0) > 0))
-                                                <span class="text-[10px] text-gray-400 line-through leading-none mt-1">
-                                                    <x-money :amount="$item->amount" :currency="$item->currency_code" />
-                                                </span>
-                                            @endif
-                                        </div>
-                                        @stack('amount_td_inside_end')
-                                    </x-table.td>
-                
-                                <x-table.td kind="action">                    <x-table.actions :model="$item" />
-                </x-table.td>
+                @stack('amount_td_start')
+                @if (!$hideAmount)
+                    <x-table.td class="{{ $classAmount }}" kind="amount">
+                        @stack('amount_td_inside_start')
+                        @php
+                            $net_amount = $item->amount;
+                            if ($type === 'invoice') {
+                                $net_amount = $item->amount - ($credit_notes_total ?? 0) + ($debit_notes_total ?? 0);
+                            }
+                        @endphp
+                        <div class="flex flex-col items-end">
+                            <x-money :amount="$net_amount" :currency="$item->currency_code" />
+                            @if($type === 'invoice' && (($credit_notes_total ?? 0) > 0 || ($debit_notes_total ?? 0) > 0))
+                                <span class="text-[10px] text-gray-400 line-through leading-none mt-1">
+                                    <x-money :amount="$item->amount" :currency="$item->currency_code" />
+                                </span>
+                            @endif
+                        </div>
+                        @stack('amount_td_inside_end')
+                    </x-table.td>
+
+                    <x-table.td kind="action"> <x-table.actions :model="$item" />
+                    </x-table.td>
                 @endif
                 @stack('amount_td_end')
             </x-table.tr>

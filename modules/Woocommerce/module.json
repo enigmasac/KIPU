@@ -1,0 +1,20 @@
+{
+    "alias": "woocommerce",
+    "version": "3.0.11",
+    "category": "ecommerce",
+    "active": 1,
+    "providers": [
+        "Modules\\Woocommerce\\Providers\\Event",
+        "Modules\\Woocommerce\\Providers\\Main",
+        "Modules\\Woocommerce\\Providers\\Observer"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": [],
+    "reports": [],
+    "widgets": [],
+    "settings": [],
+    "extra-modules": {
+        "inventory": "suggested"
+    }
+}

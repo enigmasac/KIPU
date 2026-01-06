@@ -24,7 +24,7 @@ class Tax extends Model
      *
      * @var array
      */
-    protected $fillable = ['company_id', 'name', 'rate', 'sunat_code', 'type', 'priority', 'is_system', 'enabled', 'created_from', 'created_by'];
+    protected $fillable = ['company_id', 'name', 'rate', 'sunat_code', 'type', 'apply_scope', 'priority', 'is_system', 'enabled', 'created_from', 'created_by'];
 
     /**
      * The attributes that should be cast.
@@ -32,11 +32,11 @@ class Tax extends Model
      * @var array
      */
     protected $casts = [
-        'rate'          => 'double',
-        'priority'      => 'integer',
-        'is_system'     => 'boolean',
-        'enabled'       => 'boolean',
-        'deleted_at'    => 'datetime',
+        'rate' => 'double',
+        'priority' => 'integer',
+        'is_system' => 'boolean',
+        'enabled' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -120,6 +120,21 @@ class Tax extends Model
         return $query->where($this->qualifyColumn('type'), '<>', 'withholding');
     }
 
+    public function scopeLineLevel($query)
+    {
+        return $query->where($this->qualifyColumn('apply_scope'), '=', 'line');
+    }
+
+    public function scopeDocumentLevel($query)
+    {
+        return $query->where($this->qualifyColumn('apply_scope'), '=', 'document');
+    }
+
+    public function scopeFixedUnit($query)
+    {
+        return $query->where($this->qualifyColumn('apply_scope'), '=', 'fixed_unit');
+    }
+
     /**
      * Get the name including rate.
      *
@@ -130,9 +145,9 @@ class Tax extends Model
         $title = $this->name . ' (';
 
         if (setting('localisation.percent_position', 'after') == 'after') {
-            $title .= $this->getAttribute('type') == 'fixed' ?  $this->rate : $this->rate . '%';
+            $title .= $this->getAttribute('type') == 'fixed' ? $this->rate : $this->rate . '%';
         } else {
-            $title .= $this->getAttribute('type') == 'fixed' ?  $this->rate : '%' . $this->rate;
+            $title .= $this->getAttribute('type') == 'fixed' ? $this->rate : '%' . $this->rate;
         }
         $title .= ')';
 

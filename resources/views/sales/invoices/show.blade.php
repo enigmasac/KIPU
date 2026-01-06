@@ -4,7 +4,8 @@
     </x-slot>
 
     <x-slot name="status">
-        <x-show.status status="{{ $invoice->status }}" background-color="bg-{{ $invoice->status_label }}" text-color="text-text-{{ $invoice->status_label }}" />
+        <x-show.status status="{{ $invoice->status }}" background-color="bg-{{ $invoice->status_label }}"
+            text-color="text-text-{{ $invoice->status_label }}" />
     </x-slot>
 
     <x-slot name="buttons">
@@ -16,7 +17,10 @@
     </x-slot>
 
     <x-slot name="content">
-        <x-documents.show.content type="invoice" :document="$invoice" hide-receive hide-make-payment hide-schedule hide-children hide-restore />
+
+
+        <x-documents.show.content type="invoice" :document="$invoice" hide-receive hide-make-payment hide-schedule
+            hide-children hide-restore />
     </x-slot>
 
     @push('stylesheet')

@@ -51,4 +51,8 @@ trait HasSunatAttributes
 
         return ($reasons[$code] ?? $code);
     }
+    public function latest_sunat_emission()
+    {
+        return $this->hasOne(\Modules\Sunat\Models\Emission::class, 'document_id')->orderBy('created_at', 'desc');
+    }
 }

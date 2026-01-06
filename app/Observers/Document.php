@@ -28,7 +28,7 @@ class Document extends Observer
             return;
         }
 
-        if (empty($document->parent_id) && ! empty($document->invoice_id)) {
+        if (empty($document->parent_id) && !empty($document->invoice_id)) {
             \App\Models\Document\Document::withoutEvents(function () use ($document, $parent_id) {
                 $document->parent_id = $parent_id;
                 $document->save();
@@ -37,7 +37,7 @@ class Document extends Observer
 
         $is_rejected = $this->isSunatRejected($document);
 
-        if (! $is_rejected && $document->amount > 0) {
+        if (!$is_rejected && $document->amount > 0) {
             // Create the transaction to reduce the parent's balance
             CreditsTransaction::create([
                 'company_id' => $document->company_id,
@@ -55,7 +55,7 @@ class Document extends Observer
 
         // Check Parent Balance
         $parent = \App\Models\Document\Document::find($parent_id);
-        if (! $parent) {
+        if (!$parent) {
             return;
         }
 
@@ -64,10 +64,17 @@ class Document extends Observer
         $precision = currency($parent->currency_code)->getPrecision();
         $credit_notes_total = $this->getApprovedCreditNotesTotal($parent);
 
+        // Only cancel if credit_notes_total >= invoice amount AND the credit note is approved by SUNAT
+        // We require explicit SUNAT acceptance before cancelling the invoice
+        $cn_is_approved = strtolower((string) $document->sunat_status) === 'accepted';
+
         if (bccomp((string) $credit_notes_total, (string) $parent->amount, $precision) >= 0) {
-            if ($parent->status !== 'cancelled') {
-                $parent->status = 'cancelled';
-                $parent->save();
+            // Only cancel if the credit note is already approved by SUNAT
+            if ($cn_is_approved) {
+                if ($parent->status !== 'cancelled') {
+                    $parent->status = 'cancelled';
+                    $parent->save();
+                }
             }
         }
     }
@@ -102,7 +109,7 @@ class Document extends Observer
         }
 
         $parent = \App\Models\Document\Document::find($parent_id);
-        if (! $parent) {
+        if (!$parent) {
             return;
         }
 
@@ -121,7 +128,7 @@ class Document extends Observer
                     $credit_transaction->delete();
                 });
             }
-        } elseif (! $credit_transaction) {
+        } elseif (!$credit_transaction) {
             CreditsTransaction::create([
                 'company_id' => $document->company_id,
                 'type' => 'expense',
@@ -145,10 +152,17 @@ class Document extends Observer
         $precision = currency($parent->currency_code)->getPrecision();
         $credit_notes_total = $this->getApprovedCreditNotesTotal($parent);
 
+        // Only cancel if credit_notes_total >= invoice amount AND the credit note is approved by SUNAT
+        // We require explicit SUNAT acceptance before cancelling the invoice
+        $cn_is_approved = strtolower((string) $document->sunat_status) === 'accepted';
+
         if (bccomp((string) $credit_notes_total, (string) $parent->amount, $precision) >= 0) {
-            if ($parent->status !== 'cancelled') {
-                $parent->status = 'cancelled';
-                $parent->save();
+            // Only cancel if the credit note is already approved by SUNAT
+            if ($cn_is_approved) {
+                if ($parent->status !== 'cancelled') {
+                    $parent->status = 'cancelled';
+                    $parent->save();
+                }
             }
         } elseif ($parent->status === 'cancelled') {
             $parent->status = $parent->transactions->count() > 0 ? 'partial' : 'sent';

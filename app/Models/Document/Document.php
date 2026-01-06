@@ -76,6 +76,10 @@ class Document extends Model
         'debit_note_reason_code',
         'credit_customer_account',
         'sunat_status',
+        'sunat_message',
+        'sunat_code',
+        'sunat_hash',
+        'sunat_cdr',
     ];
 
     /**
@@ -84,11 +88,11 @@ class Document extends Model
      * @var array
      */
     protected $casts = [
-        'issued_at'     => 'datetime',
-        'due_at'        => 'datetime',
-        'amount'        => 'double',
+        'issued_at' => 'datetime',
+        'due_at' => 'datetime',
+        'amount' => 'double',
         'currency_rate' => 'double',
-        'deleted_at'    => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -120,7 +124,7 @@ class Document extends Model
     {
         static::addGlobalScope(new Scope);
 
-        static::deleting(function($document) {
+        static::deleting(function ($document) {
             // Unlink children if deleting a recurring template to prevent cascade deletion of issued invoices
             if (str_contains($document->type, 'recurring')) {
                 $document->children()->update(['parent_id' => 0]);
@@ -144,7 +148,7 @@ class Document extends Model
             }
         });
 
-        static::creating(function($document) {
+        static::creating(function ($document) {
             // SUNAT Compliance: Temporary Number for Drafts
             if ($document->status === 'draft') {
                 // Generate a temporary ID (e.g., BR-1715629399)
@@ -153,11 +157,15 @@ class Document extends Model
             }
         });
 
-        static::updating(function($document) {
+        static::updating(function ($document) {
             // SUNAT Compliance: Prevent editing of issued documents
             // We allow updates only if it's currently in 'draft' status.
-            // EXCEPTION: Recurring templates (invoice-recurring) can always be edited.
-            if (!str_contains($document->type, 'recurring') && $document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && $document->created_at->diffInSeconds(now()) > 60) {
+            // EXCEPTION: Recurring templates can always be edited.
+            // EXCEPTION: Creating/Updating SUNAT status/response is allowed.
+            $sunatAttributes = ['sunat_status', 'sunat_code', 'sunat_message', 'sunat_hash', 'sunat_cdr'];
+            $onlySunatUpdates = empty(array_diff(array_keys($document->getDirty()), $sunatAttributes));
+
+            if (!str_contains($document->type, 'recurring') && $document->getOriginal('status') !== 'draft' && !$document->isDirty('status') && !$onlySunatUpdates && $document->created_at->diffInSeconds(now()) > 60) {
                 throw new \Exception('No se puede editar un documento que ya ha sido emitido. Por favor, use una Nota de Crédito para anularlo.');
             }
 
@@ -176,10 +184,10 @@ class Document extends Model
 
                 // Assign Real SUNAT Number
                 $type = $document->type;
-                
+
                 // Determine real type if recurring
                 if (str_contains($type, 'recurring')) {
-                     $type = str_replace('-recurring', '', $type);
+                    $type = str_replace('-recurring', '', $type);
                 }
 
                 // SUNAT / KIPU ERP: Simulación de Request para procesos automáticos (Recurrentes)
@@ -188,7 +196,7 @@ class Document extends Model
                 if ($document->sunat_document_type) {
                     request()->merge(['sunat_document_type' => $document->sunat_document_type]);
                 }
-                
+
                 // Get the next real number
                 $realNumber = app(DocumentNumber::class)->getNextNumber($type, $document->contact);
                 $document->document_number = $realNumber;
@@ -403,9 +411,9 @@ class Document extends Model
     public function scopeInvoiceRecurring(Builder $query): Builder
     {
         return $query->where($this->qualifyColumn('type'), '=', self::INVOICE_RECURRING_TYPE)
-                    ->whereHas('recurring', function (Builder $query) {
-                        $query->whereNull('deleted_at');
-                    });
+            ->whereHas('recurring', function (Builder $query) {
+                $query->whereNull('deleted_at');
+            });
     }
 
     public function scopeBill(Builder $query): Builder
@@ -416,9 +424,9 @@ class Document extends Model
     public function scopeBillRecurring(Builder $query): Builder
     {
         return $query->where($this->qualifyColumn('type'), '=', self::BILL_RECURRING_TYPE)
-                    ->whereHas('recurring', function (Builder $query) {
-                        $query->whereNull('deleted_at');
-                    });
+            ->whereHas('recurring', function (Builder $query) {
+                $query->whereNull('deleted_at');
+            });
     }
 
     /**
@@ -435,7 +443,7 @@ class Document extends Model
             $type = $src->type;
         }
 
-        $this->status          = 'draft';
+        $this->status = 'draft';
         $this->document_number = app(DocumentNumber::class)->getNextNumber($type, $src->contact);
     }
 
@@ -470,9 +478,9 @@ class Document extends Model
     {
         $has_attachment = $this->hasMedia('attachment');
 
-        if (! empty($value) && ! $has_attachment) {
+        if (!empty($value) && !$has_attachment) {
             return $value;
-        } elseif (! $has_attachment) {
+        } elseif (!$has_attachment) {
             return false;
         }
 
@@ -543,7 +551,7 @@ class Document extends Model
             return false;
         }
 
-        if ($this->status == 'paid' ) {
+        if ($this->status == 'paid') {
             return $this->amount;
         }
 
@@ -605,7 +613,7 @@ class Document extends Model
                     ->where('status', '!=', 'cancelled')
                     ->where(function ($query) {
                         $query->whereNull('sunat_status')
-                            ->orWhere('sunat_status', '!=', 'rechazado');
+                            ->orWhereRaw('LOWER(sunat_status) != ?', ['rechazado']);
                     })
                     ->get(['amount', 'currency_code', 'currency_rate']);
 
@@ -636,7 +644,7 @@ class Document extends Model
     {
         $precision = currency($this->currency_code)->getPrecision();
 
-        if (! $this->relationLoaded('debit_notes')) {
+        if (!$this->relationLoaded('debit_notes')) {
             $debit_notes = $this->debit_notes()
                 ->where('status', '!=', 'cancelled')
                 ->where(function ($query) {
@@ -748,15 +756,15 @@ class Document extends Model
             return 'status-success';
         }
 
-        return match($this->status) {
-            'paid'      => 'status-success',
-            'partial'   => 'status-partial',
-            'active'    => 'status-partial',
-            'sent'      => 'status-danger',
-            'received'  => 'status-danger',
-            'viewed'    => 'status-sent',
+        return match ($this->status) {
+            'paid' => 'status-success',
+            'partial' => 'status-partial',
+            'active' => 'status-partial',
+            'sent' => 'status-danger',
+            'received' => 'status-danger',
+            'viewed' => 'status-sent',
             'cancelled' => 'status-canceled',
-            default     => 'status-draft',
+            default => 'status-draft',
         };
     }
 
@@ -767,10 +775,10 @@ class Document extends Model
      */
     public function getRecurringStatusLabelAttribute()
     {
-        return match($this->recurring->status) {
-            'active'    => 'status-partial',
-            'ended'     => 'status-success',
-            default     => 'status-success',
+        return match ($this->recurring->status) {
+            'active' => 'status-partial',
+            'ended' => 'status-success',
+            default => 'status-success',
         };
     }
 
@@ -783,7 +791,7 @@ class Document extends Model
     {
         $amount = $this->amount;
 
-        $this->totals->where('code', 'tax')->each(function ($total) use(&$amount) {
+        $this->totals->where('code', 'tax')->each(function ($total) use (&$amount) {
             $tax = Tax::name($total->name)->first();
 
             if (!empty($tax) && ($tax->type == 'withholding')) {
@@ -844,12 +852,13 @@ class Document extends Model
                         'id' => 'index-more-actions-show-' . $this->id,
                     ],
                 ];
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         try {
             // SUNAT: La edición solo es válida en estado Borrador (Draft) antes de cualquier proceso de emisión.
-            if ($this->status === 'draft' && ! $this->reconciled) {
+            if ($this->status === 'draft' && !$this->reconciled) {
                 $actions[] = [
                     'title' => trans('general.edit'),
                     'icon' => 'edit',
@@ -860,10 +869,11 @@ class Document extends Model
                     ],
                 ];
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         try {
-            if (! in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])) {
+            if (!in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])) {
                 $actions[] = [
                     'title' => trans('general.duplicate'),
                     'icon' => 'file_copy',
@@ -874,15 +884,16 @@ class Document extends Model
                     ],
                 ];
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         if (
             $this->status != 'paid'
             && $this->status != 'draft'
-            && ! in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])
-            && ! str_contains($this->type, 'recurring')
+            && !in_array($this->type, [self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE])
+            && !str_contains($this->type, 'recurring')
             && (empty($this->transactions->count())
-            || (! empty($this->transactions->count()) && $this->paid != $this->amount))
+                || (!empty($this->transactions->count()) && $this->paid != $this->amount))
         ) {
             try {
                 if ($this->totals->count()) {
@@ -908,7 +919,8 @@ class Document extends Model
                         ],
                     ];
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         try {
@@ -918,11 +930,12 @@ class Document extends Model
                 'url' => route($prefix . '.print', $this->id),
                 'permission' => 'read-' . $group . '-' . $permission_prefix,
                 'attributes' => [
-                    'id' => 'index-line-actions-print-' . $this->type . '-'  . $this->id,
+                    'id' => 'index-line-actions-print-' . $this->type . '-' . $this->id,
                     'target' => '_blank',
                 ],
             ];
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         try {
             $actions[] = [
@@ -931,13 +944,14 @@ class Document extends Model
                 'url' => route($prefix . '.pdf', $this->id),
                 'permission' => 'read-' . $group . '-' . $permission_prefix,
                 'attributes' => [
-                    'id' => 'index-line-actions-pdf-' . $this->type . '-'  . $this->id,
+                    'id' => 'index-line-actions-pdf-' . $this->type . '-' . $this->id,
                     'target' => '_blank',
                 ],
             ];
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
-        if (! str_contains($this->type, 'recurring')) {
+        if (!str_contains($this->type, 'recurring')) {
             if ($this->status != 'cancelled') {
                 $actions[] = [
                     'type' => 'divider',
@@ -948,30 +962,32 @@ class Document extends Model
                         'type' => 'button',
                         'title' => trans('general.share_link'),
                         'icon' => 'share',
-                        'url' => route('modals.'. $prefix . '.share.create', $this->id),
+                        'url' => route('modals.' . $prefix . '.share.create', $this->id),
                         'permission' => 'read-' . $group . '-' . $permission_prefix,
                         'attributes' => [
-                            'id' => 'index-line-actions-share-link-' . $this->type . '-'  . $this->id,
-                            '@click' => 'onShareLink("' . route('modals.'. $prefix . '.share.create', $this->id) . '")',
+                            'id' => 'index-line-actions-share-link-' . $this->type . '-' . $this->id,
+                            '@click' => 'onShareLink("' . route('modals.' . $prefix . '.share.create', $this->id) . '")',
                         ],
                     ];
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
 
                 try {
-                    if (! empty($this->contact) && $this->contact->has_email && ($this->type == 'invoice')) {
+                    if (!empty($this->contact) && $this->contact->has_email && ($this->type == 'invoice')) {
                         $actions[] = [
                             'type' => 'button',
                             'title' => trans('invoices.send_mail'),
                             'icon' => 'email',
-                            'url' => route('modals.'. $prefix . '.emails.create', $this->id),
+                            'url' => route('modals.' . $prefix . '.emails.create', $this->id),
                             'permission' => 'read-' . $group . '-' . $permission_prefix,
                             'attributes' => [
-                                'id' => 'index-line-actions-send-email-' . $this->type . '-'  . $this->id,
-                                '@click' => 'onSendEmail("' . route('modals.'. $prefix . '.emails.create', $this->id) . '")',
+                                'id' => 'index-line-actions-send-email-' . $this->type . '-' . $this->id,
+                                '@click' => 'onSendEmail("' . route('modals.' . $prefix . '.emails.create', $this->id) . '")',
                             ],
                         ];
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
 
             $actions[] = [
@@ -980,7 +996,7 @@ class Document extends Model
 
             $cancel_disabled_types = [self::INVOICE_TYPE, self::CREDIT_NOTE_TYPE, self::DEBIT_NOTE_TYPE];
 
-            if (! in_array($this->type, $cancel_disabled_types, true) && ! in_array($this->status, ['cancelled', 'draft'])) {
+            if (!in_array($this->type, $cancel_disabled_types, true) && !in_array($this->status, ['cancelled', 'draft'])) {
                 try {
                     $actions[] = [
                         'title' => trans('documents.actions.cancel'),
@@ -988,10 +1004,11 @@ class Document extends Model
                         'url' => route($prefix . '.cancelled', $this->id),
                         'permission' => 'update-' . $group . '-' . $permission_prefix,
                         'attributes' => [
-                            'id' => 'index-line-actions-cancel-' . $this->type . '-'  . $this->id,
+                            'id' => 'index-line-actions-cancel-' . $this->type . '-' . $this->id,
                         ],
                     ];
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
 
                 $actions[] = [
                     'type' => 'divider',
@@ -1013,20 +1030,22 @@ class Document extends Model
                         'model' => $this,
                     ];
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         } else {
             if ($this->recurring && $this->recurring->status != 'ended') {
                 try {
                     $actions[] = [
                         'title' => trans('general.end'),
                         'icon' => 'block',
-                        'url' => route($prefix. '.end', $this->id),
+                        'url' => route($prefix . '.end', $this->id),
                         'permission' => 'update-' . $group . '-' . $permission_prefix,
                         'attributes' => [
                             'id' => 'index-line-actions-end-' . $this->type . '-' . $this->id,
                         ],
                     ];
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
 
             try {
@@ -1042,7 +1061,8 @@ class Document extends Model
                     ],
                     'model' => $this,
                 ];
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         return $actions;

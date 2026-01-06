@@ -63,7 +63,7 @@ class Item extends Model
      *
      * @var array
      */
-    protected $fillable = ['company_id', 'type', 'name', 'sku', 'sunat_unit_code', 'sunat_tax_type', 'description', 'sale_price', 'purchase_price', 'category_id', 'enabled', 'is_detraction', 'detraction_percentage', 'created_from', 'created_by'];
+    protected $fillable = ['company_id', 'type', 'name', 'sku', 'sunat_unit_code', 'sunat_tax_type', 'description', 'sale_price', 'purchase_price', 'category_id', 'enabled', 'is_detraction', 'detraction_percentage', 'detraction_code', 'created_from', 'created_by'];
 
     /**
      * The attributes that should be cast.
@@ -71,12 +71,12 @@ class Item extends Model
      * @var array
      */
     protected $casts = [
-        'sale_price'            => 'double',
-        'purchase_price'        => 'double',
-        'enabled'               => 'boolean',
-        'is_detraction'         => 'boolean',
+        'sale_price' => 'double',
+        'purchase_price' => 'double',
+        'enabled' => 'boolean',
+        'is_detraction' => 'boolean',
         'detraction_percentage' => 'double',
-        'deleted_at'            => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -171,7 +171,7 @@ class Item extends Model
     {
         return $query->where(function ($query) use ($filter) {
             foreach ($filter as $key => $value) {
-                $query->orWhere($key, 'LIKE', "%" . $value  . "%");
+                $query->orWhere($key, 'LIKE', "%" . $value . "%");
             }
         });
     }

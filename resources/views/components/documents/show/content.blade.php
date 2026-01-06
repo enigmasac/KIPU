@@ -2,7 +2,7 @@
     <div class="w-full lg:w-5/12 space-y-12">
         @stack('recurring_message_start')
 
-        @if (! $hideRecurringMessage)
+        @if (!$hideRecurringMessage)
             @if (($recurring = $document->recurring) && ($next = $recurring->getNextRecurring()))
                 @php
                     $recurring_message = trans('recurring.message', [
@@ -11,7 +11,8 @@
                     ]);
                 @endphp
 
-                <x-documents.show.message type="recurring" background-color="bg-blue-100" text-color="text-blue-600" message="{{ $recurring_message }}" />
+                <x-documents.show.message type="recurring" background-color="bg-blue-100" text-color="text-blue-600"
+                    message="{{ $recurring_message }}" />
             @endif
 
             @if ($parent = $document->parent)
@@ -22,7 +23,8 @@
                     ]);
                 @endphp
 
-                <x-documents.show.message type="recurring" background-color="bg-blue-100" text-color="text-blue-600" message="{{ $recurring_message }}" />
+                <x-documents.show.message type="recurring" background-color="bg-blue-100" text-color="text-blue-600"
+                    message="{{ $recurring_message }}" />
             @endif
         @endif
 
@@ -30,21 +32,27 @@
 
         @stack('status_message_start')
 
-        @if (! $hideStatusMessage)
+        @if (!$hideStatusMessage)
             @if ($document->status == 'draft')
-                <x-documents.show.message type="status" background-color="bg-red-100" text-color="text-red-600" message="{!! trans($textStatusMessage) !!}" />
+                <x-documents.show.message type="status" background-color="bg-red-100" text-color="text-red-600"
+                    message="{!! trans($textStatusMessage) !!}" />
             @endif
 
-            @if (! $document->totals->count())
-                <x-documents.show.message type="status" background-color="bg-red-100" text-color="text-red-600" message="{!! trans('invoices.messages.totals_required', ['type' => $type]) !!}" />
+            @if (!$document->totals->count())
+                <x-documents.show.message type="status" background-color="bg-red-100" text-color="text-red-600"
+                    message="{!! trans('invoices.messages.totals_required', ['type' => $type]) !!}" />
             @endif
         @endif
 
         @stack('status_message_end')
 
+        @if (!empty($document->sunat_status))
+            <x-documents.show.sunat.status :document="$document" />
+        @endif
+
         @stack('create_start')
 
-        @if (! $hideCreated)
+        @if (!$hideCreated)
             <x-documents.show.create type="{{ $type }}" :document="$document" />
         @endif
 
@@ -52,7 +60,7 @@
 
         @stack('send_start')
 
-        @if (! $hideSend)
+        @if (!$hideSend)
             <x-documents.show.send type="{{ $type }}" :document="$document" />
         @endif
 
@@ -62,7 +70,7 @@
 
         @stack('receive_start')
 
-        @if (! $hideReceive)
+        @if (!$hideReceive)
             <x-documents.show.receive type="{{ $type }}" :document="$document" />
         @endif
 
@@ -70,7 +78,7 @@
 
         @stack('get_paid_start')
 
-        @if (! $hideGetPaid)
+        @if (!$hideGetPaid)
             <x-documents.show.get-paid type="{{ $type }}" :document="$document" />
         @endif
 
@@ -78,7 +86,7 @@
 
         @stack('make_paid_start')
 
-        @if (! $hideMakePayment)
+        @if (!$hideMakePayment)
             <x-documents.show.make-payment type="{{ $type }}" :document="$document" />
         @endif
 
@@ -86,27 +94,27 @@
 
         @stack('restore_start')
 
-        @if (! $hideRestore)
+        @if (!$hideRestore)
             <x-documents.show.restore type="{{ $type }}" :document="$document" />
         @endif
 
         @stack('restore_end')
 
         @stack('schedule_start')
-        @if (! $hideSchedule)
+        @if (!$hideSchedule)
             <x-documents.show.schedule type="{{ $type }}" :document="$document" />
         @endif
         @stack('schedule_end')
 
         @stack('children_start')
-        @if (! $hideChildren)
+        @if (!$hideChildren)
             <x-documents.show.children type="{{ $type }}" :document="$document" />
         @endif
         @stack('children_end')
 
         @stack('attachment_start')
 
-        @if (! $hideAttachment)
+        @if (!$hideAttachment)
             <x-documents.show.attachment type="{{ $type }}" :document="$document" :attachment="$attachment" />
         @endif
 
@@ -121,10 +129,13 @@
         @stack('document_end')
     </div>
 
-    <x-form.input.hidden name="senddocument_route" id="senddocument_route" value="{{ route($emailRoute, $document->id) }}" />
+    <x-form.input.hidden name="senddocument_route" id="senddocument_route"
+        value="{{ route($emailRoute, $document->id) }}" />
     @if ($document->transactions->count())
-    <x-form.input.hidden name="sendtransaction_route" id="sendtransaction_route" value="{{ route($transactionEmailRoute, $document->transactions->last()->id) }}" />
-    <x-form.input.hidden name="sendtransaction_template" id="sendtransaction_template" value="{{ $transactionEmailTemplate }}" />
+        <x-form.input.hidden name="sendtransaction_route" id="sendtransaction_route"
+            value="{{ route($transactionEmailRoute, $document->transactions->last()->id) }}" />
+        <x-form.input.hidden name="sendtransaction_template" id="sendtransaction_template"
+            value="{{ $transactionEmailTemplate }}" />
     @endif
     <x-form.input.hidden name="document_id" :value="$document->id" />
     <x-form.input.hidden name="{{ $type . '_id' }}" :value="$document->id" />

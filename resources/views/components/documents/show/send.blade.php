@@ -1,13 +1,10 @@
 <x-show.accordion type="send" :open="($accordionActive == 'send')">
     <x-slot name="head">
-        <x-show.accordion.head
-            title="{{ trans('general.send') }}"
-            description="{!! trans($description, [
-                'user' => $user_name,
-                'type' => $type_lowercase,
-                'date' => $last_sent_date,
-            ]) !!}"
-        />
+        <x-show.accordion.head title="{{ trans('general.send') }}" description="{!! trans($description, [
+    'user' => $user_name,
+    'type' => $type_lowercase,
+    'date' => $last_sent_date,
+]) !!}" />
     </x-slot>
 
     <x-slot name="body">
@@ -16,17 +13,39 @@
         <div class="flex flex-wrap items-center gap-3 rtl:space-x-reverse">
             @stack('timeline_send_body_button_mark_sent_start')
 
-            @if (! $hideMarkSent)
+            @if (!$hideMarkSent)
                 @can($permissionUpdate)
                     @if ($document->status == 'draft')
-                        <a id="show-slider-actions-mark-sent-{{ $document->type }}" 
-                           href="{{ route($markSentRoute, $document->id) }}" 
-                           class="px-3 py-1.5 rounded-xl text-sm font-medium text-white shadow-sm transition-all hover:opacity-90" 
-                           style="background-color: #6ea053 !important; display: inline-flex; align-items: center; justify-content: center;">
+                        <a id="show-slider-actions-mark-sent-{{ $document->type }}"
+                            href="{{ route($markSentRoute, $document->id) }}"
+                            class="px-3 py-1.5 rounded-xl text-sm font-medium text-white shadow-sm transition-all hover:opacity-90"
+                            style="background-color: #6ea053 !important; display: inline-flex; align-items: center; justify-content: center;">
                             {{ trans($textMarkSent) }}
                         </a>
+                    @elseif (in_array(strtolower((string) $document->sunat_status), ['rechazado', 'error', 'pendiente']))
+                        @php
+                            $sunatEmitRoute = match ($document->type) {
+                                'invoice' => route('sunat.emit.invoice', $document->id),
+                                'credit-note' => route('sunat.emit.credit-note', $document->id),
+                                'debit-note' => route('sunat.emit.debit-note', $document->id),
+                                default => null
+                            };
+                        @endphp
+
+                        @if($sunatEmitRoute)
+                            <form action="{{ $sunatEmitRoute }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit"
+                                    class="px-3 py-1.5 rounded-xl text-sm font-medium text-white shadow-sm transition-all hover:opacity-90"
+                                    style="background-color: #6ea053 !important; display: inline-flex; align-items: center; justify-content: center;">
+                                    <span class="material-icons-outlined text-sm mr-1">send</span>
+                                    Reenviar a SUNAT
+                                </button>
+                            </form>
+                        @endif
                     @else
-                        <button class="px-3 py-1.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed" disabled="disabled" style="display: inline-flex; align-items: center; justify-content: center;">
+                        <button class="px-3 py-1.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                            disabled="disabled" style="display: inline-flex; align-items: center; justify-content: center;">
                             {{ trans($textMarkSent) }}
                         </button>
                     @endif
@@ -35,10 +54,11 @@
 
             @stack('timeline_send_body_button_email_start')
 
-            @if (! $hideEmail)
+            @if (!$hideEmail)
                 @if ($document->contact->has_email)
                     @if ($document->status != 'cancelled')
-                        <x-button id="show-slider-actions-send-email-{{ $document->type }}" kind="secondary" @click="onSendEmail('{{ route($emailRoute, $document->id) }}')">
+                        <x-button id="show-slider-actions-send-email-{{ $document->type }}" kind="secondary"
+                            @click="onSendEmail('{{ route($emailRoute, $document->id) }}')">
                             {{ trans($textEmail) }}
                         </x-button>
                     @else
@@ -55,9 +75,10 @@
                 @endif
             @endif
 
-            @if (! $hideShare)
+            @if (!$hideShare)
                 @if ($document->status != 'cancelled')
-                    <x-button id="show-slider-actions-share-link-{{ $document->type }}" @click="onShareLink('{{ route($shareRoute, $document->id) }}')">
+                    <x-button id="show-slider-actions-share-link-{{ $document->type }}"
+                        @click="onShareLink('{{ route($shareRoute, $document->id) }}')">
                         {{ trans('general.share_link') }}
                     </x-button>
                 @endif
@@ -74,15 +95,15 @@
                     </span>
 
                     @foreach ($histories as $history)
-                        <div class="my-4">
-                            <span>
-                                {{ trans('documents.slider.send', [
-                                    'user' => $history->owner->name,
-                                    'type' => $type_lowercase,
-                                    'date' => company_date($history->created_at),
-                                ]) }}
-                            </span>
-                        </div>
+                                <div class="my-4">
+                                    <span>
+                                        {{ trans('documents.slider.send', [
+                            'user' => $history->owner->name,
+                            'type' => $type_lowercase,
+                            'date' => company_date($history->created_at),
+                        ]) }}
+                                    </span>
+                                </div>
                     @endforeach
                 </div>
             @endif

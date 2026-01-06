@@ -25,11 +25,11 @@ class ShowCreateCreditNoteButton
 
         $invoice = $view_data['invoice'];
 
-        $credit_notes_total_amount = CreditNote::where('status', 'sent')
-            ->where('invoice_id', $invoice->id)
+        $credit_notes_total_amount = CreditNote::where('invoice_id', $invoice->id)
+            ->where('status', '!=', 'cancelled')
             ->where(function (Builder $query) {
                 $query->whereNull('sunat_status')
-                    ->orWhere('sunat_status', '!=', 'rechazado');
+                    ->orWhereRaw('LOWER(sunat_status) != ?', ['rechazado']);
             })
             ->sum('amount');
 

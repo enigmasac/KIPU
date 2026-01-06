@@ -43,13 +43,9 @@ class Invoices extends Controller
             'histories',
             'media',
             'referenced_document',
-            'credit_notes' => function ($query) {
-                $query->select('id', 'invoice_id', 'document_number', 'amount', 'currency_code', 'status', 'issued_at');
-            },
-            'debit_notes' => function ($query) {
-                $query->select('id', 'invoice_id', 'document_number', 'amount', 'currency_code', 'status', 'issued_at');
-            },
-        ])->collect(['document_number'=> 'desc']);
+            'credit_notes',
+            'debit_notes',
+        ])->collect(['document_number' => 'desc']);
 
         $total_invoices = Document::invoice()->count();
 

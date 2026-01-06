@@ -3,28 +3,34 @@
         {{ trans('general.title.new', ['type' => trans_choice('general.tax_rates', 1)]) }}
     </x-slot>
 
-    <x-slot name="favorite"
-        title="{{ trans('general.title.new', ['type' => trans_choice('general.tax_rates', 1)]) }}"
-        icon="percent"
-        route="taxes.create"
-    ></x-slot>
+    <x-slot name="favorite" title="{{ trans('general.title.new', ['type' => trans_choice('general.tax_rates', 1)]) }}"
+        icon="percent" route="taxes.create"></x-slot>
 
     <x-slot name="content">
         <x-form.container>
             <x-form id="tax" route="taxes.store">
                 <x-form.section>
                     <x-slot name="head">
-                        <x-form.section.head title="{{ trans('general.general') }}" description="{{ trans('taxes.form_description.general') }}" />
+                        <x-form.section.head title="{{ trans('general.general') }}"
+                            description="{{ trans('taxes.form_description.general') }}" />
                     </x-slot>
 
                     <x-slot name="body">
                         <x-form.group.text name="name" label="{{ trans('general.name') }}" />
 
-                        <x-form.group.text name="rate" label="{{ trans('taxes.rate_percent') }}" @input="onChangeTaxRate" />
+                        <x-form.group.text name="rate" label="{{ trans('taxes.rate_percent') }}"
+                            @input="onChangeTaxRate" />
 
                         <x-form.group.text name="sunat_code" label="Código SUNAT" placeholder="Ej. 1000 para IGV" />
 
-                        <x-form.group.select name="type" label="{{ trans_choice('general.types', 1) }}" :options="$types" selected="normal" :disabledOptions="$disable_options" />
+                        <x-form.group.select name="type" label="{{ trans_choice('general.types', 1) }}"
+                            :options="$types" selected="normal" :disabledOptions="$disable_options" />
+
+                        <x-form.group.select name="apply_scope" label="Ámbito de Aplicación" :options="[
+        'line' => 'Por Línea (afecta precio unitario - IGV, ISC)',
+        'document' => 'Por Documento (afecta total factura - Detracción, Retención)',
+        'fixed_unit' => 'Monto Fijo por Unidad (ICBPER)',
+    ]" selected="line" />
 
                         <x-form.group.text name="priority" label="Prioridad" value="0" />
                     </x-slot>

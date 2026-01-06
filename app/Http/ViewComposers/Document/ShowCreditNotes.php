@@ -13,7 +13,7 @@ class ShowCreditNotes
 
         $invoice = $view_data['invoice'] ?? null;
 
-        if (! $invoice) {
+        if (!$invoice) {
             return;
         }
 
@@ -21,7 +21,7 @@ class ShowCreditNotes
             ->where('status', '!=', 'cancelled')
             ->where(function ($query) {
                 $query->whereNull('sunat_status')
-                    ->orWhere('sunat_status', '!=', 'rechazado');
+                    ->orWhereRaw('LOWER(sunat_status) != ?', ['rechazado']);
             })
             ->orderBy('issued_at')
             ->get();

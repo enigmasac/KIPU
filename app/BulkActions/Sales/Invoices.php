@@ -25,28 +25,34 @@ class Invoices extends BulkAction
 
     public $actions = [
         'sent' => [
-            'icon'          => 'send',
-            'name'          => 'invoices.mark_sent',
-            'message'       => 'bulk_actions.message.sent',
-            'permission'    => 'update-sales-invoices',
+            'icon' => 'send',
+            'name' => 'invoices.mark_sent',
+            'message' => 'bulk_actions.message.sent',
+            'permission' => 'update-sales-invoices',
         ],
         'delete' => [
-            'icon'          => 'delete',
-            'name'          => 'general.delete',
-            'message'       => 'bulk_actions.message.delete',
-            'permission'    => 'delete-sales-invoices',
+            'icon' => 'delete',
+            'name' => 'general.delete',
+            'message' => 'bulk_actions.message.delete',
+            'permission' => 'delete-sales-invoices',
         ],
         'export' => [
-            'icon'          => 'file_download',
-            'name'          => 'general.export',
-            'message'       => 'bulk_actions.message.export',
-            'type'          => 'download',
+            'icon' => 'file_download',
+            'name' => 'general.export',
+            'message' => 'bulk_actions.message.export',
+            'type' => 'download',
         ],
         'download' => [
-            'icon'          => 'download',
-            'name'          => 'general.download',
-            'message'       => 'bulk_actions.message.download',
-            'type'          => 'download',
+            'icon' => 'download',
+            'name' => 'general.download',
+            'message' => 'bulk_actions.message.download',
+            'type' => 'download',
+        ],
+        'sunat_emit' => [
+            'icon' => 'cloud_upload',
+            'name' => 'Reenviar a SUNAT',
+            'message' => '¿Está seguro de emitir/reenviar a SUNAT?',
+            'permission' => 'update-sales-invoices',
         ],
     ];
 
@@ -60,6 +66,20 @@ class Invoices extends BulkAction
             }
 
             event(new DocumentMarkedSent($invoice));
+        }
+    }
+
+    public function sunat_emit($request)
+    {
+        $invoices = $this->getSelectedRecords($request);
+
+        foreach ($invoices as $invoice) {
+            try {
+                app(\Modules\Sunat\Services\GreenterService::class)->processEmission($invoice);
+            } catch (\Exception $e) {
+                // Ignore errors for individual documents to continue processing others
+                report($e);
+            }
         }
     }
 
@@ -90,7 +110,12 @@ class Invoices extends BulkAction
     public function destroy($request)
     {
         $invoices = $this->getSelectedRecords($request, [
-            'items', 'item_taxes', 'histories', 'transactions', 'recurring', 'totals'
+            'items',
+            'item_taxes',
+            'histories',
+            'transactions',
+            'recurring',
+            'totals'
         ]);
 
         foreach ($invoices as $invoice) {
@@ -113,11 +138,11 @@ class Invoices extends BulkAction
     {
         $selected = $this->getSelectedRecords($request);
 
-        $file_name = Document::INVOICE_TYPE . '-'. date('Y-m-d-H-i-s');
+        $file_name = Document::INVOICE_TYPE . '-' . date('Y-m-d-H-i-s');
 
         $class = '\App\Jobs\Document\DownloadDocument';
 
         return $this->downloadPdf($selected, $class, $file_name, trans_choice('general.invoices', 2));
     }
 }
-   
+

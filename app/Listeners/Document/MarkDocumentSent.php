@@ -13,7 +13,16 @@ class MarkDocumentSent
 
     public function handle(DocumentMarkedSent|DocumentSent $event): void
     {
-        if (! in_array($event->document->status, ['partial', 'paid'])) {
+        if (!in_array($event->document->status, ['partial', 'paid'])) {
+            // Update issued_at to now if it was a draft, required for valid emission date
+            if ($event->document->status === 'draft') {
+                $event->document->issued_at = now();
+                // Also update due_at if it was same as issued_at or handle relative due dates? 
+                // For now, let's keep it simple as requested. BUt often due_at is calculated from issued_at.
+                // If due_at < issued_at, it might be weird. 
+                // Let's just update issued_at as requested.
+            }
+
             $event->document->status = 'sent';
 
             //This control will be removed when approval status is added to documents.
@@ -35,7 +44,7 @@ class MarkDocumentSent
             $type_text .= $alias . '::';
         }
 
-        $type_text .= 'general.' . config('type.document.' . $event->document->type .'.translation.prefix');
+        $type_text .= 'general.' . config('type.document.' . $event->document->type . '.translation.prefix');
 
         $type = trans_choice($type_text, 1);
 

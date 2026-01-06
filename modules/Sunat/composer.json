@@ -1,0 +1,17 @@
+{
+    "name": "akaunting/sunat",
+    "description": "Módulo de Facturación Electrónica SUNAT",
+    "type": "akaunting-module",
+    "version": "1.0.0",
+    "require": {
+        "greenter/lite": "^5.1"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Sunat\\Providers\\Event",
+                "Modules\\Sunat\\Providers\\SunatServiceProvider"
+            ]
+        }
+    }
+}

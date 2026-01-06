@@ -1,0 +1,18 @@
+{
+    "alias": "composite-items",
+    "icon": "group_work",
+    "version": "2.0.8",
+    "category": "inventory",
+    "active": 1,
+    "providers": [
+        "Modules\\CompositeItems\\Providers\\Event",
+        "Modules\\CompositeItems\\Providers\\Main",
+        "Modules\\CompositeItems\\Providers\\Observer"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": [],
+    "reports": [],
+    "widgets": [],
+    "settings": []
+}

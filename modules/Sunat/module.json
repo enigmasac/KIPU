@@ -1,0 +1,38 @@
+{
+    "name": "Sunat",
+    "alias": "sunat",
+    "description": "Módulo de Facturación Electrónica SUNAT para Kipuy",
+    "version": "1.0.0",
+    "category": "Integrations",
+    "keywords": [
+        "sunat",
+        "facturacion",
+        "electronica",
+        "peru",
+        "greenter"
+    ],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Sunat\\Providers\\Event",
+        "Modules\\Sunat\\Providers\\SunatServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": [],
+    "settings": [],
+    "permissions": [
+        {
+            "name": "read-sunat-settings",
+            "display_name": "Read Sunat Settings"
+        },
+        {
+            "name": "update-sunat-settings",
+            "display_name": "Update Sunat Settings"
+        },
+        {
+            "name": "read-sunat-emissions",
+            "display_name": "Read Sunat Emissions"
+        }
+    ]
+}
