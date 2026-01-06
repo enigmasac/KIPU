@@ -9,6 +9,16 @@
     $hideCompanyLogo = $hideCompanyLogo ?? false;
     $hideItems = $hideItems ?? false;
     $backgroundColor = $backgroundColor ?? '#55588b';
+    
+    // Función para sanitizar puntos que corrompen el PDF
+    $sanitize = function($str) {
+        return str_replace('.', ' ', (string)$str);
+    };
+    
+    // Función para formatear dinero sin puntos (coma como decimal)
+    $formatMoney = function($amount, $currency = '') {
+        return $currency . ' ' . number_format((float)$amount, 2, ',', ' ');
+    };
 
     // 2. Resolver Logo manualmente a Base64
     if (empty($logo)) {
@@ -55,7 +65,7 @@
                         Tel: {{ setting('company.phone') }}
                     @endif
                     @if (setting('company.email'))
-                        | {{ setting('company.email') }}
+                        | {{ $sanitize(setting('company.email')) }}
                     @endif
                 </div>
             </td>
@@ -105,7 +115,7 @@
                 <tr>
                     <td style="font-weight: bold; padding: 1px 2px;">Dirección:</td>
                     <td class="sunat-text" colspan="3" style="padding: 1px 2px;">
-                        {{ $document->contact_address }}@if($document->contact_city),
+                        {{ $sanitize($document->contact_address) }}@if($document->contact_city),
                         {{ $document->contact_city }}@endif @if($document->contact_zip_code) -
                         {{ $document->contact_zip_code }}@endif</td>
                      <td style="font-weight: bold; padding: 1px 2px;">Venc:</td>
@@ -160,12 +170,9 @@
                                         {{ $item->sunat_unit_code ?? ($item->item?->sunat_unit_code ?? 'NIU') }}</td>
                                     <td style="text-align: center; padding: 3px;">{{ $item->sku }}</td>
                                     <td style="text-align: left; padding: 3px;">{{ $item->name }}</td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_value"
-                                            :currency="$document->currency_code" /></td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$unit_price"
-                                            :currency="$document->currency_code" /></td>
-                                    <td style="text-align: right; padding: 3px;"><x-money :amount="$line_total_with_tax"
-                                            :currency="$document->currency_code" /></td>
+                                    <td style="text-align: right; padding: 3px;">{{ $formatMoney($unit_value) }}</td>
+                                    <td style="text-align: right; padding: 3px;">{{ $formatMoney($unit_price) }}</td>
+                                    <td style="text-align: right; padding: 3px;">{{ $formatMoney($line_total_with_tax) }}</td>
                                 </tr>
                             @endforeach
                         @else
@@ -202,12 +209,12 @@
                     @if ($total->code != 'total')
                         <div class="sunat-text" style="padding: 2px 5px; border-bottom: 1px solid #eee;">
                             <span class="float-left">{{ trans($total->title) }}:</span>
-                            <span><x-money :amount="$total->amount" :currency="$document->currency_code" /></span>
+                            <span>{{ $formatMoney($total->amount, $document->currency_code) }}</span>
                         </div>
                     @else
                         <div class="sunat-text" style="padding: 3px 5px; background-color: #f0f0f0; font-weight: bold;">
                             <span class="float-left">TOTAL:</span>
-                            <span><x-money :amount="$total->amount" :currency="$document->currency_code" /></span>
+                            <span>{{ $formatMoney($total->amount, $document->currency_code) }}</span>
                         </div>
                     @endif
                 @endforeach
@@ -257,27 +264,22 @@
         </div>
     </div>
 
-    {{-- FOOTER FINAL --}}
+    {{-- FOOTER FINAL - URLs REMOVIDAS PARA EVITAR CORRUPCION PDF --}}
     <div class="row" style="margin-top: 5px;">
         <div class="col-100 text-center sunat-text" style="font-size: 7px; line-height: 1.3;">
             <div style="margin-bottom: 3px;">
                 @if($document->latest_sunat_emission && $document->latest_sunat_emission->hash)
-                    <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }} &nbsp;|&nbsp;
+                    <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }}
                 @endif
-                @php
-                    $invoiceUrl = \Illuminate\Support\Facades\URL::signedRoute('signed.invoices.show', [$document->id]);
-                @endphp
-                <strong>Ver documento online:</strong> <span
-                    style="word-break: break-all; color: blue;">{{ $invoiceUrl }}</span>
             </div>
 
-            Representación impresa de {{ $doc_type_label }}, consulte en www.sunat.gob.pe<br>
+            Representacion impresa de {{ $doc_type_label }}, consulte en SUNAT<br>
             @if ($document->footer)
-                {!! nl2br($document->footer) !!}<br>
+                {!! nl2br($sanitize($document->footer)) !!}<br>
             @endif
 
             <div style="margin-top: 2px; font-weight: bold; color: #555;">
-                Emitido con KIPU ERP | www.kipuerp.com
+                Emitido con KIPU ERP
             </div>
         </div>
     </div>
