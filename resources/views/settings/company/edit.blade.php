@@ -51,23 +51,26 @@
                         .logo-dropzone-container .dropzone {
                             height: auto !important;
                             min-height: 120px !important;
-                            width: 100% !important;
-                            max-width: 350px !important;
+                            width: auto !important;
+                            min-width: 200px !important;
+                            max-width: 400px !important;
+                            overflow: visible !important;
                         }
 
                         .logo-dropzone-container .dropzone.dz-max-files-reached {
                             height: auto !important;
+                            overflow: visible !important;
                         }
 
                         .logo-dropzone-container .dz-preview,
                         .logo-dropzone-container .dz-preview-single {
                             position: relative !important;
-                            width: 100% !important;
+                            width: auto !important;
                             height: auto !important;
                             min-height: 80px !important;
-                            display: flex !important;
-                            justify-content: center !important;
-                            align-items: center !important;
+                            display: block !important;
+                            overflow: visible !important;
+                            text-align: center !important;
                         }
 
                         .logo-dropzone-container .dz-preview-cover {
@@ -78,28 +81,32 @@
                             left: auto !important;
                             right: auto !important;
                             bottom: auto !important;
-                            display: flex !important;
-                            justify-content: center !important;
-                            align-items: center !important;
+                            overflow: visible !important;
+                            display: inline-block !important;
                             padding: 10px !important;
                         }
 
                         .logo-dropzone-container .dz-preview-img {
-                            object-fit: none !important;
+                            object-fit: contain !important;
                             width: auto !important;
                             height: auto !important;
                             max-width: 300px !important;
                             max-height: 100px !important;
                             background-color: transparent !important;
                             border-radius: 0 !important;
+                            display: block !important;
                         }
 
                         .logo-dropzone-container .dz-image-preview {
-                            display: flex !important;
-                            justify-content: center !important;
-                            align-items: center !important;
+                            overflow: visible !important;
                             width: auto !important;
                             height: auto !important;
+                            display: inline-block !important;
+                        }
+
+                        /* Hide delete button repositioning issues */
+                        .logo-dropzone-container [data-dz-remove] {
+                            position: relative !important;
                         }
                     </style>
                     <script>
