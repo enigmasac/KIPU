@@ -8,7 +8,7 @@
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
                     <div style="margin-bottom: 5px; text-align: left;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 80px; width: auto; max-width: 100%;" />
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 110px; width: auto; max-width: 100%;" />
                     </div>
                 @endif
 
@@ -32,7 +32,7 @@
                 </div>
             </td>
 
-            {{-- COLUMNA DERECHA: CAJA RUC (AZUL) --}}
+            {{-- COLUMNA DERECHA: CAJA RUC --}}
             <td style="width: 45%; vertical-align: top; padding: 0; text-align: right;">
                 <div class="sunat-box" style="border: 2px solid #000; display: inline-block; width: 100%; box-sizing: border-box; border-radius: 8px; overflow: hidden; padding: 0;">
                     <div class="sunat-text" style="padding: 6px 0; font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
