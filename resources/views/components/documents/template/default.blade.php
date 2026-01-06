@@ -164,7 +164,7 @@
                     <strong>Hash:</strong> {{ Str::limit($document->latest_sunat_emission->hash, 40) }}<br>
                 @endif
                 @php
-                    $invoiceUrl = route('signed.invoices.show', ['invoice' => $document->id]);
+                    $invoiceUrl = \Illuminate\Support\Facades\URL::signedRoute('signed.invoices.show', [$document->id]);
                 @endphp
                 <strong>Ver online:</strong> <span style="word-break: break-all;">{{ $invoiceUrl }}</span>
             </div>
