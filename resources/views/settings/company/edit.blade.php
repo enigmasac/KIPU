@@ -45,8 +45,32 @@
                 </x-form.section>
 
                 @push('scripts')
+                    <style>
+                        /* Logo preview styles - show full logo without cropping */
+                        .logo-dropzone-container .dropzone {
+                            height: auto !important;
+                            min-height: 120px;
+                        }
+                        .logo-dropzone-container .dz-preview-img {
+                            object-fit: contain !important;
+                            background-color: #f9fafb;
+                        }
+                        .logo-dropzone-container .dz-preview-cover,
+                        .logo-dropzone-container .dz-preview-single {
+                            position: relative !important;
+                        }
+                    </style>
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
+                            // Add logo-specific class to the logo dropzone container
+                            const logoLabel = document.querySelector('label[for="logo"]');
+                            if (logoLabel) {
+                                const container = logoLabel.closest('.sm\\:col-span-3');
+                                if (container) {
+                                    container.classList.add('logo-dropzone-container');
+                                }
+                            }
+
                             // Buscar el input de archivo del logo
                             const logoInput = document.querySelector('input[name="logo"]');
                             const warningDiv = document.getElementById('logo-dimension-warning');
