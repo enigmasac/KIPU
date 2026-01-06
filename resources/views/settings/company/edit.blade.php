@@ -44,12 +44,13 @@
                     </x-slot>
                 </x-form.section>
 
+
                 @push('scripts')
                     <style>
-                        /* Logo preview styles - show full logo without cropping */
+                        /* Logo preview styles - show full logo at natural size, centered */
                         .logo-dropzone-container .dropzone {
                             height: auto !important;
-                            min-height: 150px !important;
+                            min-height: 120px !important;
                             width: 100% !important;
                             max-width: 350px !important;
                         }
@@ -59,33 +60,46 @@
                         }
 
                         .logo-dropzone-container .dz-preview,
-                        .logo-dropzone-container .dz-preview-single,
-                        .logo-dropzone-container .dz-preview-cover {
+                        .logo-dropzone-container .dz-preview-single {
                             position: relative !important;
                             width: 100% !important;
                             height: auto !important;
-                            min-height: 100px !important;
+                            min-height: 80px !important;
+                            display: flex !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                        }
+
+                        .logo-dropzone-container .dz-preview-cover {
+                            position: relative !important;
+                            width: auto !important;
+                            height: auto !important;
                             top: auto !important;
                             left: auto !important;
                             right: auto !important;
                             bottom: auto !important;
+                            display: flex !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                            padding: 10px !important;
                         }
 
                         .logo-dropzone-container .dz-preview-img {
-                            object-fit: contain !important;
+                            object-fit: none !important;
                             width: auto !important;
-                            max-width: 100% !important;
                             height: auto !important;
-                            max-height: 150px !important;
-                            background-color: #f9fafb;
-                            border-radius: 0.375rem;
+                            max-width: 300px !important;
+                            max-height: 100px !important;
+                            background-color: transparent !important;
+                            border-radius: 0 !important;
                         }
 
                         .logo-dropzone-container .dz-image-preview {
                             display: flex !important;
                             justify-content: center !important;
                             align-items: center !important;
-                            padding: 10px !important;
+                            width: auto !important;
+                            height: auto !important;
                         }
                     </style>
                     <script>
