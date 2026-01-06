@@ -264,7 +264,7 @@
         </div>
     </div>
 
-    {{-- FOOTER FINAL - URLs REMOVIDAS PARA EVITAR CORRUPCION PDF --}}
+    {{-- FOOTER FINAL --}}
     <div class="row" style="margin-top: 5px;">
         <div class="col-100 text-center sunat-text" style="font-size: 7px; line-height: 1.3;">
             <div style="margin-bottom: 3px;">
@@ -272,6 +272,14 @@
                     <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }}
                 @endif
             </div>
+
+            @php
+                $invoiceUrl = \Illuminate\Support\Facades\URL::signedRoute('signed.invoices.show', [$document->id]);
+                // Sanitizar URL reemplazando puntos por espacios para evitar corrupcion PDF
+                $safeUrl = str_replace('.', ' ', $invoiceUrl);
+            @endphp
+            <strong>Ver documento online:</strong> <span style="word-break: break-all;">{{ $safeUrl }}</span>
+            <br>
 
             Representacion impresa de {{ $doc_type_label }}, consulte en SUNAT<br>
             @if ($document->footer)
