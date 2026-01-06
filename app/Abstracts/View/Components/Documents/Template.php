@@ -294,24 +294,19 @@ abstract class Template extends Component
         }
 
         try {
-            $image = Image::cache(function ($image) use ($media, $path) {
-                // Remove forced resize to maintain original logo quality
-                if ($media) {
-                    $image->make($media->contents())->encode();
-                } else {
-                    $image->make($path)->encode();
-                }
-            });
+            // Bypass cache to ensure we get the full resolution image
+            if ($media) {
+                $image = Image::make($media->contents())->encode();
+            } else {
+                $image = Image::make($path)->encode();
+            }
         } catch (NotReadableException | \Exception $e) {
             Log::info('Company ID: ' . company_id() . ' components/documentshow.php exception.');
             Log::info($e->getMessage());
 
             $path = base_path('public/img/company.png');
 
-            $image = Image::cache(function ($image) use ($path) {
-                // Remove forced resize
-                $image->make($path)->encode();
-            });
+            $image = Image::make($path)->encode();
         }
 
         if (empty($image)) {
