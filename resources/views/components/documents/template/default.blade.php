@@ -7,8 +7,8 @@
             <td style="width: 55%; vertical-align: top; padding: 0 15px 0 0;">
                 {{-- Bloque Rojo: Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="margin-bottom: 5px; text-align: left;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 110px; width: auto; max-width: 100%;" />
+                    <div style="margin-bottom: 5px; text-align: left; max-width: 300px; max-height: 100px; overflow: hidden;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="height: auto; width: auto; max-width: 300px; max-height: 100px;" />
                     </div>
                 @endif
 
