@@ -39,10 +39,10 @@
 
         {{-- COLUMNA DERECHA: CAJA RUC --}}
         <div class="col-40">
-            <div style="border: 2px solid #000; padding: 15px; text-align: center; border-radius: 8px; color: #000 !important;">
-                <div style="font-size: 1.1em; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
+            <div class="sunat-box">
+                <div class="sunat-text" style="font-size: 14px; font-weight: bold;">R.U.C. {{ setting('sunat.ruc') ?: setting('company.tax_number') }}</div>
                 <div style="background-color: #f0f0f0; margin: 10px -15px; padding: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
-                    <div style="font-size: 1em; font-weight: bold; text-transform: uppercase;">
+                    <div class="sunat-text" style="font-size: 12px; font-weight: bold; text-transform: uppercase;">
                         @php
                             $doc_type_label = match($document->sunat_document_type) {
                                 '01' => 'FACTURA ELECTRÓNICA',
@@ -55,41 +55,41 @@
                         {{ $doc_type_label }}
                     </div>
                 </div>
-                <div style="font-size: 1.1em; font-weight: bold; margin-top: 10px;">{{ $document->document_number }}</div>
+                <div class="sunat-text" style="font-size: 14px; font-weight: bold; margin-top: 10px;">{{ $document->document_number }}</div>
             </div>
         </div>
     </div>
 
     {{-- CLIENTE INFO --}}
-    <div class="row" style="border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 20px; color: #000 !important;">
+    <div class="row sunat-client-box">
         <div class="col-100">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em; color: #000 !important;">
+            <table class="sunat-text" style="width: 100%; border-collapse: collapse; font-size: 12px;">
                 <tr>
                     <td style="width: 15%; font-weight: bold; padding: 3px;">Cliente:</td>
-                    <td style="width: 45%; padding: 3px;">{{ $document->contact_name }}</td>
+                    <td class="sunat-text" style="width: 45%; padding: 3px;">{{ $document->contact_name }}</td>
                     <td style="width: 15%; font-weight: bold; padding: 3px;">Fecha Emisión:</td>
-                    <td style="width: 25%; padding: 3px;">@date($document->issued_at)</td>
+                    <td class="sunat-text" style="width: 25%; padding: 3px;">@date($document->issued_at)</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 3px;">RUC/DNI:</td>
-                    <td style="padding: 3px;">{{ $document->contact_tax_number }}</td>
+                    <td class="sunat-text" style="padding: 3px;">{{ $document->contact_tax_number }}</td>
                     <td style="font-weight: bold; padding: 3px;">Moneda:</td>
-                    <td style="padding: 3px;">{{ $document->currency_code }}</td>
+                    <td class="sunat-text" style="padding: 3px;">{{ $document->currency_code }}</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 3px;">Dirección:</td>
-                    <td style="padding: 3px;">{{ $document->contact_address }}</td>
+                    <td class="sunat-text" style="padding: 3px;">{{ $document->contact_address }}</td>
                     <td style="font-weight: bold; padding: 3px;">Vencimiento:</td>
-                    <td style="padding: 3px;">@date($document->due_at)</td>
+                    <td class="sunat-text" style="padding: 3px;">@date($document->due_at)</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold; padding: 3px;">Condición:</td>
-                    <td colspan="3" style="padding: 3px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
+                    <td class="sunat-text" colspan="3" style="padding: 3px;">{{ $document->status == 'paid' ? 'CONTADO' : 'CRÉDITO' }}</td>
                 </tr>
                 @if($document->reference)
                     <tr>
                         <td style="font-weight: bold; padding: 3px;">O/C:</td>
-                        <td colspan="3" style="padding: 3px;">{{ $document->reference }}</td>
+                        <td class="sunat-text" colspan="3" style="padding: 3px;">{{ $document->reference }}</td>
                     </tr>
                 @endif
             </table>
@@ -218,14 +218,15 @@
     </div>
 
     {{-- FOOTER FINAL: QR Y BANCOS --}}
-    <div class="row mt-9" style="border-top: 1px solid #eee; padding-top: 10px; color: #000 !important;">
+    <div class="row mt-9" style="border-top: 1px solid #eee; padding-top: 10px;">
         <div class="col-25">
             {{-- QR CODE --}}
-            @php
-                $qrUrl = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($document->sunat_qr_content);
-            @endphp
             <div style="text-align: center;">
-                <img src="{{ $qrUrl }}" style="width: 120px; height: 120px;" alt="QR Code" />
+                @if($document->sunat_qr_image)
+                    <img src="{{ $document->sunat_qr_image }}" style="width: 120px; height: 120px;" alt="QR Code" />
+                @else
+                    <div class="sunat-text" style="font-size: 10px; padding: 10px; border: 1px dashed #ccc;">QR Code</div>
+                @endif
             </div>
         </div>
         <div class="col-35">

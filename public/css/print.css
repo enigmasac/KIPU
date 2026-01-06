@@ -861,3 +861,44 @@ html[dir='rtl'] .print-heading {
         padding: 1.5rem 1.5rem;
     }
 }
+
+/* SUNAT Template Styles */
+.col-25 {
+    display: inline-block;
+    width: 25%;
+    vertical-align: top;
+}
+
+.col-35 {
+    display: inline-block;
+    width: 35%;
+    vertical-align: top;
+}
+
+.sunat-text {
+    color: #000000 !important;
+}
+
+.sunat-box {
+    border: 2px solid #000000;
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    color: #000000 !important;
+}
+
+.sunat-box * {
+    color: #000000 !important;
+}
+
+.sunat-client-box {
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.sunat-client-box * {
+    color: #000000 !important;
+}
+

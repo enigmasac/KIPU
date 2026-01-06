@@ -107,4 +107,25 @@ trait HasSunatAttributes
 
         return "{$ruc_emisor}|{$tipo_doc}|{$serie}|{$correlativo}|{$igv}|{$total}|{$fecha}|{$tipo_doc_receptor}|{$num_doc_receptor}|{$hash}|";
     }
+
+    /**
+     * Obtener el QR como imagen base64 para PDF.
+     */
+    public function getSunatQrImageAttribute()
+    {
+        try {
+            $content = $this->sunat_qr_content;
+
+            $renderer = new \BaconQrCode\Renderer\ImageRenderer(
+                new \BaconQrCode\Renderer\RendererStyle\RendererStyle(150),
+                new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+            );
+            $writer = new \BaconQrCode\Writer($renderer);
+            $svg = $writer->writeString($content);
+
+            return 'data:image/svg+xml;base64,' . base64_encode($svg);
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
 }
