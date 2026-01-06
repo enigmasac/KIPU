@@ -6,8 +6,8 @@
             <td style="width: 40%; vertical-align: top; padding: 0 5px 0 0;">
                 {{-- Logo con contenedor de tamaño fijo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
-                    <div style="width: 250px; height: 120px; margin-bottom: 8px;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+                    <div style="width: 250px; height: 100px; margin-bottom: 8px; overflow: hidden;">
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" />
                     </div>
                 @endif
 
