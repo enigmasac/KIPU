@@ -36,7 +36,98 @@
         }
     }
 @endphp
-<div class="print-template" style="font-family: Arial, sans-serif !important;">
+<style type="text/css">
+    /* ESTILOS CRITICOS PARA PDF - FORZADOS */
+    * {
+        font-family: Arial, Helvetica, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    @page {
+        size: A4;
+        margin: 10mm 12mm;
+    }
+    
+    body {
+        font-size: 9px;
+        line-height: 1.3;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .print-template {
+        width: 100%;
+        padding: 0;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    /* Forzar colores en cabeceras */
+    .lines thead,
+    .lines thead tr,
+    .lines thead th {
+        background: #55588b !important;
+        background-color: #55588b !important;
+        color: #ffffff !important;
+    }
+    
+    .text-white {
+        color: #ffffff !important;
+    }
+    
+    .sunat-box {
+        border: 2px solid #000 !important;
+        border-radius: 8px;
+    }
+    
+    .sunat-text {
+        font-size: 9px;
+    }
+    
+    .sunat-client-box {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #fafafa;
+        padding: 4px 6px;
+    }
+    
+    .row { width: 100%; }
+    .row::after { content: ""; display: table; clear: both; }
+    .col-100 { width: 100%; }
+    .col-60 { width: 60%; float: left; }
+    .col-40 { width: 40%; float: right; }
+    .float-left { float: left; }
+    .float-right { float: right; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .clearfix::after { content: ""; display: table; clear: both; }
+    
+    .lines {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .lines th {
+        padding: 5px 3px;
+        font-weight: bold;
+        font-size: 8px;
+    }
+    
+    .lines td {
+        padding: 3px;
+        border-bottom: 1px solid #eee;
+        font-size: 8px;
+    }
+</style>
+<div class="print-template">
     {{-- SUNAT HEADER LAYOUT --}}
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
