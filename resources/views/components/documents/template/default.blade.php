@@ -20,11 +20,15 @@
         return $currency . ' ' . number_format((float)$amount, 2, ',', ' ');
     };
 
-    // 2. Resolver Logo manualmente a Base64
-    if (empty($logo)) {
-        $logoId = setting('company.logo');
-        if ($logoId) {
-            $media = Media::find($logoId);
+    // 2. Resolver Logo manualmente a Base64 (siguiendo logica de Template.php)
+    if (empty($logo) && $document) {
+        // Primero intentar logo del contacto, luego logo de empresa
+        $media_id = (!empty($document->contact->logo) && !empty($document->contact->logo->id)) 
+            ? $document->contact->logo->id 
+            : setting('company.logo');
+        
+        if ($media_id) {
+            $media = Media::find($media_id);
             if ($media) {
                 $path = $media->getDiskPath();
                 if (file_exists($path)) {
@@ -236,15 +240,15 @@
         <div class="row">
             <div class="col-100">
                 <table class="lines lines-radius-border" style="width: 100%; font-size: 9px;">
-                    <thead style="background-color:{{ $backgroundColor }} !important; -webkit-print-color-adjust: exact;">
-                        <tr>
-                            <th class="text-white" style="width: 8%; text-align: center; padding: 3px;">CANT</th>
-                            <th class="text-white" style="width: 8%; text-align: center; padding: 3px;">UM</th>
-                            <th class="text-white" style="width: 12%; text-align: center; padding: 3px;">CÓDIGO</th>
-                            <th class="text-white" style="width: 37%; text-align: left; padding: 3px;">DESCRIPCIÓN</th>
-                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">V UNIT</th>
-                            <th class="text-white" style="width: 11%; text-align: right; padding: 3px;">P UNIT</th>
-                            <th class="text-white" style="width: 13%; text-align: right; padding: 3px;">TOTAL</th>
+                    <thead style="background-color:#55588b;">
+                        <tr style="background-color:#55588b;">
+                            <th style="width: 8%; text-align: center; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">CANT</th>
+                            <th style="width: 8%; text-align: center; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">UM</th>
+                            <th style="width: 12%; text-align: center; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">CÓDIGO</th>
+                            <th style="width: 37%; text-align: left; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">DESCRIPCIÓN</th>
+                            <th style="width: 11%; text-align: right; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">V UNIT</th>
+                            <th style="width: 11%; text-align: right; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">P UNIT</th>
+                            <th style="width: 13%; text-align: right; padding: 5px; background-color:#55588b; color:#ffffff; font-weight:bold;">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody class="sunat-text">
