@@ -55,4 +55,56 @@ trait HasSunatAttributes
     {
         return $this->hasOne(\Modules\Sunat\Models\Emission::class, 'document_id')->orderBy('created_at', 'desc');
     }
+
+    /**
+     * Obtener el monto en letras para SUNAT.
+     */
+    public function getAmountInWordsAttribute()
+    {
+        $amount = (float) $this->amount;
+        $formatter = new \NumberFormatter('es_PE', \NumberFormatter::SPELLOUT);
+
+        $entire = floor($amount);
+        $fraction = round(($amount - $entire) * 100);
+
+        $currency = $this->currency_code === 'PEN' ? 'SOLES' : ($this->currency_code === 'USD' ? 'DOLARES' : $this->currency_code);
+
+        $words = strtoupper($formatter->format($entire));
+
+        return "SON {$words} CON " . str_pad($fraction, 2, '0', STR_PAD_LEFT) . "/100 {$currency}";
+    }
+
+    /**
+     * Obtener el contenido del QR para SUNAT.
+     */
+    public function getSunatQrContentAttribute()
+    {
+        $emission = $this->latest_sunat_emission;
+        $hash = $emission ? $emission->hash : '';
+
+        $ruc_emisor = setting('company.tax_number', '');
+        $tipo_doc = str_starts_with($this->document_number, 'F') ? '01' : '03'; // Factura o Boleta
+
+        if (strpos($this->document_number, '-') !== false) {
+            [$serie, $correlativo] = explode('-', $this->document_number);
+        } else {
+            $serie = substr($this->document_number, 0, 4);
+            $correlativo = substr($this->document_number, 4);
+        }
+
+        $igv = 0;
+        foreach ($this->totals as $total) {
+            if (str_contains(strtolower($total->title), 'igv') || str_contains(strtolower($total->title), 'impuesto')) {
+                $igv += $total->amount;
+            }
+        }
+
+        $total = $this->amount;
+        $fecha = \Carbon\Carbon::parse($this->issued_at)->format('Y-m-d');
+
+        $tipo_doc_receptor = strlen($this->contact_tax_number) === 11 ? '6' : (strlen($this->contact_tax_number) === 8 ? '1' : '0');
+        $num_doc_receptor = $this->contact_tax_number;
+
+        return "{$ruc_emisor}|{$tipo_doc}|{$serie}|{$correlativo}|{$igv}|{$total}|{$fecha}|{$tipo_doc_receptor}|{$num_doc_receptor}|{$hash}|";
+    }
 }

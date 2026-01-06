@@ -11,361 +11,138 @@
         </div>
     </div>
 
-    <div class="row border-bottom-1">
-        <div class="col-58">
-            <div class="text">
-                @stack('company_logo_input_start')
-                @if (! $hideCompanyLogo)
-                    @if (! empty($document->contact->logo) && ! empty($document->contact->logo->id))
-                        <img class="d-logo" src="{{ $logo }}" alt="{{ $document->contact_name }}"/>
-                    @else
-                        <img class="d-logo" src="{{ $logo }}" alt="{{ setting('company.name') }}"/>
-                    @endif
-                @endif
-                @stack('company_logo_input_end')
-            </div>
-        </div>
-
-        <div class="col-42">
-            <div class="text right-column">
-                @stack('company_details_start')
-                @if ($textDocumentSubheading)
-                    <p class="text-normal font-semibold">
-                        {{ $textDocumentSubheading }}
-                    </p>
-                @endif
-
-                @if (! $hideCompanyDetails)
-                
-                    @stack('company_name_input_start')
-                    @if (! $hideCompanyName)
-                        <p>{{ setting('company.name') }}</p>
-                    @endif
-                    @stack('company_name_input_end')
-
-                    
-                    @stack('company_address_input_start')
-                    @if (! $hideCompanyAddress)
-                        <p>
-                            {!! nl2br(setting('company.address')) !!}
-                            <br>
-                            @if (setting('company.city'))
-                                {{ setting('company.city') }},
-                            @endif
-                            @if (setting('company.state'))
-                                {{ setting('company.state') }}
-                            @endif
-                            @if (setting('company.zip_code'))
-                                {{ setting('company.zip_code') }}
-                            @endif
-                            @if (setting('company.country'))
-                                <br>
-                                {{ trans('countries.' . setting('company.country')) }}
-                            @endif
-                        </p>
-                    @endif
-                    @stack('company_address_input_end')
-
-                    @stack('company_tax_number_input_start')
-                    @if (! $hideCompanyTaxNumber)
-                        @if (setting('company.tax_number'))
-                            <p>
-                                {{ trans('general.tax_number') }}: {{ setting('company.tax_number') }}
-                            </p>
-                        @endif
-                    @endif
-                    @stack('company_tax_number_input_end')
-
-                    @stack('company_phone_input_start')
-                    @if (! $hideCompanyPhone)
-                        @if (setting('company.phone'))
-                            <p>
-                                {{ setting('company.phone') }}
-                            </p>
-                        @endif
-                    @endif
-                    @stack('company_phone_input_end')
-
-                    @stack('company_email_input_start')
-                    @if (! $hideCompanyEmail)
-                        <p class="small-text">{{ setting('company.email') }}</p>
-                    @endif
-                    @stack('company_email_input_end')
-                @endif
-                @stack('company_details_end')
-            </div>
-        </div>
-    </div>
-
-    <div class="row top-spacing">
+    {{-- SUNAT HEADER LAYOUT --}}
+    <div class="row" style="margin-bottom: 20px;">
+        {{-- COLUMNA IZQUIERDA: LOGO Y DATOS --}}
         <div class="col-60">
-            <div class="text p-index-left break-words">
-                @if (! $hideContactInfo)
-                    <p class="font-semibold mb-0">
-                        {{ trans($textContactInfo) }}
-                    </p>
+            {{-- LOGO --}}
+            @if (!$hideCompanyLogo && !empty($logo))
+                <div class="mb-3">
+                    <img class="d-logo" src="{{ $logo }}" alt="{{ setting('company.name') }}" style="max-height: 80px;" />
+                </div>
+            @endif
+
+            {{-- DATOS EMPRESA --}}
+            <div class="text">
+                <strong style="font-size: 1.1em;">{{ setting('company.name') }}</strong>
+                <br>
+                {!! nl2br(setting('company.address')) !!}
+                <br>
+                @if (setting('company.phone'))
+                    Teléfono: {{ setting('company.phone') }} <br>
                 @endif
-
-                @stack('name_input_start')
-                    @if (! $hideContactName)
-                        @if ($print)
-                            <p>
-                                {{ $document->contact_name }}
-                            </p>
-                        @else
-                            <x-link href="{{ route($showContactRoute, $document->contact_id) }}"
-                                override="class"
-                                class="py-1.5 mb-3 sm:mb-0 text-xs bg-transparent hover:bg-transparent font-medium leading-6"
-                            >
-                                <x-link.hover>
-                                    {{ $document->contact_name }}
-                                </x-link.hover>
-                            </x-link>
-                            <br>
-                        @endif
-                    @endif
-                @stack('name_input_end')
-
-                @stack('address_input_start')
-                    @if (! $hideContactAddress)
-                        <p>
-                            {!! nl2br($document->contact_address) !!}
-                            @if ($document->contact_location)
-                                <br>
-                                {!! $document->contact_location !!}
-                            @endif
-                        </p>
-                    @endif
-                @stack('address_input_end')
-
-                @stack('tax_number_input_start')
-                    @if (! $hideContactTaxNumber)
-                        @if ($document->contact_tax_number)
-                            <p>
-                                {{ trans('general.tax_number') }}:
-                                {{ $document->contact_tax_number }}
-                            </p>
-                        @endif
-                    @endif
-                @stack('tax_number_input_end')
-
-                @stack('phone_input_start')
-                    @if (! $hideContactPhone)
-                        @if ($document->contact_phone)
-                            <p>
-                                {{ $document->contact_phone }}
-                            </p>
-                        @endif
-                    @endif
-                @stack('phone_input_end')
-
-                @stack('email_start')
-                    @if (! $hideContactEmail)
-                        <p class="small-text">
-                            {{ $document->contact_email }}
-                        </p>
-                    @endif
-                @stack('email_input_end')
+                @if (setting('company.email'))
+                    Email: {{ setting('company.email') }}
+                @endif
             </div>
         </div>
 
+        {{-- COLUMNA DERECHA: CAJA RUC --}}
         <div class="col-40">
-            <div class="text p-index-right">
-                @stack('document_number_input_start')
-                    @if (! $hideDocumentNumber)
-                        <p class="mb-0">
-                            <span class="font-semibold spacing w-numbers">
-                                {{ trans($textDocumentNumber) }}:
-                            </span>
-
-                            <span class="float-right spacing">
-                                {{ $document->document_number }}
-                            </span>
-                        </p>
-                    @endif
-                @stack('document_number_input_end')
-
-                @stack('order_number_input_start')
-                    @if (! $hideOrderNumber)
-                        @if ($document->order_number)
-                            <p class="mb-0 clearfix">
-                                <span class="font-semibold spacing w-numbers">
-                                    {{ trans($textOrderNumber) }}:
-                                </span>
-
-                                <span class="float-right spacing order-max-width right-column">
-                                    {{ $document->order_number }}
-                                </span>
-                            </p>
-                        @endif
-                    @endif
-                @stack('order_number_input_end')
-
-                @stack('issued_at_input_start')
-                    @if (! $hideIssuedAt)
-                        <p class="mb-0">
-                            <span class="font-semibold spacing w-numbers">
-                                {{ trans($textIssuedAt) }}:
-                            </span>
-
-                            <span class="float-right spacing">
-                                @date($document->issued_at)
-                            </span>
-                        </p>
-                    @endif
-                @stack('issued_at_input_end')
-
-                @stack('due_at_input_start')
-                    @if (! $hideDueAt)
-                        <p class="mb-0">
-                            <span class="font-semibold spacing w-numbers">
-                                {{ trans($textDueAt) }}:
-                            </span>
-
-                            <span class="float-right spacing">
-                                @date($document->due_at)
-                            </span>
-                        </p>
-                    @endif
-                @stack('due_at_input_end')
-
-                @if (in_array($document->type, ['credit-note', 'debit-note']))
-                    {{-- APARTADO: COMPROBANTE AFECTADO --}}
-                    <div class="mt-4 border-t-1 pt-2">
-                        <p class="mb-0">
-                            <span class="font-semibold spacing w-numbers text-purple">Comprobante Afectado:</span>
-                            <span class="float-right spacing font-bold">
-                                {{ $document->invoice_number ?? 'No vinculado' }}
-                            </span>
-                        </p>
-                        @if($document->reason_description)
-                            <p class="mb-0">
-                                <span class="font-semibold spacing w-numbers">Motivo SUNAT:</span>
-                                <span class="float-right spacing text-xs text-right">
-                                    {{ $document->reason_description }}
-                                </span>
-                            </p>
-                        @endif
-                    </div>
-                @endif
-
-                @if ($document->type === 'invoice')
-                    @php
-                        $precision = currency($document->currency_code)->getPrecision();
-                        $net_total = $document->amount;
-                        
-                        if ($document->relationLoaded('credit_notes')) {
-                            $net_total -= $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount');
-                        }
-                        
-                        $is_annulled = ($document->status === 'cancelled') || (bccomp((string)$net_total, '0', $precision) <= 0);
-                        $real_due = $is_annulled ? 0 : $document->amount_due;
-                    @endphp
-
-                    {{-- INFORMACIÓN EXTRA SUNAT / PAGOS --}}
-                    <div class="mt-4 border-t-1 pt-2">
-                        <p class="mb-0">
-                            <span class="font-semibold spacing w-numbers">Estado:</span>
-                            <span class="float-right spacing uppercase font-bold {{ $is_annulled ? 'text-red-700' : ($document->status == 'paid' ? 'text-green-600' : 'text-red-500') }}">
-                                {{ $is_annulled ? 'ANULADA' : ($document->status == 'paid' ? 'PAGADA' : ($document->status == 'partial' ? 'PARCIAL' : 'PENDIENTE')) }}
-                            </span>
-                        </p>
-                        @if (!$is_annulled && $real_due > 0)
-                            <p class="mb-0">
-                                <span class="font-semibold spacing w-numbers">Saldo Pendiente:</span>
-                                <span class="float-right spacing text-red-500 font-bold">
-                                    <x-money :amount="$real_due" :currency="$document->currency_code" />
-                                </span>
-                            </p>
-                        @endif
-                    </div>
-                @endif
+            <div style="border: 2px solid #000; padding: 15px; text-align: center; border-radius: 8px;">
+                <h4 style="margin: 0; font-weight: bold;">R.U.C. {{ setting('company.tax_number') }}</h4>
+                <div style="background-color: #f0f0f0; margin: 10px -15px; padding: 5px 0;">
+                    <h4 style="margin: 0; font-weight: bold; text-transform: uppercase;">
+                        {{ $document->type == 'invoice' ? 'FACTURA ELECTRÓNICA' : ($document->type == 'credit-note' ? 'NOTA DE CRÉDITO' : 'BOLETA DE VENTA') }}
+                    </h4>
+                </div>
+                <h4 style="margin: 0; font-weight: bold;">{{ $document->document_number }}</h4>
             </div>
         </div>
     </div>
 
-    @if (! $hideItems)
+    {{-- CLIENTE INFO --}}
+    <div class="row" style="border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 20px;">
+        <div class="col-100">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 15%; font-weight: bold;">Cliente:</td>
+                    <td style="width: 50%;">{{ $document->contact_name }}</td>
+                    <td style="width: 15%; font-weight: bold;">Fecha Emisión:</td>
+                    <td style="width: 20%;">@date($document->issued_at)</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">RUC/DNI:</td>
+                    <td>{{ $document->contact_tax_number }}</td>
+                    <td style="font-weight: bold;">Moneda:</td>
+                    <td>{{ $document->currency_code }}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Dirección:</td>
+                    <td colspan="3">{{ $document->contact_address }}</td>
+                </tr>
+                @if($document->due_at)
+                    <tr>
+                        <td style="font-weight: bold;">Vencimiento:</td>
+                        <td>@date($document->due_at)</td>
+                        <td style="font-weight: bold;">Condición:</td>
+                        <td>{{ $document->status == 'paid' ? 'Contado' : 'Crédito' }}</td>
+                    </tr>
+                @endif
+                @if($document->reference)
+                    <tr>
+                        <td style="font-weight: bold;">O/C:</td>
+                        <td colspan="3">{{ $document->reference }}</td>
+                    </tr>
+                @endif
+            </table>
+        </div>
+    </div>
+
+    @if (!$hideItems)
         <div class="row">
             <div class="col-100">
                 <div class="text extra-spacing">
-                    <table class="lines lines-radius-border">
-                        <thead style="background-color:{{ $backgroundColor }} !important; -webkit-print-color-adjust: exact;">
+                    <table class="lines lines-radius-border" style="width: 100%;">
+                        <thead
+                            style="background-color:{{ $backgroundColor }} !important; -webkit-print-color-adjust: exact;">
                             <tr>
-                                @stack('name_th_start')
-                                    @if (! $hideItems || (! $hideName && ! $hideDescription))
-                                        <td class="item text font-semibold text-alignment-left text-left text-white">
-                                            <span>
-                                                {{ (trans_choice($textItems, 2) != $textItems) ? trans_choice($textItems, 2) : trans($textItems) }}
-                                            </span>
-                                        </td>
-                                    @endif
-                                @stack('name_th_end')
-
-                                @stack('quantity_th_start')
-                                    @if (! $hideQuantity)
-                                        <td class="quantity text font-semibold text-alignment-right text-right text-white">
-                                            <span>
-                                                {{ trans($textQuantity) }}
-                                            </span>
-                                        </td>
-                                    @endif
-                                @stack('quantity_th_end')
-
-                                @stack('price_th_start')
-                                    @if (! $hidePrice)
-                                        <td class="price text font-semibold text-alignment-right text-right text-white">
-                                            <span>
-                                                {{ trans($textPrice) }}
-                                            </span>
-                                        </td>
-                                    @endif
-                                @stack('price_th_end')
-
-                                @if (! $hideDiscount)
-                                    @if (in_array(setting('localisation.discount_location', 'total'), ['item', 'both']))
-                                        @stack('discount_td_start')
-                                            <td class="discount text font-semibold text-alignment-right text-right text-white">
-                                                <span>
-                                                    {{ trans('invoices.discount') }}
-                                                </span>
-                                            </td>
-                                        @stack('discount_td_end')
-                                    @endif
-                                @endif
-
-                                @stack('total_th_start')
-                                    @if (! $hideAmount)
-                                        <td class="total text font-semibold text-white text-alignment-right text-right">
-                                            <span>
-                                                {{ trans($textAmount) }}
-                                            </span>
-                                        </td>
-                                    @endif
-                                @stack('total_th_end')
+                                <th class="text-white" style="width: 10%; text-align: center;">CANT.</th>
+                                <th class="text-white" style="width: 10%; text-align: center;">UNIDAD</th>
+                                <th class="text-white" style="width: 15%; text-align: center;">CÓDIGO</th>
+                                <th class="text-white" style="width: 30%; text-align: left;">DESCRIPCIÓN</th>
+                                <th class="text-white" style="width: 10%; text-align: right;">V. UNIT</th>
+                                <th class="text-white" style="width: 10%; text-align: right;">P. UNIT</th>
+                                <th class="text-white" style="width: 15%; text-align: right;">TOTAL</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @if ($document->items->count())
                                 @foreach($document->items as $item)
-                                    <x-documents.template.line-item
-                                        type="{{ $type }}"
-                                        :item="$item"
-                                        :document="$document"
-                                        hide-items="{{ $hideItems }}"
-                                        hide-name="{{ $hideName }}"
-                                        hide-description="{{ $hideDescription }}"
-                                        hide-quantity="{{ $hideQuantity }}"
-                                        hide-price="{{ $hidePrice }}"
-                                        hide-discount="{{ $hideDiscount }}"
-                                        hide-amount="{{ $hideAmount }}"
-                                    />
+                                    @php
+                                        // Calculate Unit Value (Valor Unitario)
+                                        // V. Unit = Total (without tax) / Quantity
+                                        // We assume item->price includes tax depending on setting, but standard SUNAT invoice shows Base Imponible
+
+                                        $unit_value = $item->price; 
+                                    @endphp
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="text-align: center;">{{ $item->quantity }}</td>
+                                        <td style="text-align: center;">{{ $item->unit ?? 'NIU' }}</td>
+                                        <td style="text-align: center;">{{ $item->sku }}</td>
+                                        <td style="text-align: left;">
+                                            {{ $item->name }}
+                                            @if($item->description)
+                                                <br><small>{{ $item->description }}</small>
+                                            @endif
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <x-money :amount="$item->price" :currency="$document->currency_code" />
+                                        </td>
+                                        <td style="text-align: right;">
+                                            @php
+                                                $unit_price = $item->total / max($item->quantity, 1);
+                                            @endphp
+                                            <x-money :amount="$unit_price" :currency="$document->currency_code" />
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <x-money :amount="$item->total" :currency="$document->currency_code" />
+                                        </td>
+                                    </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="5" class="text text-center empty-items">
-                                        {{ trans('documents.empty_items') }}
-                                    </td>
+                                    <td colspan="6" class="text-center">{{ trans('documents.empty_items') }}</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -379,83 +156,97 @@
         <div class="col-60 float-left">
             <div class="text p-index-left break-words">
                 @stack('notes_input_start')
-                    @if ($document->notes)
-                        <p class="font-semibold">
-                            {{ trans_choice('general.notes', 2) }}
-                        </p>
+                @if ($document->notes)
+                    <p class="font-semibold">
+                        {{ trans_choice('general.notes', 2) }}
+                    </p>
 
-                        {!! nl2br($document->notes) !!}
-                    @endif
+                    {!! nl2br($document->notes) !!}
+                @endif
                 @stack('notes_input_end')
+
+                {{-- SON: CANTIDAD EN LETRAS --}}
+                <div style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                    <strong>SON:</strong> {{ $document->amount_in_words }}
+                </div>
             </div>
         </div>
 
         <div class="col-40 float-right text-right">
-            @foreach ($document->totals_sorted as $total)
-                @if ($total->code == 'item_discount')
-                    @continue
-                @endif
-
-                @if ($total->code != 'total')
-                    @stack($total->code . '_total_tr_start')
-                    <div class="text border-bottom-1 py-1">
-                        <span class="float-left font-semibold">
-                            {{ trans($total->title) }}:
-                        </span>
-
-                        <span>
-                            <x-money :amount="$total->amount" :currency="$document->currency_code" />
-                        </span>
-                    </div>
-                    @stack($total->code . '_total_tr_end')
-                @else
-                    @php
-                        $cn_sum = ($document->type === 'invoice' && $document->relationLoaded('credit_notes')) 
-                            ? $document->credit_notes->where('status', '!=', 'cancelled')->sum('amount') 
-                            : 0;
-                        $net_total = $document->amount - $cn_sum;
-                    @endphp
-
-                    @if ($cn_sum > 0)
-                        <div class="text border-bottom-1 py-1 text-red-500" style="color: #cc0000 !important;">
+            {{-- TOTALES SUNAT --}}
+            <div style="border: 1px solid #ccc; border-radius: 5px; overflow: hidden;">
+                @foreach ($document->totals_sorted as $total)
+                    @if ($total->code != 'total')
+                        <div class="text border-bottom-1 py-1 px-3">
                             <span class="float-left font-semibold">
-                                Nota de Crédito:
+                                {{ trans($total->title) }}:
                             </span>
                             <span>
-                                - <x-money :amount="$cn_sum" :currency="$document->currency_code" />
+                                <x-money :amount="$total->amount" :currency="$document->currency_code" />
+                            </span>
+                        </div>
+                    @else
+                        <div class="text border-bottom-1 py-1 px-3" style="background-color: #f0f0f0;">
+                            <span class="float-left font-bold">Importe Total:</span>
+                            <span class="font-bold">
+                                <x-money :amount="$total->amount" :currency="$document->currency_code" />
                             </span>
                         </div>
                     @endif
-
-                    @stack('grand_total_tr_start')
-                    <div class="text border-bottom-1 py-1">
-                        <span class="float-left font-semibold">
-                            {{ $cn_sum > 0 ? 'Importe Neto:' : 'Total:' }}
-                        </span>
-
-                        <span class="{{ $cn_sum > 0 ? 'font-bold' : '' }}">
-                            <x-money :amount="$net_total" :currency="$document->currency_code" />
-                        </span>
-                    </div>
-                    @stack('grand_total_tr_end')
-                @endif
-            @endforeach
+                @endforeach
+            </div>
         </div>
     </div>
 
-    @if (! $hideFooter)
-        @if ($document->footer)
-        @stack('footer_input_start')
-            <div class="row mt-4">
-                <div class="col-100 text-left">
-                    <div class="text">
-                        <span class="font-bold">
-                            {!! nl2br($document->footer) !!}
-                        </span>
+    {{-- FOOTER FINAL: QR Y BANCOS --}}
+    <div class="row mt-9" style="border-top: 1px solid #eee; pt-4">
+        <div class="col-25">
+            {{-- QR CODE --}}
+            @php
+                $qrUrl = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($document->sunat_qr_content);
+            @endphp
+            <div style="text-align: center;">
+                <img src="{{ $qrUrl }}" style="width: 120px; height: 120px;" alt="QR Code" />
+            </div>
+        </div>
+        <div class="col-35">
+            {{-- HASH Y OTROS --}}
+            <div style="font-size: 0.8em; margin-top: 20px;">
+                @if($document->latest_sunat_emission)
+                    <strong>Digest Value:</strong><br>
+                    <span style="word-break: break-all;">{{ $document->latest_sunat_emission->hash }}</span>
+                @endif
+                <br><br>
+                Representación impresa de la
+                {{ $document->type == 'invoice' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA' }}, consulte en
+                www.sunat.gob.pe
+            </div>
+        </div>
+        <div class="col-40">
+            {{-- BANCOS --}}
+            <div style="border: 1px solid #eee; padding: 10px; border-radius: 5px; background-color: #fafafa;">
+                <h5 style="margin: 0 0 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px;">Cuentas Bancarias
+                </h5>
+                @php
+                    $accounts = \App\Models\Banking\Account::where('enabled', 1)->get();
+                @endphp
+                @foreach($accounts as $acc)
+                    <div style="font-size: 0.85em; margin-bottom: 3px;">
+                        <strong>{{ $acc->bank_name ?: $acc->name }}:</strong><br>
+                        {{ $acc->currency_code }}: {{ $acc->number }}
                     </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    @if (!$hideFooter)
+        @if ($document->footer)
+            <div class="row mt-4">
+                <div class="col-100 text-center" style="font-size: 0.8em; color: #666;">
+                    {!! nl2br($document->footer) !!}
                 </div>
             </div>
-        @stack('footer_input_end')
         @endif
     @endif
 </div>
