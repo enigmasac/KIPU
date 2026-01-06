@@ -7,7 +7,7 @@
                 {{-- Logo --}}
                 @if (!$hideCompanyLogo && !empty($logo))
                     <div style="margin-bottom: 8px;">
-                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="display: block; max-width: 250px; max-height: 80px; width: auto; height: auto;" />
+                        <img src="{{ $logo }}" alt="{{ setting('company.name') }}" style="display: block; max-width: 200px; max-height: 80px; width: auto; height: auto;" />
                     </div>
                 @endif
 
