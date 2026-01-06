@@ -49,15 +49,43 @@
                         /* Logo preview styles - show full logo without cropping */
                         .logo-dropzone-container .dropzone {
                             height: auto !important;
-                            min-height: 120px;
+                            min-height: 150px !important;
+                            width: 100% !important;
+                            max-width: 350px !important;
                         }
+
+                        .logo-dropzone-container .dropzone.dz-max-files-reached {
+                            height: auto !important;
+                        }
+
+                        .logo-dropzone-container .dz-preview,
+                        .logo-dropzone-container .dz-preview-single,
+                        .logo-dropzone-container .dz-preview-cover {
+                            position: relative !important;
+                            width: 100% !important;
+                            height: auto !important;
+                            min-height: 100px !important;
+                            top: auto !important;
+                            left: auto !important;
+                            right: auto !important;
+                            bottom: auto !important;
+                        }
+
                         .logo-dropzone-container .dz-preview-img {
                             object-fit: contain !important;
+                            width: auto !important;
+                            max-width: 100% !important;
+                            height: auto !important;
+                            max-height: 150px !important;
                             background-color: #f9fafb;
+                            border-radius: 0.375rem;
                         }
-                        .logo-dropzone-container .dz-preview-cover,
-                        .logo-dropzone-container .dz-preview-single {
-                            position: relative !important;
+
+                        .logo-dropzone-container .dz-image-preview {
+                            display: flex !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                            padding: 10px !important;
                         }
                     </style>
                     <script>
