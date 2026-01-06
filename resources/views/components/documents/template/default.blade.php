@@ -149,48 +149,68 @@
         </div>
     </div>
 
-    {{-- FOOTER: QR Y BANCOS - COMPACTO --}}
+    {{-- FOOTER: QR Y CUENTAS (Lado a Lado) --}}
     <div class="row" style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
-        <div class="col-25">
-            <div style="text-align: center;">
-                @if($document->sunat_qr_image)
-                    <img src="{{ $document->sunat_qr_image }}" style="width: 80px; height: 80px;" alt="QR" />
-                @endif
+        {{-- QR CODE --}}
+        <div style="display: inline-block; width: 14%; vertical-align: top; text-align: center;">
+            @if($document->sunat_qr_image)
+                <img src="{{ $document->sunat_qr_image }}" style="width: 80px; height: 80px;" alt="QR" />
+            @endif
+        </div>
+
+        {{-- CUENTAS BANCARIAS --}}
+        <div style="display: inline-block; width: 85%; vertical-align: top; padding-left: 10px;">
+            <strong style="font-size: 8px; border-bottom: 1px solid #ddd; display: block; padding-bottom: 2px; margin-bottom: 3px; color: #000;">Cuentas Bancarias</strong>
+            <div class="sunat-text" style="font-size: 8px;">
+                @php
+                    $accounts = \App\Models\Banking\Account::where('enabled', 1)->get();
+                @endphp
+                
+                {{-- Grid de Cuentas --}}
+                <div style="width: 100%;">
+                    @forelse($accounts as $acc)
+                        <div style="display: inline-block; width: 48%; margin-bottom: 2px;">
+                            <strong>{{ $acc->bank_name ?: $acc->name }}:</strong> {{ $acc->currency_code }} {{ $acc->number }}
+                        </div>
+                    @empty
+                        @if(!setting('company.sunat_bn_account'))
+                            <div style="color: #999;">Sin cuentas configuradas</div>
+                        @endif
+                    @endforelse
+                    
+                    @if(setting('company.sunat_bn_account'))
+                        <div style="display: inline-block; width: 100%; margin-top: 2px; padding-top: 2px; border-top: 1px dotted #ccc;">
+                            <strong>Banco de la Nación (Detracciones):</strong> {{ setting('company.sunat_bn_account') }}
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
-        <div class="col-35">
-            <div class="sunat-text" style="font-size: 7px; line-height: 1.3;">
+    </div>
+
+    {{-- FOOTER FINAL: HASH, LINK, LEGAL, KIPU --}}
+    <div class="row" style="margin-top: 5px;">
+        <div class="col-100 text-center sunat-text" style="font-size: 7px; line-height: 1.3;">
+            {{-- Hash y Link Online --}}
+            <div style="margin-bottom: 3px;">
                 @if($document->latest_sunat_emission && $document->latest_sunat_emission->hash)
-                    <strong>Hash:</strong> {{ Str::limit($document->latest_sunat_emission->hash, 40) }}<br>
+                    <strong>Hash:</strong> {{ $document->latest_sunat_emission->hash }} &nbsp;|&nbsp; 
                 @endif
                 @php
                     $invoiceUrl = \Illuminate\Support\Facades\URL::signedRoute('signed.invoices.show', [$document->id]);
                 @endphp
-                <strong>Ver online:</strong> <span style="word-break: break-all;">{{ $invoiceUrl }}</span>
+                <strong>Ver documento online:</strong> <span style="word-break: break-all; color: blue;">{{ $invoiceUrl }}</span>
             </div>
-        </div>
-        <div class="col-40">
-            <div class="sunat-text" style="font-size: 8px; border: 1px solid #eee; padding: 5px; border-radius: 3px; background: #fafafa;">
-                <strong style="border-bottom: 1px solid #ddd; display: block; padding-bottom: 2px; margin-bottom: 3px;">Cuentas Bancarias</strong>
-                @php
-                    $accounts = \App\Models\Banking\Account::where('enabled', 1)->get();
-                @endphp
-                @forelse($accounts as $acc)
-                    <div style="margin-bottom: 2px;">
-                        <strong>{{ $acc->bank_name ?: $acc->name }}:</strong> {{ $acc->currency_code }} {{ $acc->number }}
-                    </div>
-                @empty
-                    @if(setting('company.sunat_bn_account'))
-                        <div>{{ setting('company.sunat_bn_account') }}</div>
-                    @else
-                        <div style="color: #999;">Sin cuentas configuradas</div>
-                    @endif
-                @endforelse
-                @if($accounts->count() && setting('company.sunat_bn_account'))
-                    <div style="margin-top: 3px; border-top: 1px solid #eee; padding-top: 2px;">
-                        <strong>BN Detracciones:</strong> {{ setting('company.sunat_bn_account') }}
-                    </div>
-                @endif
+
+            {{-- Textos Legales --}}
+            Representación impresa de {{ $doc_type_label }}, consulte en www.sunat.gob.pe<br>
+            @if ($document->footer)
+                {!! nl2br($document->footer) !!}<br>
+            @endif
+            
+            {{-- Branding --}}
+            <div style="margin-top: 2px; font-weight: bold; color: #555;">
+                Emitido con KIPU ERP | www.kipuerp.com
             </div>
         </div>
     </div>
