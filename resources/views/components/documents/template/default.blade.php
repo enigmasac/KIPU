@@ -159,12 +159,14 @@
             </div>
         </div>
         <div class="col-35">
-            <div class="sunat-text" style="font-size: 7px; line-height: 1.2;">
-                @if($document->latest_sunat_emission)
+            <div class="sunat-text" style="font-size: 7px; line-height: 1.3;">
+                @if($document->latest_sunat_emission && $document->latest_sunat_emission->hash)
                     <strong>Hash:</strong> {{ Str::limit($document->latest_sunat_emission->hash, 40) }}<br>
                 @endif
-                Representación impresa de {{ $doc_type_label }}.<br>
-                Consulte en www.sunat.gob.pe
+                @php
+                    $invoiceUrl = route('signed.invoices.show', ['invoice' => $document->id]);
+                @endphp
+                <strong>Ver online:</strong> <span style="word-break: break-all;">{{ $invoiceUrl }}</span>
             </div>
         </div>
         <div class="col-40">
@@ -193,11 +195,14 @@
         </div>
     </div>
 
-    @if (!$hideFooter && $document->footer)
-        <div class="row" style="margin-top: 5px;">
-            <div class="col-100 text-center sunat-text" style="font-size: 7px;">
-                {!! nl2br($document->footer) !!}
-            </div>
+    {{-- FOOTER LEGAL Y KIPU --}}
+    <div class="row" style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px;">
+        <div class="col-100 text-center sunat-text" style="font-size: 7px; line-height: 1.4;">
+            Representación impresa de {{ $doc_type_label }}. Puede verificarla en www.sunat.gob.pe<br>
+            @if ($document->footer)
+                {!! nl2br($document->footer) !!}<br>
+            @endif
+            <strong>Emitido con KIPU ERP</strong> | www.kipuerp.com
         </div>
-    @endif
+    </div>
 </div>
