@@ -1,3 +1,26 @@
+@php
+    // PARCHE DE EMERGENCIA: Inicialización manual de variables si la clase componente no carga
+    use App\Models\Common\Media;
+    
+    $document = $document ?? null; // Should be passed via attributes
+    
+    // 1. Inicializar Defaults
+    $hideCompanyLogo = $hideCompanyLogo ?? false;
+    $hideItems = $hideItems ?? false;
+    $backgroundColor = $backgroundColor ?? '#55588b'; // Default Akaunting Purple
+
+    // 2. Resolver Logo manualmente si no viene
+    if (empty($logo)) {
+        $logoId = setting('company.logo');
+        if ($logoId) {
+            $media = Media::find($logoId);
+            if ($media) {
+                // Usamos path absoluto file:// para PDF
+                $logo = 'file://' . $media->getDiskPath();
+            }
+        }
+    }
+@endphp
 <div class="print-template">
     {{-- SUNAT HEADER LAYOUT --}}
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
